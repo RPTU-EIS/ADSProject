@@ -1,5 +1,10 @@
-*.class
-*.log
+# CHISEL:
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
+generated-src/
+project/
+target/
+test_run_dir/
+
+*.v
+*.fir
+*.json

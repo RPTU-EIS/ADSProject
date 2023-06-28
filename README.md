@@ -78,11 +78,21 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-The project is split into three parts:
-<p align="right">(<a href="#top">back to top</a>)</p>
+Our lectures [Architecture of Digital Systems I](https://www.eit.uni-kl.de/eis/teaching/85-571) (EIT-EIS-571-V-4) and [Architecture of Digital Systems II](https://www.eit.uni-kl.de/eis/teaching/85-573) (EIT-EIS-573-V-4) deal with the basic principles of computer architecture for single CPU cores and SoCs. To deepen the students' knowledge on computer architecture and to give an impression on how a processor core is implemented, we offer this class project as an add-on to ADS I.
+
+### Chisel - a modern Hardware Description Language
+
+Chisel [^1] (<b>C</b>onstructing <b>H</b>ardware <b>i</b>n a <b>S</b>cala <b>E</b>mbedded <b>L</b>anguage) is an open-source HDL based on the programming language [Scala](https://en.wikipedia.org/wiki/Scala_(programming_language)). It is used to describe digital systems at the register-transfer level (RTL) and is therefore on the same abstraction level as VHDL and (System) Verilog.
+
+Advantages of Chisel over other HDLs are its object-oriented and functional programming characteristics inherited from Scala. This allows a modern coding style and better IDE support compared to VHDL or System Verilog. Additionally, while VHDL and Verilog were introduced as hardware simulators, Chisel is a hardware generator clearly intended to synthezise hardware designs. 
+
+In general, a Chisel design is a scala program describing how to build a specific Chisel graph that represents the hardware design. During compilation and generating of the Chisel graph, severel checks are done in order to guarantee a working circuit. The checks include syntax, invalid circuit designs, unconnected wires, etc. 
+
+Afterwards, the behaviour of the designed circuit can be simulated with [FIRRTL](https://www.chisel-lang.org/firrtl/) (Flexible Internal Representation for RTL). Setting inputs and analyzing the circuit's outputs in simulation can be used to test and validate the behaviour of the design. Unlike other hardware description languages, Chisel is doing checks on whether the design is synthesizable before the simulation is done, during the generation of the Chisel graph. The intermediate representation in FIRRTL can later be translated into System Verilog code which enables FPGA emulation of the circuit design and even the construction of ASICs.
+
+[^1]: Jonathan Bachrach, Huy Vo, Brian Richards, Yunsup Lee, Andrew Waterman, Rimas Avižienis, John Wawrzynek, and Krste Asanović. 2012. [Chisel: constructing hardware in a Scala embedded language](https://dl.acm.org/doi/abs/10.1145/2228360.2228584). In Proceedings of the 49th Annual Design Automation Conference (DAC '12). Association for Computing Machinery, New York, NY, USA, 1216–1225. 
 
 
-<p align="right">(<a href="#top">back to top</a>)</p>
 
 
 
@@ -149,22 +159,24 @@ Tobias Jauch - tobias.jauch@rptu.de
 
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
-Thank 
-
-
-You might find helpful links below.
-
-### Project Related Resources
-
-#### Given Task Links
-* [WSL](https://docs.microsoft.com/en-us/windows/wsl/install)
-* [GitHub CI Interactive Tutorial](https://lab.github.com/githubtraining/github-actions:-hello-world)
+Thanks
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-#### Additional Materials
+### Project Related Resources
+
+This repo only contains a "warm-up" to get to know the basic functionality of Chisel. If you want to learn more about Chisel, you can start with the material listed below:
+
+* [Official Chisel Website](https://www.chisel-lang.org/)
+* [Digital Design with Chisel](http://www.imm.dtu.dk/~masca/chisel-book.pdf), fourth edition, Martin Schoeberl, Kindle Direct Publishing (2019)
+* [Chisel Cheat Sheet](https://github.com/freechipsproject/chisel-cheatsheet/releases/latest/download/chisel_cheatsheet.pdf) (a good wrap-up of the base syntax and libraries)
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+### Additional Materials
 
 * [README Template](https://github.com/othneildrew/Best-README-Template)
+* [WSL](https://docs.microsoft.com/en-us/windows/wsl/install)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
