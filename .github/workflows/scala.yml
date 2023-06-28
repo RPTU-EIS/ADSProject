@@ -14,10 +14,6 @@ on:
 permissions:
   contents: read
   
-defaults:
-  run:
-    working-directory: 01_warm-up # The working directory path
-
 jobs:
   build:
 
@@ -36,3 +32,8 @@ jobs:
       # Optional: This step uploads information to the GitHub dependency graph and unblocking Dependabot alerts for the repository
     - name: Upload dependency graph
       uses: scalacenter/sbt-dependency-submission@ab086b50c947c9774b70f39fc7f6e20ca2706c91
+      
+      
+defaults:
+  run:
+    working-directory: 01_warm-up # The working directory path
