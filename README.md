@@ -76,11 +76,11 @@
 
 
 <!-- ABOUT THE PROJECT -->
-## About The Project
+## About the Project
 
 Our lectures [Architecture of Digital Systems I](https://www.eit.uni-kl.de/eis/teaching/85-571) (EIT-EIS-571-V-4) and [Architecture of Digital Systems II](https://www.eit.uni-kl.de/eis/teaching/85-573) (EIT-EIS-573-V-4) deal with the basic principles of computer architecture for single CPU cores and SoCs. To deepen the students' knowledge on computer architecture and to give an impression on how a processor core is implemented, we offer this class project as an add-on to ADS I.
 
-### Chisel - a modern Hardware Description Language
+### Chisel - A modern Hardware Description Language
 
 Chisel [^1] (<b>C</b>onstructing <b>H</b>ardware <b>i</b>n a <b>S</b>cala <b>E</b>mbedded <b>L</b>anguage) is an open-source HDL based on the programming language [Scala](https://en.wikipedia.org/wiki/Scala_(programming_language)). It is used to describe digital systems at the register-transfer level (RTL) and is therefore on the same abstraction level as VHDL and (System) Verilog.
 
