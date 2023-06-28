@@ -30,7 +30,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/TUK-EIS/ADSProject">
-    <img src="doc/figures/TUKL_LOGO_4C.png" alt="Logo" width="400" height="200">
+    <img src="doc/figures/RPTU_logo.png" alt="Logo" width="400" height="200">
   </a>
   <h3 align="center">
   ADS I Class Project
