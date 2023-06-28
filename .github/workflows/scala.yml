@@ -16,7 +16,7 @@ permissions:
   
 defaults:
   run:
-    working-directory: 01_warum-up # The working directory path
+    working-directory: 01_warm-up # The working directory path
 
 jobs:
   build:
