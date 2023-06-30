@@ -7,8 +7,6 @@
 *** Thanks again! Now go create something AMAZING! :D
 -->
 
-
-
 <!-- PROJECT SHIELDS -->
 <!--
 *** I'm using markdown "reference style" links for readability.
@@ -20,6 +18,8 @@
 [![Contributors][contributors-shield]][contributors-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
+[![CI Pipeline][ci-shield]][ci-url]
+
 <!--
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
@@ -44,14 +44,13 @@
     GitHub repository for Architecture of Digital Systems I Class Project
     <br />
     <br />
-    <a href="https://github.com/TUK-EIS/ADSProject/issues">Report Bug</a>
+    <a href="https://github.com/TUK-EIS/ADSProject/issues">Report Bug</a> 
   </p>
 </div>
 
 
 <br />
 <br />
-
 
 <!-- TABLE OF CONTENTS -->
 <details>
@@ -191,6 +190,8 @@ This repo only contains a "warm-up" to get to know the basic functionality of Ch
 [stars-url]: https://github.com/TUK-EIS/ADSProject/stargazers
 [issues-shield]: https://img.shields.io/github/issues/TUK-EIS/ADSProject.svg?style=for-the-badge
 [issues-url]: https://github.com/TUK-EIS/ADSProject/issues
+[ci-shield]: https://img.shields.io/github/issues/TUK-EIS/ADSProject.svg?style=for-the-badge
+[ci-url]: https://github.com/TUK-EIS/ADSProject/actions/workflows/scala.yml/badge.svg?event=push
 <!--
 [license-shield]: https://img.shields.io/github/license/othneildrew/Best-README-Template.svg?style=for-the-badge
 [license-url]: https://github.com/othneildrew/Best-README-Template/blob/master/LICENSE.txt
