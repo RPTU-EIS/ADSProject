@@ -73,15 +73,15 @@ class ShiftRegister extends Module{
 }
 
 /** 
-  * The design readserial is a serial receiver. It scans an input line (“serial bus”) named rxd for serial
-  * transmissions of data bytes. A transmission begins with a start bit ‘0’ followed by 8 data bits. The
-  * most significant bit (MSB) is transmitted first. There is no parity bit and no stop bit. After the last
-  * data bit has been transferred a new transmission (beginning with a start bit, ‘0’) may immediately
-  * follow. If there is no new transmission the bus line goes high (‘1’, this is considered the “idle” bus
-  * signal). In this case the receiver waits until the next transmission begins.
-  * The outputs of the design are an 8-bit parallel data signal and a valid signal. The valid signal goes
-  * high (‘1’) for one clock cycle after the last serial bit has been transmitted, indicating that a new data
-  * byte is ready.
+  * The last warm-up task deals with a more complex component. Your goal is to design a serial receiver.
+  * It scans an input line (“serial bus”) named rxd for serial transmissions of data bytes. A transmission 
+  * begins with a start bit ‘0’ followed by 8 data bits. The most significant bit (MSB) is transmitted first. 
+  * There is no parity bit and no stop bit. After the last data bit has been transferred a new transmission 
+  * (beginning with a start bit, ‘0’) may immediately follow. If there is no new transmission the bus line 
+  * goes high (‘1’, this is considered the “idle” bus signal). In this case the receiver waits until the next 
+  * transmission begins. The outputs of the design are an 8-bit parallel data signal and a valid signal. 
+  * The valid signal goes high (‘1’) for one clock cycle after the last serial bit has been transmitted, 
+  * indicating that a new data byte is ready.
   */
 class ReadSerial extends Module{
   
