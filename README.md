@@ -76,7 +76,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About the Project
 
-Our lectures [Architecture of Digital Systems I](https://www.eit.uni-kl.de/eis/teaching/85-571) (EIT-EIS-571-V-4) and [Architecture of Digital Systems II](https://www.eit.uni-kl.de/eis/teaching/85-573) (EIT-EIS-573-V-4) deal with the basic principles of computer architecture for single CPU cores and SoCs. To deepen the students' knowledge on computer architecture and to give an impression on how a processor core is implemented, we offer this class project as an add-on to ADS I.
+Our lectures, [Architecture of Digital Systems I](https://www.eit.uni-kl.de/eis/teaching/85-571) (EIT-EIS-571-V-4) and [Architecture of Digital Systems II](https://www.eit.uni-kl.de/eis/teaching/85-573) (EIT-EIS-573-V-4), deal with the basic principles of computer architecture for single CPU cores and SoCs. To deepen the students' knowledge of computer architecture and provide an impression of how a processor core is implemented, we offer this class project as an add-on to ADS I.
 
 ### Chisel - A modern Hardware Description Language
 
@@ -90,74 +90,89 @@ Afterwards, the behaviour of the designed circuit can be simulated with [FIRRTL]
 
 [^1]: Jonathan Bachrach, Huy Vo, Brian Richards, Yunsup Lee, Andrew Waterman, Rimas Avižienis, John Wawrzynek, and Krste Asanović. 2012. [Chisel: constructing hardware in a Scala embedded language](https://dl.acm.org/doi/abs/10.1145/2228360.2228584). In Proceedings of the 49th Annual Design Automation Conference (DAC '12). Association for Computing Machinery, New York, NY, USA, 1216–1225. 
 
-
-
-
-
-
-
-
 <!-- GETTING STARTED -->
 ## Getting Started
-Fork this repository and follow the instructions to complete the project.
-<!--
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
--->
+To take this course you should have a basic knowledge of digital circuits. Here at RPTU, undergrad courses teaching those topics are for example [https://www.eit.uni-kl.de/eis/teaching/85-314](Grundlagen der Informationsverarbeitung) and [https://www.kis.uni-kl.de/campus/all/event.asp?gguid=0xCC211C8A651847DE8DF5645FE17064D4&tguid=0x8054315EB9314F5A9AB49FBCBE1D5705](Labor Digitaltechnik I). If you got your Bachelor's degree from another university, you probably took similar courses.
+
 ### Prerequisites
-List of Ubuntu packages required to complete the project:
+In general, it is best to use a machine running Linux Ubuntu 20.04 or newer for this course. Other Linux distributions, Windows (with Linux subsystem) or macOS might be suitable as well, but if you want to use them you need to figure out how to install and build everything for yourself, if the provided instructions don't work.
 
+#### An Editor / IDE for Chisel
+We recommend using an integrated development environment (IDE) as an editor for coding. IDEs provide helpful functions like the integration of version control systems (e.g. Git) or syntax highlighting and other helpful features to keep a better overview over big code bases.  In case you already have worked with an IDE that you favor, feel free to use it. If this area is new to you, IntelliJ is a professional IDE that also provides support for Chisel. As a student, you can get a free license [https://www.jetbrains.com/community/education/#students](here).
 
-<!--
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
--->
+#### Java / Scala / sbt
+First of all, as Scala (the underlying programming language of Chisel) uses the java virtual machine (JVM), your workspace must be able to run java. Afterward, you need some more tools like the Scala compiler (scalac), the Scala build tool (sbt), and some others, to use all features of Chisel. Luckily, Scala provides all of these tools in one combined script. You just need to execute the following command in your terminal (on Linux) and the script will automatically check if you have some of the tools already present and install the missing ones.
+'''curl -fL https://github.com/coursier/launchers/raw/master/cs-x86_64-pc-linux.gz | gzip -d > cs && chmod +x cs && ./cs setup
+If you need more information, just check the official [https://docs.scala-lang.org/getting-started/index.html#install-scala-on-your-compute](scala install page).
+
+#### Git Version Control
+Git is the most common version control system in the world today. GitHub, on the other hand, is a cloud-based service that offers a platform for storing and managing projects using Git. Generally, working with GitHub is based on some simple principles. There are some very complex commands, too, but you usually won't need them in your everyday work with Git. To install Git, you can use the following command:
+'''$ sudo apt install git-all
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ### Installation
-1. Clone the repo
-   ```sh
-   git clone https://github.com/your_username_/ADSProject
-   ```
+1. Forking the Main Repository
+*Go to the GitHub page of the repository (\href{https://github.com/TUK-EIS/ADSProject/}{ADSProject}).
+*Click on the "Fork" button at the top-right corner of the page.
+*This will create a copy of the repository under your GitHub account.
+ 
+2. Cloning the Forked Repository
+*Open a terminal or command prompt on your local machine.
+*Navigate to the directory where you want to clone the repository.
+*Run the following command, replacing <your-account> with the name of your GitHub account:
+'''git clone https://github.com/<your-account>/ADSProject
+
+3. Creating a New Branch
+*Change into the cloned repository directory.
+*Run the following command to create a new branch that starts from the exact state as the main branch you're currently on.
+*Replace 'XXX' with your group number:
+'''git checkout -b <GroupXXX>
+
+4. Pushing the New Branch to your Fork on GitHub
+*Your forked repository on GitHub doesn't know about the new branch you created, yet.
+*Push the new branch to your repository with the following command:
+'''git push --set-upstream origin <your branch name>
+
+5. Pushing Changes to the New Branch}
+*Make the desired changes to the files in your local repository.
+*Run the following commands to stage and commit your changes:
+'''git add <file-you-want-to-add>  // "add ." will add all new files
+'''git commit -a -m "Your commit message"
+*Finally, push your changes to your repository using the following command:
+'''git push
+Whenever you want to add, commit and push changes to your repo, you can do this by repeating step 5. If multiple people work in the same directory, you should always pull the changes other people pushed recently to avoid conflicts (e.g., by editing the same region of the same file simultaneously). Getting the latest state is simply done by using \textit{git pull}:
+'''git pull
+That's it! You have now successfully forked a repository, cloned it, created a new branch, and pushed your changes to the new branch on GitHub.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-
-
-
 
 <!-- ROADMAP -->
 ## Roadmap
-#### Part-1
+#### Task 1: Warm-up
 - [ ] TODO
 - [X] DONE
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-#### Part-2
+#### Task 2:
 - [ ] TODO
 - [X] DONE
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-#### Part-3
+#### Task 3:
 - [ ] TODO
 - [X] DONE
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- CONTACT -->
 ## Contact
-
-<!-- Your Name - [@your_twitter](https://twitter.com/your_username) - email@example.com -->
 Tobias Jauch - tobias.jauch@rptu.de
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-
-
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
-Thanks
+Thanks to XY
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
