@@ -92,57 +92,75 @@ Afterwards, the behaviour of the designed circuit can be simulated with [FIRRTL]
 
 <!-- GETTING STARTED -->
 ## Getting Started
-To take this course you should have a basic knowledge of digital circuits. Here at RPTU, undergrad courses teaching those topics are for example [https://www.eit.uni-kl.de/eis/teaching/85-314](Grundlagen der Informationsverarbeitung) and [https://www.kis.uni-kl.de/campus/all/event.asp?gguid=0xCC211C8A651847DE8DF5645FE17064D4&tguid=0x8054315EB9314F5A9AB49FBCBE1D5705](Labor Digitaltechnik I). If you got your Bachelor's degree from another university, you probably took similar courses.
+To take this course you should have a basic knowledge of digital circuits. Here at RPTU, undergrad courses teaching those topics are for example [Grundlagen der Informationsverarbeitung](https://www.eit.uni-kl.de/eis/teaching/85-314) and [Labor Digitaltechnik I](https://www.kis.uni-kl.de/campus/all/event.asp?gguid=0xCC211C8A651847DE8DF5645FE17064D4&tguid=0x8054315EB9314F5A9AB49FBCBE1D5705). If you got your Bachelor's degree from another university, you probably took similar courses.
 
 ### Prerequisites
 In general, it is best to use a machine running Linux Ubuntu 20.04 or newer for this course. Other Linux distributions, Windows (with Linux subsystem) or macOS might be suitable as well, but if you want to use them you need to figure out how to install and build everything for yourself, if the provided instructions don't work.
 
 #### An Editor / IDE for Chisel
-We recommend using an integrated development environment (IDE) as an editor for coding. IDEs provide helpful functions like the integration of version control systems (e.g. Git) or syntax highlighting and other helpful features to keep a better overview over big code bases.  In case you already have worked with an IDE that you favor, feel free to use it. If this area is new to you, IntelliJ is a professional IDE that also provides support for Chisel. As a student, you can get a free license [https://www.jetbrains.com/community/education/#students](here).
+We recommend using an integrated development environment (IDE) as an editor for coding. IDEs provide helpful functions like the integration of version control systems (e.g. Git) or syntax highlighting and other helpful features to keep a better overview over big code bases.  In case you already have worked with an IDE that you favor, feel free to use it. If this area is new to you, IntelliJ is a professional IDE that also provides support for Chisel. As a student, you can get a free license [here](https://www.jetbrains.com/community/education/#students).
 
 #### Java / Scala / sbt
 First of all, as Scala (the underlying programming language of Chisel) uses the java virtual machine (JVM), your workspace must be able to run java. Afterward, you need some more tools like the Scala compiler (scalac), the Scala build tool (sbt), and some others, to use all features of Chisel. Luckily, Scala provides all of these tools in one combined script. You just need to execute the following command in your terminal (on Linux) and the script will automatically check if you have some of the tools already present and install the missing ones.
-'''curl -fL https://github.com/coursier/launchers/raw/master/cs-x86_64-pc-linux.gz | gzip -d > cs && chmod +x cs && ./cs setup
-If you need more information, just check the official [https://docs.scala-lang.org/getting-started/index.html#install-scala-on-your-compute](scala install page).
+```sh
+curl -fL https://github.com/coursier/launchers/raw/master/cs-x86_64-pc-linux.gz | gzip -d > cs && chmod +x cs && ./cs setup
+```
+If you need more information, just check the official [scala install page](https://docs.scala-lang.org/getting-started/index.html#install-scala-on-your-compute).
 
 #### Git Version Control
 Git is the most common version control system in the world today. GitHub, on the other hand, is a cloud-based service that offers a platform for storing and managing projects using Git. Generally, working with GitHub is based on some simple principles. There are some very complex commands, too, but you usually won't need them in your everyday work with Git. To install Git, you can use the following command:
-'''$ sudo apt install git-all
-
+```sh
+sudo apt install git-all
+```
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-### Installation
+### How to Git
+![Git](https://imgs.xkcd.com/comics/git.png)
+
 1. Forking the Main Repository
-*Go to the GitHub page of the repository (\href{https://github.com/TUK-EIS/ADSProject/}{ADSProject}).
-*Click on the "Fork" button at the top-right corner of the page.
-*This will create a copy of the repository under your GitHub account.
+* Click on the "Fork" button at the top-right corner of the page.
+* This will create a copy of the repository under your GitHub account.
  
 2. Cloning the Forked Repository
-*Open a terminal or command prompt on your local machine.
-*Navigate to the directory where you want to clone the repository.
-*Run the following command, replacing <your-account> with the name of your GitHub account:
-'''git clone https://github.com/<your-account>/ADSProject
+* Open a terminal or command prompt on your local machine.
+* Navigate to the directory where you want to clone the repository.
+* Run the following command, replacing <your-account> with the name of your GitHub account:
+```sh
+git clone https://github.com/<your-account>/ADSProject
+```
 
 3. Creating a New Branch
-*Change into the cloned repository directory.
-*Run the following command to create a new branch that starts from the exact state as the main branch you're currently on.
-*Replace 'XXX' with your group number:
-'''git checkout -b <GroupXXX>
+* Change into the cloned repository directory.
+* Run the following command to create a new branch that starts from the exact state as the main branch you're currently on.
+* Replace 'XXX' with your group number:
+```sh
+git checkout -b <GroupXXX>
+```
 
 4. Pushing the New Branch to your Fork on GitHub
-*Your forked repository on GitHub doesn't know about the new branch you created, yet.
-*Push the new branch to your repository with the following command:
+* Your forked repository on GitHub doesn't know about the new branch you created, yet.
+* Push the new branch to your repository with the following command:
 '''git push --set-upstream origin <your branch name>
+'''
 
 5. Pushing Changes to the New Branch}
-*Make the desired changes to the files in your local repository.
-*Run the following commands to stage and commit your changes:
-'''git add <file-you-want-to-add>  // "add ." will add all new files
-'''git commit -a -m "Your commit message"
-*Finally, push your changes to your repository using the following command:
-'''git push
+* Make the desired changes to the files in your local repository.
+* Run the following commands to stage and commit your changes:
+```sh
+git add <file-you-want-to-add>  // "add ." will add all new files
+```
+```sh
+git commit -a -m "Your commit message"
+```
+* Finally, push your changes to your repository using the following command:
+```sh
+git push
+```
 Whenever you want to add, commit and push changes to your repo, you can do this by repeating step 5. If multiple people work in the same directory, you should always pull the changes other people pushed recently to avoid conflicts (e.g., by editing the same region of the same file simultaneously). Getting the latest state is simply done by using \textit{git pull}:
-'''git pull
+```sh
+git pull
+```
+
 That's it! You have now successfully forked a repository, cloned it, created a new branch, and pushed your changes to the new branch on GitHub.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
