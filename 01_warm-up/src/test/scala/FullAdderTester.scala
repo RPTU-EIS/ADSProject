@@ -16,7 +16,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 class FullAdderTester extends AnyFlatSpec with ChiselScalatestTester {
 
   "FullAdder" should "work" in {
-    test(new FullAdder) { dut =>
+    test(new FullAdder).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
 
           /*dut.io.a.poke(...)
           dut.io.b.poke(...)

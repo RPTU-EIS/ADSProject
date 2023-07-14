@@ -15,7 +15,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 class ReadSerialTester extends AnyFlatSpec with ChiselScalatestTester {
 
   "ReadSerial" should "work" in {
-    test(new ReadSerial) { dut =>
+    test(new ReadSerial).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
 
         /*dut.io.rxd.poke(...)
           dut.clock.step(...)

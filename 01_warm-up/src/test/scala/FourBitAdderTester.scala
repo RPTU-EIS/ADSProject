@@ -28,7 +28,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 class FourBitAdderTester extends AnyFlatSpec with ChiselScalatestTester {
 
   "4-bit Adder" should "work" in {
-    test(new FourBitAdder) { dut =>
+    test(new FourBitAdder).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
 
         
       /*

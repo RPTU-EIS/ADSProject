@@ -15,7 +15,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 class BasicAdderTester extends AnyFlatSpec with ChiselScalatestTester {
 
   "BasicAdder" should "work" in {
-    test(new BasicAdder) { dut =>
+    test(new BasicAdder).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
           for(a <- 0 to 7){
             for(b <- 0 to 7){
 

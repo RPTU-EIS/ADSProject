@@ -16,7 +16,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 class HalfAdderTester extends AnyFlatSpec with ChiselScalatestTester {
 
   "HalfAdder" should "work" in {
-    test(new HalfAdder) { dut =>
+    test(new HalfAdder).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
           /*dut.io.a.poke(...)
           dut.io.b.poke(...)
           dut.io.c.expect(...)
