@@ -165,23 +165,6 @@ That's it! You have now successfully forked a repository, cloned it, created a n
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-<!-- ROADMAP -->
-## Roadmap
-#### Task 1: Warm-up
-- [ ] TODO
-- [X] DONE
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-#### Task 2:
-- [ ] TODO
-- [X] DONE
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-#### Task 3:
-- [ ] TODO
-- [X] DONE
-<p align="right">(<a href="#top">back to top</a>)</p>
-
 <!-- CONTACT -->
 ## Contact
 Tobias Jauch - tobias.jauch@rptu.de
@@ -189,25 +172,21 @@ Tobias Jauch - tobias.jauch@rptu.de
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- ACKNOWLEDGMENTS -->
-## Acknowledgments
+<!--## Acknowledgments
 Thanks to XY
 
-<p align="right">(<a href="#top">back to top</a>)</p>
+<p align="right">(<a href="#top">back to top</a>)</p>-->
 
-### Project Related Resources
+### Additional Materials
 
-This repo only contains a "warm-up" to get to know the basic functionality of Chisel. If you want to learn more about Chisel, you can start with the material listed below:
+If you want to learn more about Chisel, you can start with the material listed below:
 
 * [Official Chisel Website](https://www.chisel-lang.org/)
 * [Digital Design with Chisel](http://www.imm.dtu.dk/~masca/chisel-book.pdf), fourth edition, Martin Schoeberl, Kindle Direct Publishing (2019)
 * [Chisel Cheat Sheet](https://github.com/freechipsproject/chisel-cheatsheet/releases/latest/download/chisel_cheatsheet.pdf) (a good wrap-up of the base syntax and libraries)
 
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-### Additional Materials
-
-* [README Template](https://github.com/othneildrew/Best-README-Template)
-* [WSL](https://docs.microsoft.com/en-us/windows/wsl/install)
+If you want to set up a Linux subsystem on your Windows PC, you can find information on how to do so below:
+* [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
