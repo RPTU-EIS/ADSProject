@@ -182,6 +182,7 @@ Thanks to XY
 If you want to learn more about Chisel, you can start with the material listed below:
 
 * [Official Chisel Website](https://www.chisel-lang.org/)
+* [Getting Started with Chisel](https://inst.eecs.berkeley.edu/~cs250/sp16/handouts/chisel-getting-started.pdf)
 * [Digital Design with Chisel](http://www.imm.dtu.dk/~masca/chisel-book.pdf), fourth edition, Martin Schoeberl, Kindle Direct Publishing (2019)
 * [Chisel Cheat Sheet](https://github.com/freechipsproject/chisel-cheatsheet/releases/latest/download/chisel_cheatsheet.pdf) (a good wrap-up of the base syntax and libraries)
 
