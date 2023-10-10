@@ -1,0 +1,26 @@
+$date
+2023-07-18T12:33+0000
+$end
+$version
+0.2
+$end
+$comment
+
+$end
+$timescale 1ns  $end
+$scope module ReadSerial $end
+ $var wire 1 ! clock $end
+ $var wire 1 " reset $end
+$upscope $end
+$enddefinitions $end
+$dumpvars
+0"
+0!
+$end
+#0
+1"
+#1
+1!
+#6
+0!
+0"

@@ -1,6 +1,8 @@
+// ADS I Class Project
 // Chisel Introduction
-// Chair of Electronic Design Automation, TU Kaiserslautern
-// File created on 18/10/2022 by M.Sc. Tobias Jauch (@tojauch)
+//
+// Chair of Electronic Design Automation, RPTU in Kaiserslautern
+// File created on 18/10/2022 by Tobias Jauch (@tojauch)
 
 package adder
 
@@ -20,12 +22,12 @@ class HalfAdder extends Module{
   
   val io = IO(new Bundle {
     /* 
-     * ToDo: Define IO ports of a half adder as presented in the lecture
+     * TODO: Define IO ports of a half adder as presented in the lecture
      */
     })
 
   /* 
-   * ToDo: Describe output behaviour based on the input values
+   * TODO: Describe output behaviour based on the input values
    */
 
 }
@@ -45,18 +47,18 @@ class FullAdder extends Module{
 
   val io = IO(new Bundle {
     /* 
-     * ToDo: Define IO ports of a half adder as presented in the lecture
+     * TODO: Define IO ports of a half adder as presented in the lecture
      */
     })
 
 
   /* 
-   * ToDo: Instanciate the two half adders you want to use based on your HalfAdder class
+   * TODO: Instanciate the two half adders you want to use based on your HalfAdder class
    */
 
 
   /* 
-   * ToDo: Describe output behaviour based on the input values and the internal signals
+   * TODO: Describe output behaviour based on the input values and the internal signals
    */
 
 }
@@ -75,16 +77,16 @@ class FourBitAdder extends Module{
 
   val io = IO(new Bundle {
     /* 
-     * ToDo: Define IO ports of a 4-bit ripple-carry-adder as presented in the lecture
+     * TODO: Define IO ports of a 4-bit ripple-carry-adder as presented in the lecture
      */
     })
 
   /* 
-   * ToDo: Instanciate the two half adders you want to use based on your HalfAdder class
+   * TODO: Instanciate the two half adders you want to use based on your HalfAdder class
    */
 
 
   /* 
-   * ToDo: Describe output behaviour based on the input values and the internal 
+   * TODO: Describe output behaviour based on the input values and the internal 
    */
 }

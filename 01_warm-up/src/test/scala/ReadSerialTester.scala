@@ -1,6 +1,8 @@
+// ADS I Class Project
 // Chisel Introduction
-// Chair of Electronic Design Automation, TU Kaiserslautern
-// File created on 12/07/2023 by M.Sc. Tobias Jauch (@tojauch)
+//
+// Chair of Electronic Design Automation, RPTU in Kaiserslautern
+// File created on 18/10/2022 by Tobias Jauch (@tojauch)
 
 package readserial
 
@@ -18,12 +20,12 @@ class ReadSerialTester extends AnyFlatSpec with ChiselScalatestTester {
     test(new ReadSerial).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
 
         /*dut.io.rxd.poke(...)
-          dut.clock.step(...)
-          dut.io.valid.expect(...)
-          dut.io.data.expect("b11111111".U) 
-          ...
-
-          */
+         *dut.clock.step(...)
+         *dut.io.valid.expect(...)
+         *dut.io.data.expect("b11111111".U) 
+         *...
+         *TODO: Add your testcases here
+         */
         }
     } 
 }

@@ -1,6 +1,8 @@
+// ADS I Class Project
 // Chisel Introduction
-// Chair of Electronic Design Automation, TU Kaiserslautern
-// File created on 20/10/2022 by M.Sc. Tobias Jauch (@tojauch)
+//
+// Chair of Electronic Design Automation, RPTU in Kaiserslautern
+// File created on 18/10/2022 by Tobias Jauch (@tojauch)
 
 package readserial
 
@@ -13,18 +15,18 @@ class Controller extends Module{
   
   val io = IO(new Bundle {
     /* 
-     * ToDo: Define IO ports of a the component as stated in the documentation
+     * TODO: Define IO ports of a the component as stated in the documentation
      */
     })
 
   // internal variables
   /* 
-   * ToDo: Define internal variables (registers and/or wires), if needed
+   * TODO: Define internal variables (registers and/or wires), if needed
    */
 
   // state machine
   /* 
-   * ToDo: Describe functionality if the controller as a state machine
+   * TODO: Describe functionality if the controller as a state machine
    */
 
 }
@@ -35,18 +37,18 @@ class Counter extends Module{
   
   val io = IO(new Bundle {
     /* 
-     * ToDo: Define IO ports of a the component as stated in the documentation
+     * TODO: Define IO ports of a the component as stated in the documentation
      */
     })
 
   // internal variables
   /* 
-   * ToDo: Define internal variables (registers and/or wires), if needed
+   * TODO: Define internal variables (registers and/or wires), if needed
    */
 
   // state machine
   /* 
-   * ToDo: Describe functionality if the counter as a state machine
+   * TODO: Describe functionality if the counter as a state machine
    */
 
 
@@ -57,18 +59,18 @@ class ShiftRegister extends Module{
   
   val io = IO(new Bundle {
     /* 
-     * ToDo: Define IO ports of a the component as stated in the documentation
+     * TODO: Define IO ports of a the component as stated in the documentation
      */
     })
 
   // internal variables
   /* 
-   * ToDo: Define internal variables (registers and/or wires), if needed
+   * TODO: Define internal variables (registers and/or wires), if needed
    */
 
   // functionality
   /* 
-   * ToDo: Describe functionality if the shift register
+   * TODO: Describe functionality if the shift register
    */
 }
 
@@ -87,24 +89,24 @@ class ReadSerial extends Module{
   
   val io = IO(new Bundle {
     /* 
-     * ToDo: Define IO ports of a the component as stated in the documentation
+     * TODO: Define IO ports of a the component as stated in the documentation
      */
     })
 
 
   // instanciation of modules
   /* 
-   * ToDo: Instanciate the modules that you need
+   * TODO: Instanciate the modules that you need
    */
 
   // connections between modules
   /* 
-   * ToDo: connect the signals between the modules
+   * TODO: connect the signals between the modules
    */
 
   // global outputs  
   /* 
-   * ToDo: Describe output behaviour based on the input values and the internal signals
+   * TODO: Describe output behaviour based on the input values and the internal signals
    */
 
 }

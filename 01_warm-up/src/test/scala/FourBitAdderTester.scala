@@ -1,6 +1,8 @@
+// ADS I Class Project
 // Chisel Introduction
-// Chair of Electronic Design Automation, TU Kaiserslautern
-// File created on 18/10/2022 by M.Sc. Tobias Jauch (@tojauch)
+//
+// Chair of Electronic Design Automation, RPTU in Kaiserslautern
+// File created on 18/10/2022 by Tobias Jauch (@tojauch)
 
 package adder
 
@@ -32,7 +34,7 @@ class FourBitAdderTester extends AnyFlatSpec with ChiselScalatestTester {
 
         
       /*
-       * Insert your test cases
+       * TODO: Insert your test cases
        */  
         
       

@@ -1,6 +1,8 @@
+// ADS I Class Project
 // Chisel Introduction
-// Chair of Electronic Design Automation, TU Kaiserslautern
-// File created on 18/10/2022 by M.Sc. Tobias Jauch (@tojauch)
+//
+// Chair of Electronic Design Automation, RPTU in Kaiserslautern
+// File created on 18/10/2022 by Tobias Jauch (@tojauch)
 
 package adder
 
@@ -17,14 +19,15 @@ class HalfAdderTester extends AnyFlatSpec with ChiselScalatestTester {
 
   "HalfAdder" should "work" in {
     test(new HalfAdder).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+
           /*dut.io.a.poke(...)
-          dut.io.b.poke(...)
-          dut.io.c.expect(...)
-          dut.io.s.expect(...)
-
-	  ...
-
-	  */
+           *dut.io.b.poke(...)
+           *dut.io.ci.poke(...)
+           *dut.io.s.expect(...)
+           *dut.io.co.expect(...)
+           *...
+           *TODO: Insert your test cases
+           */
 
         }
     } 

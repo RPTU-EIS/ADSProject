@@ -1,6 +1,8 @@
+// ADS I Class Project
 // Chisel Introduction
-// Chair of Electronic Design Automation, TU Kaiserslautern
-// File created on 18/10/2022 by M.Sc. Tobias Jauch (@tojauch)
+//
+// Chair of Electronic Design Automation, RPTU in Kaiserslautern
+// File created on 18/10/2022 by Tobias Jauch (@tojauch)
 
 package basicadder
 
@@ -24,8 +26,3 @@ class BasicAdder extends Module{
   io.c := Reg
 
 }
-
-/*object Verilog_Gen extends App {
-  emitVerilog(new BasicAdder(), Array("--target-dir", "generated-src"))
-  //(new chisel3.stage.ChiselStage).emitVerilog(new Wrapper())
-}*/

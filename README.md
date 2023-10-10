@@ -167,7 +167,7 @@ That's it! You have now successfully forked a repository, cloned it, created a n
 
 <!-- CONTACT -->
 ## Contact
-Tobias Jauch - tobias.jauch@rptu.de
+Tobias Jauch - jauch@rptu.de
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
