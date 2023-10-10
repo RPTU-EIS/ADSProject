@@ -15,9 +15,12 @@
 *** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
-[![Contributors][contributors-shield]][contributors-url]
+<!--[![Contributors][contributors-shield]][contributors-url]
 [![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
+[![Issues][issues-shield]][issues-url]-->
+
+ ![CI Pipeline: 01 Warm-Up](https://github.com/RPTU-EIS/ADSProject/actions/workflows/01_warm-up.yml/badge.svg?event=push)
+ ![CI Pipeline: 02 Single-Cycle RISC-V Core](https://github.com/RPTU-EIS/ADSProject/actions/workflows/02_single-cycle_RISC-V_core.yml/badge.svg?event=push)
 
 <!--
 [![MIT License][license-shield]][license-url]
@@ -28,7 +31,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/TUK-EIS/ADSProject">
+  <a href="https://github.com/RPTU-EIS/ADSProject">
     <img src="doc/figures/RPTU_logo.png" alt="Logo" width="400" height="200">
   </a>
   <h3 align="center">
@@ -43,11 +46,9 @@
     GitHub repository for Architecture of Digital Systems I Class Project
     <br />
     <br />
-    <a href="https://github.com/TUK-EIS/ADSProject/issues">Report Bug</a> 
+    <a href="https://github.com/RPTU-EIS/ADSProject/issues">Report Bug</a> 
   </p>
 </div>
-
- ![CI Pipeline](https://github.com/TUK-EIS/ADSProject/actions/workflows/scala.yml/badge.svg?event=push)
 
 <br />
 
@@ -194,14 +195,14 @@ If you want to set up a Linux subsystem on your Windows PC, you can find informa
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/TUK-EIS/ADSProject.svg?style=for-the-badge
-[contributors-url]: https://github.com/TUK-EIS/ADSProject/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/TUK-EIS/ADSProject.svg?style=for-the-badge
-[forks-url]: https://github.com/TUK-EIS/ADSProject/network/members
-[stars-shield]: https://img.shields.io/github/stars/TUK-EIS/ADSProject.svg?style=for-the-badge
-[stars-url]: https://github.com/TUK-EIS/ADSProject/stargazers
-[issues-shield]: https://img.shields.io/github/issues/TUK-EIS/ADSProject.svg?style=for-the-badge
-[issues-url]: https://github.com/TUK-EIS/ADSProject/issues
+[contributors-shield]: https://img.shields.io/github/contributors/RPTU-EIS/ADSProject.svg?style=for-the-badge
+[contributors-url]: https://github.com/RPTU-EIS/ADSProject/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/RPTU-EIS/ADSProject.svg?style=for-the-badge
+[forks-url]: https://github.com/RPTU-EIS/ADSProject/network/members
+[stars-shield]: https://img.shields.io/github/stars/RPTU-EIS/ADSProject.svg?style=for-the-badge
+[stars-url]: https://github.com/RPTU-EIS/ADSProject/stargazers
+[issues-shield]: https://img.shields.io/github/issues/RPTU-EIS/ADSProject.svg?style=for-the-badge
+[issues-url]: https://github.com/RPTU-EIS/ADSProject/issues
 <!--
 [license-shield]: https://img.shields.io/github/license/othneildrew/Best-README-Template.svg?style=for-the-badge
 [license-url]: https://github.com/othneildrew/Best-README-Template/blob/master/LICENSE.txt
