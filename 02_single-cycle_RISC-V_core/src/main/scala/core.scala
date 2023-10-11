@@ -5,7 +5,7 @@
 // File created on 05/10/2023 by Tobias Jauch (@tojauch)
 
 /*
-The goal of tghis task is to implement a simple 32-bit RISC-V processor supporting parts of the RV32I instruction set architecture. This RV32I core is relatively basic 
+The goal of this task is to implement a simple 32-bit RISC-V processor supporting parts of the RV32I instruction set architecture. This RV32I core is relatively basic 
 and does not include features like memory operations, exception handling, or branch instructions. It is designed for a simplified subset of the RISC-V ISA. It mainly 
 focuses on ALU operations and basic instruction execution. 
 
