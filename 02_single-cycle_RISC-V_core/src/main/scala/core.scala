@@ -55,7 +55,7 @@ import chisel3.util.experimental.loadMemoryFromFile
 class RV32Icore (BinaryFile: String) extends Module {
   val io = IO(new Bundle {
    /*
-   * TODO: Add output signal "check_res" for etsting purposes
+   * TODO: Add output signal "check_res" for testing purposes
    */
   })
 
