@@ -19,9 +19,9 @@
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]-->
 
- ![CI Pipeline: 01 Warm-Up](https://github.com/RPTU-EIS/ADSProject_Master/actions/workflows/01_warm-up.yml/badge.svg?event=push)
- ![CI Pipeline: 02 Single-Cycle RISC-V Core](https://github.com/RPTU-EIS/ADSProject_Master/actions/workflows/02_single-cycle_RISC-V_core.yml/badge.svg?event=push)
- ![CI Pipeline: 03 Multi-Cycle RISC-V Core](https://github.com/RPTU-EIS/ADSProject_Master/actions/workflows/03_multi-cycle_RISC-V_core.yml/badge.svg?event=push)
+ ![CI Pipeline: 01 Warm-Up](https://github.com/RPTU-EIS/ADSProject/actions/workflows/01_warm-up.yml/badge.svg?event=push)
+ ![CI Pipeline: 02 Single-Cycle RISC-V Core](https://github.com/RPTU-EIS/ADSProject/actions/workflows/02_single-cycle_RISC-V_core.yml/badge.svg?event=push)
+ ![CI Pipeline: 03 Multi-Cycle RISC-V Core](https://github.com/RPTU-EIS/ADSProject/actions/workflows/03_multi-cycle_RISC-V_core.yml/badge.svg?event=push)
 
 <!--
 [![MIT License][license-shield]][license-url]
