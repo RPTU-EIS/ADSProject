@@ -67,8 +67,8 @@ class FullAdder extends Module{
   * 4-bit Adder class 
   * 
   * Your task is to implement a 4-bit ripple-carry-adder. The component's behaviour should 
-  * match the characteristics presented in the lecture.  Remember: An n - bit adder can be 
-  * build using one half adder and n - 1 full adders.
+  * match the characteristics presented in the lecture.  Remember: An n-bit adder can be 
+  * build using one half adder and n-1 full adders.
   * The inputs and the result should all be 4-bit wide, the carry-out only needs one bit.
   * There should be no delay between input and output signals, we want to have
   * a combinational behaviour of the component.
@@ -82,7 +82,7 @@ class FourBitAdder extends Module{
     })
 
   /* 
-   * TODO: Instanciate the two half adders you want to use based on your HalfAdder class
+   * TODO: Instanciate the full adders and one half adderbased on the previously defined classes
    */
 
 

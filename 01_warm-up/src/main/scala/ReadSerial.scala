@@ -104,7 +104,7 @@ class ReadSerial extends Module{
    * TODO: connect the signals between the modules
    */
 
-  // global outputs  
+  // global I/O 
   /* 
    * TODO: Describe output behaviour based on the input values and the internal signals
    */
