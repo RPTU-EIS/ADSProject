@@ -100,7 +100,7 @@ class regFileReadReq extends Bundle {
 }
 
 class regFileReadResp extends Bundle {
-    // what signals does a read responde need?
+    // what signals does a read response need?
 }
 
 class regFileWriteReq extends Bundle {
