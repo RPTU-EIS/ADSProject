@@ -55,7 +55,7 @@ Overall Execution Flow:
     4) The MEM stage does not perform any memory operations in this design.
     5) The result is written back to the register file in the WB stage.
 
-Note this design only represents a simplified RISC-V pipeline. The structure could be equipped with further instructions and extension to support a real RISC-V ISA.
+Note that this design only represents a simplified RISC-V pipeline. The structure could be equipped with further instructions and extension to support a real RISC-V ISA.
 */
 
 package core_tile
@@ -116,9 +116,9 @@ class regFile extends Module {
 })
   
   /* 
-    Initialize the register file as described in the task 
-    and handle the read and write requests
-  */
+    TODO: Initialize the register file as described in the task 
+          and handle the read and write requests
+   */
   
 }
 
@@ -133,12 +133,12 @@ class IF (BinaryFile: String) extends Module {
   })
 
   /* 
-    Initialize the IMEM as described in the task 
-    and handle the instruction fetch.
+    TODO: Initialize the IMEM as described in the task 
+          and handle the instruction fetch.
 
-    Update the program counter (no jumps or branches, 
-    next PC always reads next address from IMEM)
-  */
+    TODO: Update the program counter (no jumps or branches, 
+          next PC always reads next address from IMEM)
+   */
   
 }
 
@@ -153,8 +153,8 @@ class ID extends Module {
   })
 
   /* 
-    Any internal signals needed?
-  */
+   * TODO: Any internal signals needed?
+   */
 
   /* 
     Determine the uop based on the disassembled instruction
@@ -177,8 +177,8 @@ class ID extends Module {
   */
 
   /* 
-    Read the operands from teh register file
-  */
+   * TODO: Read the operands from teh register file
+   */
   
 }
 
@@ -192,7 +192,7 @@ class EX extends Module {
   })
 
   /* 
-    Perform the ALU operation based on the uopc
+    TODO: Perform the ALU operation based on the uopc
 
     when( uopc === isXYZ ){
       result := operandA + operandB
@@ -228,9 +228,9 @@ class WB extends Module {
   })
 
   /* 
-    Perform the write back to the register file and set 
-    the check_res signal for the testbench.
-  */
+   * TODO: Perform the write back to the register file and set 
+   *       the check_res signal for the testbench.
+   */
 
 }
 
@@ -245,10 +245,10 @@ class IFBarrier extends Module {
   })
 
   /* 
-    Define registers
-
-    Fill registers from the inputs and write regioster values to the outputs
-  */
+   * TODO: Define registers
+   *
+   * TODO: Fill registers from the inputs and write regioster values to the outputs
+   */
 
 }
 
@@ -263,10 +263,10 @@ class IDBarrier extends Module {
   })
 
   /* 
-    Define registers
-
-    Fill registers from the inputs and write regioster values to the outputs
-  */
+   * TODO: Define registers
+   *
+   * TODO: Fill registers from the inputs and write regioster values to the outputs
+   */
 
 }
 
@@ -281,9 +281,9 @@ class EXBarrier extends Module {
   })
 
   /* 
-    Define registers
-
-    Fill registers from the inputs and write regioster values to the outputs
+   * TODO: Define registers
+   *
+   * TODO: Fill registers from the inputs and write regioster values to the outputs
   */
 
 }
@@ -299,9 +299,9 @@ class MEMBarrier extends Module {
   })
 
   /* 
-    Define registers
-
-    Fill registers from the inputs and write regioster values to the outputs
+   * TODO: Define registers
+   *
+   * TODO: Fill registers from the inputs and write regioster values to the outputs
   */
 
 }
@@ -317,9 +317,9 @@ class WBBarrier extends Module {
   })
 
   /* 
-    Define registers
-
-    Fill registers from the inputs and write regioster values to the outputs
+   * TODO: Define registers
+   *
+   * TODO: Fill registers from the inputs and write regioster values to the outputs
   */
 
 }
@@ -333,25 +333,25 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
 
 
   /* 
-    Instantiate Barriers
-  */
+   * TODO: Instantiate Barriers
+   */
 
 
   /* 
-    Instantiate Pipeline Stages
-  */
+   * TODO: Instantiate Pipeline Stages
+   */
 
 
   /* 
-    Instantiate Register File
-  */
+   * TODO: Instantiate Register File
+   */
 
-  io.check_res := 0.U // necessary to make the empty design buildable
+  io.check_res := 0.U // necessary to make the empty design buildable TODO: change this
 
   /* 
-    Connect all IOs between the stages, barriers and register file.
-    Do not forget the global output of the core module
-  */
+   * TODO: Connect all IOs between the stages, barriers and register file.
+   * Do not forget the global output of the core module
+   */
 
 }
 

@@ -54,9 +54,7 @@ import chisel3.util.experimental.loadMemoryFromFile
 
 class RV32Icore (BinaryFile: String) extends Module {
   val io = IO(new Bundle {
-   /*
-   * TODO: Add output signal "check_res" for testing purposes
-   */
+    val check_res = Output(UInt(32.W))
   })
 
 
@@ -150,6 +148,7 @@ class RV32Icore (BinaryFile: String) extends Module {
   /*
    * TODO: Propagate "writeBackData" to the "check_res" output for testing purposes
    */
+  io.check_res := 0.U
 
   // Update PC
   // no jumps or branches, next PC always reads next address from IMEM

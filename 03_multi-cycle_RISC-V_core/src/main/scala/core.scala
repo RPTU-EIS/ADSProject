@@ -60,9 +60,7 @@ import chisel3.util.experimental.loadMemoryFromFile
 
 class MultiCycleRV32Icore (BinaryFile: String) extends Module {
   val io = IO(new Bundle {
-  /*
-   * TODO: Add output signal "check_res" for testing purposes
-   */
+    val check_res = Output(UInt(32.W))
   })
 
   val fetch :: decode :: execute :: memory :: writeback :: Nil = Enum(5) // Enum datatype to define the stages of the processor FSM
@@ -99,9 +97,8 @@ class MultiCycleRV32Icore (BinaryFile: String) extends Module {
    * TODO: Implement the registers and wires you need in the individual stages of the processor 
    */
 
-  /*
-   * TODO: Implement default case for IOs
-   */
+  // IOs need default case
+  io.check_res := "h_0000_0000".U
 
 
   // -----------------------------------------
@@ -144,14 +141,18 @@ class MultiCycleRV32Icore (BinaryFile: String) extends Module {
   {
 
   /*
-   * TODO: Implement Writeback stage
+   * TODO: Implement Writeback stag
+   */
+
+  /*
+   * TODO: Write result to output
    */
 
   }
     .otherwise 
   {
 
-     // default case (needed for RTL-generation but should never be reached     
+     // default case (needed for RTL-generation but should never be reached   
 
      assert(true.B, "Pipeline FSM must never be left")
 
