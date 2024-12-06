@@ -24,11 +24,17 @@ class HalfAdder extends Module{
     /* 
      * TODO: Define IO ports of a half adder as presented in the lecture
      */
+        val a = Input(UInt(1.W))
+        val b = Input(UInt(1.W))
+        val s = Output(UInt(1.W))
+        val co = Output(UInt(1.W))
     })
 
   /* 
    * TODO: Describe output behaviour based on the input values
    */
+  io.s := io.a ^ io.b
+  io.co := io.a & io.b
 
 }
 
@@ -49,17 +55,32 @@ class FullAdder extends Module{
     /* 
      * TODO: Define IO ports of a half adder as presented in the lecture
      */
+    val a = Input(UInt(1.W))
+    val b = Input(UInt(1.W))
+    val ci = Input(UInt(1.W))
+    val s = Output(UInt(1.W))
+    val co = Output(UInt(1.W))
     })
 
 
   /* 
    * TODO: Instanciate the two half adders you want to use based on your HalfAdder class
    */
+  val half_adder_0 = Module(new HalfAdder)
+  val half_adder_1 = Module(new HalfAdder)
 
 
   /* 
    * TODO: Describe output behaviour based on the input values and the internal signals
    */
+  half_adder_0.io.a := io.a
+  half_adder_0.io.b := io.b
+
+  half_adder_1.io.a := half_adder_0.io.s
+  half_adder_1.io.b := io.ci
+  
+  io.s := half_adder_1.io.s
+  io.co := half_adder_0.io.co | half_adder_1.io.co
 
 }
 
@@ -79,14 +100,40 @@ class FourBitAdder extends Module{
     /* 
      * TODO: Define IO ports of a 4-bit ripple-carry-adder as presented in the lecture
      */
+        val a = Input(UInt(4.W))
+        val b = Input(UInt(4.W))
+        val s = Output(UInt(4.W))
+        val co = Output(UInt(1.W))
     })
 
   /* 
    * TODO: Instanciate the full adders and one half adderbased on the previously defined classes
    */
+    val halfAdder0 = Module(new HalfAdder)
+    val fullAdder1 = Module(new FullAdder)
+    val fullAdder2 = Module(new FullAdder)
+    val fullAdder3 = Module(new FullAdder)
 
 
   /* 
    * TODO: Describe output behaviour based on the input values and the internal 
    */
+  halfAdder0.io.a := io.a(0)
+  halfAdder0.io.b := io.b(0)
+
+  fullAdder1.io.a := io.a(1)
+  fullAdder1.io.b := io.b(1)
+  fullAdder1.io.ci := halfAdder0.io.co
+
+  fullAdder2.io.a := io.a(2)
+  fullAdder2.io.b := io.b(2)
+  fullAdder2.io.ci := fullAdder1.io.co
+
+  fullAdder3.io.a := io.a(3)
+  fullAdder3.io.b := io.b(3)
+  fullAdder3.io.ci := fullAdder2.io.co
+
+  io.s := Cat(fullAdder3.io.s, fullAdder2.io.s, fullAdder1.io.s, halfAdder0.io.s)
+  io.co := fullAdder3.io.co
+
 }
