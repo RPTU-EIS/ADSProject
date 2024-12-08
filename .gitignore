@@ -9,3 +9,5 @@ test_run_dir/
 *.fir
 *.json
 *.vcd
+*.metals
+*.bloop
