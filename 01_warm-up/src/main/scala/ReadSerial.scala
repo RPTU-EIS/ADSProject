@@ -8,16 +8,17 @@ package readserial
 
 import chisel3._
 import chisel3.util._
+import chisel3.experimental.ChiselEnum
 
 object ReadSerial {
   object State extends ChiselEnum {
-    val idle, receiving, done, Reset = Value
+    val idle, receiving, done = Value
   }
 }
 /** controller class */
 class Controller extends Module{
-  import State.State
-  import State.State._
+  import ReadSerial.State
+  import ReadSerial.State._
   val io = IO(new Bundle {
     /*
      * TODO: Define IO ports of a the component as stated in the documentation
@@ -36,7 +37,7 @@ class Controller extends Module{
   io.cnt_en := false.B
   io.valid := false.B
   val state = RegInit(idle)
-
+  io.state := state
 
   // state machine
   /* 
@@ -44,7 +45,7 @@ class Controller extends Module{
    */
   switch(state) {
     is(idle) {
-      when(io.rxd === 0) { // Detect start bit
+      when(io.rxd === 0.U) { // Detect start bit
         state := receiving
         io.cnt_en := true.B
       }
@@ -81,11 +82,9 @@ class Counter extends Module{
    * TODO: Define internal variables (registers and/or wires), if needed
    */
   val count = RegInit(0.U(3.W)) // 3-bit counter (0 to 7)
+  val d_count = RegInit(false.B)
 
-  io.done := false.B
-
-
-
+  io.done := d_count
 
   // state machine
   /* 
@@ -94,8 +93,9 @@ class Counter extends Module{
 
   when(io.enable) {
     count := count + 1.U
+    d_count := false.B
     when(count === 7.U) {
-      io.done := true.B
+      d_count := true.B
       count := 0.U // Reset after completion
     }
   }
@@ -128,9 +128,7 @@ class ShiftRegister extends Module{
   /* 
    * TODO: Describe functionality if the shift register
    */
-  when(1) {
     reg := Cat(reg(6, 0), io.in) // Shift left and insert new bit
-  }
 }
 
 /** 
@@ -150,7 +148,7 @@ class ReadSerial extends Module{
     /* 
      * TODO: Define IO ports of a the component as stated in the documentation
      */
-    val rxd = Input(Bool()) // Serial input
+    val rxd = Input(UInt(1.W)) // Serial input
     val data = Output(UInt(8.W)) // Parallel data output
     val valid = Output(Bool()) // Valid signa
     })
@@ -171,7 +169,7 @@ class ReadSerial extends Module{
 
   // Connect controller to counter
   controller.io.rxd   := io.rxd
-  counter.io.enable   := controller.io.enableCounter
+  counter.io.enable   := controller.io.cnt_en
 
   // Connect counter to controller
   controller.io.cnt_s := counter.io.done
