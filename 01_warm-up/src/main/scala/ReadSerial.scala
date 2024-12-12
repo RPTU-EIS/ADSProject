@@ -45,12 +45,14 @@ class Controller extends Module{
    */
   switch(state) {
     is(idle) {
+      io.valid := false.B
       when(io.rxd === 0.U) { // Detect start bit
         state := receiving
         io.cnt_en := true.B
       }
     }
     is(receiving) {
+      io.valid := false.B
       io.cnt_en := true.B
       when(io.cnt_s === true.B){
         state := done
@@ -58,8 +60,13 @@ class Controller extends Module{
       }
     }
     is(done) {
-      io.valid := true.B
-      state := idle
+      when(io.rxd === 0.U){
+        state := receiving
+        io.cnt_en := true.B
+      } .otherwise{
+       state := idle
+      }
+      io.valid := true.B 
     }
   }
 

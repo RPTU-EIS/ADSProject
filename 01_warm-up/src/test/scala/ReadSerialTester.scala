@@ -91,6 +91,29 @@ class ReadSerialTester extends AnyFlatSpec with ChiselScalatestTester {
 
       dut.io.valid.expect(true.B)
       dut.io.data.expect(255.U) //1111 1111
+ 
+      dut.io.rxd.poke(0.U)
+      dut.clock.step(1)
+
+      dut.io.rxd.poke(1.U)
+      dut.clock.step(1)
+      dut.io.rxd.poke(1.U)
+      dut.clock.step(1)
+      dut.io.rxd.poke(1.U)
+      dut.clock.step(1)
+      dut.io.rxd.poke(1.U)
+      dut.clock.step(1)
+      dut.io.rxd.poke(1.U)
+      dut.clock.step(1)
+      dut.io.rxd.poke(1.U)
+      dut.clock.step(1)
+      dut.io.rxd.poke(1.U)
+      dut.clock.step(1)
+      dut.io.rxd.poke(0.U)
+      dut.clock.step(1)
+
+      dut.io.valid.expect(true.B)
+      dut.io.data.expect(254.U) //1111 1111
         }
     } 
 }
