@@ -15,31 +15,31 @@ object ReadSerial {
     val idle, receiving, done = Value
   }
 }
+
 /** controller class */
 class Controller extends Module{
+
   import ReadSerial.State
   import ReadSerial.State._
   val io = IO(new Bundle {
     /*
      * TODO: Define IO ports of a the component as stated in the documentation
      */
-    val rxd = Input(UInt(1.W))// Serial input
+    val rxd = Input(UInt(1.W))  // Serial input
     val cnt_en = Output(Bool()) // Enable counter when receiving
     val cnt_s = Input(Bool())
-    val valid = Output(Bool()) // Signal when data is valid
+    val valid = Output(Bool())  // Signal when data is valid
     val state = Output(State())
     })
 
-  // internal variables
   /* 
    * TODO: Define internal variables (registers and/or wires), if needed
    */
   io.cnt_en := false.B
-  io.valid := false.B
-  val state = RegInit(idle)
-  io.state := state
+  io.valid  := false.B
+  val state  = RegInit(idle)
+  io.state  := state
 
-  // state machine
   /* 
    * TODO: Describe functionality if the controller as a state machine
    */
@@ -72,7 +72,6 @@ class Controller extends Module{
 
 }
 
-
 /** counter class */
 class Counter extends Module{
   
@@ -81,10 +80,9 @@ class Counter extends Module{
      * TODO: Define IO ports of a the component as stated in the documentation
      */
     val enable = Input(Bool()) // Enable counting
-    val done = Output(Bool()) // Signal when counting is complete
+    val done = Output(Bool())  // Signal when counting is complete
     })
 
-  // internal variables
   /* 
    * TODO: Define internal variables (registers and/or wires), if needed
    */
@@ -93,21 +91,17 @@ class Counter extends Module{
 
   io.done := d_count
 
-  // state machine
   /* 
    * TODO: Describe functionality if the counter as a state machine
    */
-
   when(io.enable) {
     count := count + 1.U
     d_count := false.B
     when(count === 7.U) {
       d_count := true.B
-      count := 0.U // Reset after completion
+      count := 0.U  // Reset after completion
     }
   }
-
-
 
 }
 
@@ -120,22 +114,19 @@ class ShiftRegister extends Module{
      */
     val in = Input(Bool()) // Serial input
     val out = Output(UInt(8.W)) // Parallel output (8-bit data)
-
-
     })
 
-  // internal variables
   /* 
    * TODO: Define internal variables (registers and/or wires), if needed
    */
   val reg = RegInit(0.U(8.W)) // 8-bit shift register
 
   io.out := reg
-  // functionality
   /* 
    * TODO: Describe functionality if the shift register
    */
-    reg := Cat(reg(6, 0), io.in) // Shift left and insert new bit
+  reg := Cat(reg(6, 0), io.in) // Shift left and insert new bit
+
 }
 
 /** 
@@ -155,13 +146,12 @@ class ReadSerial extends Module{
     /* 
      * TODO: Define IO ports of a the component as stated in the documentation
      */
-    val rxd = Input(UInt(1.W)) // Serial input
+    val rxd = Input(UInt(1.W))   // Serial input
     val data = Output(UInt(8.W)) // Parallel data output
-    val valid = Output(Bool()) // Valid signa
+    val valid = Output(Bool())   // Valid signa
     })
 
 
-  // instanciation of modules
   /* 
    * TODO: Instanciate the modules that you need
    */
@@ -169,7 +159,6 @@ class ReadSerial extends Module{
   val counter = Module(new Counter)
   val shiftRegister = Module(new ShiftRegister)
 
-  // connections between modules
   /* 
    * TODO: connect the signals between the modules
    */
@@ -184,12 +173,10 @@ class ReadSerial extends Module{
   // Connect shift register
   shiftRegister.io.in := io.rxd
 
-  // global I/O 
   /* 
    * TODO: Describe output behaviour based on the input values and the internal signals
    */
-  // Output assignments
-  io.data := shiftRegister.io.out
+  io.data  := shiftRegister.io.out
   io.valid := controller.io.valid
 
 }
