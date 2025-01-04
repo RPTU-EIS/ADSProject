@@ -209,4 +209,5 @@ class RV32Icore (BinaryFile: String) extends Module {
    * TODO: Increment PC
    */
   PC := PC + 4.U
+
 }
