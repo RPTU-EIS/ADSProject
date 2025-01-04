@@ -7,9 +7,9 @@ name: 02_single-cycle_RISC-V_core
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "Group6" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "Group6" ]
 
 permissions:
   contents: read
