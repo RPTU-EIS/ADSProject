@@ -78,6 +78,7 @@ class RV32Icore (BinaryFile: String) extends Module {
   /*
    * TODO: hard-wire register x0 to zero
    */
+  // This is done at ALU operand definition step
 
   // -----------------------------------------
   // Fetch
@@ -209,5 +210,9 @@ class RV32Icore (BinaryFile: String) extends Module {
    * TODO: Increment PC
    */
   PC := PC + 4.U
+
+  // assertions
+  assert(!(rs1 === 0.U) || (operandA === 0.U), "Read RegFile(0) to operandA must show zero" )
+  assert(!(RTypeOp) || (!(rs2 === 0.U) || (operandB === 0.U)), "RType instructions: Read RegFile(0) to operandB must show zero" )
 
 }

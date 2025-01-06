@@ -19,11 +19,11 @@
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]-->
 
- ![CI Pipeline: 01 Warm-Up](https://github.com/RPTU-EIS/ADSProject/actions/workflows/01_warm-up.yml/badge.svg?event=push)
- ![CI Pipeline: 02 Single-Cycle RISC-V Core](https://github.com/RPTU-EIS/ADSProject/actions/workflows/02_single-cycle_RISC-V_core.yml/badge.svg?event=push)
- ![CI Pipeline: 03 Multi-Cycle RISC-V Core](https://github.com/RPTU-EIS/ADSProject/actions/workflows/03_multi-cycle_RISC-V_core.yml/badge.svg?event=push)
- ![CI Pipeline: 04 Pipelined RISC-V Core](https://github.com/RPTU-EIS/ADSProject/actions/workflows/04_pipelined_RISC-V_core.yml/badge.svg?event=push)
- ![CI Pipeline: 05 Pipelined RISC-V Core with Forwarding Unit](https://github.com/RPTU-EIS/ADSProject/actions/workflows/05_pipelined_RISC-V_core_hazardDetection.yml/badge.svg?event=push)
+ ![CI Pipeline: 01 Warm-Up](https://github.com/tharinduSamare/ADS1_Project_RPTU/actions/workflows/01_warm-up.yml/badge.svg?event=push)
+ ![CI Pipeline: 02 Single-Cycle RISC-V Core](https://github.com/tharinduSamare/ADS1_Project_RPTU/actions/workflows/02_single-cycle_RISC-V_core.yml/badge.svg?event=push)
+ ![CI Pipeline: 03 Multi-Cycle RISC-V Core](https://github.com/tharinduSamare/ADS1_Project_RPTU/actions/workflows/03_multi-cycle_RISC-V_core.yml/badge.svg?event=push)
+ ![CI Pipeline: 04 Pipelined RISC-V Core](https://github.com/tharinduSamare/ADS1_Project_RPTU/actions/workflows/04_pipelined_RISC-V_core.yml/badge.svg?event=push)
+ ![CI Pipeline: 05 Pipelined RISC-V Core with Forwarding Unit](https://github.com/tharinduSamare/ADS1_Project_RPTU/actions/workflows/05_pipelined_RISC-V_core_hazardDetection.yml/badge.svg?event=push)
 
 <!--
 [![MIT License][license-shield]][license-url]
