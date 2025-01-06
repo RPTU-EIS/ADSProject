@@ -112,7 +112,7 @@ class RV32Icore (BinaryFile: String) extends Module {
   val isSUB   = (opcode === "b0110011".U && funct3 === "b000".U && funct7 === "b0100000".U) // Substract
   val isSLL   = (opcode === "b0110011".U && funct3 === "b001".U && funct7 === "b0000000".U) // Shift left logical
   val isSLT   = (opcode === "b0110011".U && funct3 === "b010".U && funct7 === "b0000000".U) // Set less than (signed)
-  val isSLTU  = (opcode === "b0110011".U && funct3 === "b000".U && funct7 === "b0000000".U) // Set less than (unsigned)
+  val isSLTU  = (opcode === "b0110011".U && funct3 === "b011".U && funct7 === "b0000000".U) // Set less than (unsigned)
   val isXOR   = (opcode === "b0110011".U && funct3 === "b100".U && funct7 === "b0000000".U) // Bitwise XOR
   val isSRL   = (opcode === "b0110011".U && funct3 === "b101".U && funct7 === "b0000000".U) // Shift right logical
   val isSRA   = (opcode === "b0110011".U && funct3 === "b101".U && funct7 === "b0100000".U) // Shift right arithmetic
