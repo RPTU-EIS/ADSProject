@@ -7,9 +7,9 @@ name: 04_pipelined_RISC-V_core
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "Group6" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "Group6" ]
 
 permissions:
   contents: read
