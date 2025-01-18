@@ -1,3 +1,77 @@
         /* 
          * TODO: Insert your testcases from the previous assignments and adapt them for the pipelined core
          */
+
+00000013 // ADDI x0, x0, 0 | NOP
+00400093 // ADDI x1, x0, 4
+00500113 // ADDI x2, x0, 5
+00000013 // ADDI x0, x0, 0 | NOP
+002081b3 // ADD x3, x1, x2
+
+/* 
+ * TODO: Add testcases for all R-type instructions in 'BinaryFile' and check the expected results here
+ */
+// add
+fec00213 // ADDI x4, x0, -20 // (x4 = -20)
+00a00293 // ADDI x5, x0, 10 // (x5 = 10)
+0c800313 // ADDI x6, x0, 200 // (x6 = 200)
+f3800393 // ADDI x7, x0, -200 // (x7 = -200)
+00000013 // ADDI x0, x0, 0 | NOP
+
+// add
+00508533 // ADD x10, x1, x5 // (x10 = 14)
+00408533 // ADD x10, x1, x4 // (x10 = -16)
+
+// sub
+401105b3 // SUB x11, x2, x1 // (x11 = 1)
+402085b3 // SUB x11, x1, x2 // (x11 = -1)
+404085b3 // SUB x11, x1, x4 // (x11 = 24)
+
+//sll
+00111633 // SLL x12, x2, x1 // (x12 = 80)
+
+//srl
+001356b3 // SRL x13, x6, x1 // (x13 = 12)
+
+//sra
+4013d733 // SRA x14, x7, x1 // (x14 = -13)
+40135733 // SRA x14, x6, x1 // (x14 = 12)
+
+//slt
+0020a7b3 // SLT x15, x1, x2 // (x15 = 1)
+001127b3 // SLT x15, x2, x1 // (x15 = 0)
+0043a7b3 // SLT x15, x7, x4 // (x15 = 1)
+007227b3 // SLT x15, x4, x7 // (x15 = 0)
+0063a7b3 // SLT x15, x7, x6 // (x15 = 1)
+007327b3 // SLT x15, x6, x7 // (x15 = 0)
+
+//sltu
+0020b833 // SLTU x16, x1, x2 // (x16 = 1)
+00113833 // SLTU x16, x2, x1 // (x16 = 0)
+00523833 // SLTU x16, x4, x5 // (x16 = 0)
+0042b833 // SLTU x16, x5, x4 // (x16 = 1)
+
+//xor
+0020c8b3 // XOR x17, x1, x2 // (x17 = 1)
+005248b3 // XOR x17, x4, x5 // (x17 = 0xffffffe6)
+
+//or
+0020e933 // OR x18, x1, x2 // (x18 = 5)
+00526933 // OR x18, x4, x5 // (x18 = oxffffffee)
+
+//and
+0020f9b3 // AND x19, x1, x2 // (X19 = 4)
+005279b3 // AND x19, x4, x5 // (x19 = 8)
+
+//other operations
+feb42423 // sw a1,-24(s0)
+fec42703 // lw a4,-20(s0)
+00008067 // jr ra
+00078513 // mv a0,a5
+
+// hardwire x0 to 0
+00528013 // ADDI x0, x5, 5 // (x0 = 15)
+00000013 // ADDI x0, x0, 0 // (x0 = 0)
+
+//addi
+fff00a13 // ADDI x20, x0, -1 // (x20 = -1)
