@@ -338,23 +338,20 @@ class WB extends Module {
     // What inputs and / or outputs does this pipeline stage need?
     val result = Input(UInt(32.W))
     val rdIn = Input(UInt(5.W))
+    val wenIn = Input(Bool()))
     
-    val addr = Input(UInt(5.W))
+    val addr = Output(UInt(5.W))
     val data = Output(UInt(32.W))
-    val wen = Input(Bool()))
+    val wen = Output(Bool()))
   })
 
   /* 
    * TODO: Perform the write back to the register file and set 
    *       the check_res signal for the testbench.
    */
-  writeBackData := io.result
-
-  when(rd =/= 0.U) {
-    regFile(rdIn) := io.result
-  }
-
-  randReg := writeBackData
+  io.addr := io.rdIn
+  io.data := io.result
+  io.wen := 1.U && (io.rdIn =/= 0.U) //&& io.wenIn
 }
 
 
@@ -444,7 +441,7 @@ class EXBarrier extends Module {
     val resultIn = Input(UInt(32.W))
     val rdIn  = Input(UInt(5.W))
 
-    val resultOut = Input(UInt(32.W))
+    val resultOut = Output(UInt(32.W))
     val rdOut  = Output(UInt(5.W))
   })
 
@@ -550,13 +547,28 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
    */
   ifBarrier.io.instrIn := ifStage.io.instrOut
   ifBarrier.io.pcIn := ifStage.io.pcOut
-  io.check_res := ifBarrier.io.instrOut
+
+  idStage.io.instrIn := ifBarrier.io.instrOut
+  idStage.io.pcIn := ifBarrier.io.pcOut
   
   idBarrier.io.op1In := idStage.io.op1Out
   idBarrier.io.op2In := idStage.io.op2Out
   idBarrier.io.uopIn := idStage.io.uopOut
   idBarrier.io.immIn := idStage.io.immOut
+  idBarrier.io.rdIn := idStage.io.rdOut
+
+  exStage.io.opA := idBarrier.io.op1Out
+  exStage.io.opB := idBarrier.io.op2Out
+  exStage.io.uop := idBarrier.io.uopOut
+  exStage.io.imm := idBarrier.io.immOut
+
+  exBarrier.io.resultIn := exStage.io.result
+  exBarrier.io.rdIn := idBarrier.io.rdOut
+
+  memBarrier.io.resultIn := exBarrier.io.resultOut
+  memBarrier.io.rdIn := exBarrier.io.rdOut
 
   exBarrier.io.resultIn := exStage.io.resultOut
+ 
 }
 
