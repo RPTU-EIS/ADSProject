@@ -111,17 +111,18 @@ class regFileWriteReq extends Bundle {
     // what signals does a write request need?
     val addr = Input(UInt(5.W))
     val data = Output(UInt(32.W))
-    val wen = Input(Bool()))
+    val wen = Input(Bool())
 }
 
 class regFile extends Module {
   val io = IO(new Bundle {
-    val readReq  = new regFileReadReq
-    val readResp = new regFileReadResp
-    val writeReq = new regFileWriteReq
+    val readReq  = Input(new regFileReadReq)
+    val readResp = Output(new regFileReadResp)
+    val writeReq = Input(new regFileWriteReq)
     // how many read and write ports do you need to handle all requests
     // from the pipeline to the register file simultaneously?
     // answer ---> 2 read ports, 1 write port
+	
 })
   
   /* 
@@ -191,7 +192,7 @@ class ID extends Module {
     //val pcIn = Input(UInt(32.W)) // Next PC from the IF stage
     //val regFileReadReq = Output(new regFileReadReq) // Read request for register file
     val instrIn = Input(UInt(32.W)) // Fetched instruction from the IF stage
-    val uop = Output(UInt(8.W)) // The micro-operation code (uopc)
+    val uop = Output(uopc()) // The micro-operation code (uopc)
     val immOut = Output(UInt(12.W))
     val rdOut = Output(UInt(5.W))
     val rs1Out = Output(UInt(5.W))
@@ -201,14 +202,15 @@ class ID extends Module {
   /* 
    * TODO: Any internal signals needed?
    */
+   
 
-  val opcode = io.instr(6, 0) 
-  val rd = io.instr(11, 7) 
-  val funct3 = io.instr(14, 12) 
-  val rs1 = io.instr(19, 15) 
-  val rs2 = io.instr(24, 20)
-  val funct7 = io.instr(31, 25)
-  val immOut = io.instr(31, 20)
+  val opcode = io.instrIn(6, 0) 
+  val rd = io.instrIn(11, 7) 
+  val funct3 = io.instrIn(14, 12) 
+  val rs1 = io.instrIn(19, 15) 
+  val rs2 = io.instrIn(24, 20)
+  val funct7 = io.instrIn(31, 25)
+  val immOut = io.instrIn(31, 20)
 
   when(opcode === "b0110011".U && funct3 === "b000".U && funct7 === "b0000000".U) {
     io.uop := uopc.isADD
@@ -254,32 +256,39 @@ class EX extends Module {
     // What inputs and / or outputs does this pipeline stage need?
     val opA = Input(UInt(32.W))
     val opB = Input(UInt(32.W))
-    val uop = Input(UInt(8.W))
+    val uop = Input(uopc())
     val imm = Input(UInt(12.W))
+	val rdIn = Input(UInt(5.W))
     val result = Output(UInt(32.W))
   })
-
-  when(io.uop == isADDI) {
+  val operandA = RegInit(0.U(32.W))
+  val operandB = RegInit(0.U(32.W)) // we need registers for the shift operation, not working with the inputs directly
+  
+  operandA := io.opA
+  operandB := io.opB
+  
+  when(io.uop === isADDI) {
     io.result := (io.imm.asSInt + io.opA.asSInt).asUInt
-  }.elsewhen(io.uop == isADD) {
+  }.elsewhen(io.uop === isADD) {
     io.result := (io.opA.asSInt + io.opB.asSInt).asUInt
-  }.elsewhen(io.uop == isSUB) {
+  }.elsewhen(io.uop === isSUB) {
     io.result := io.opA - io.opB
-  }.elsewhen(io.uop == isSLL) {
+  }.elsewhen(io.uop === isSLL) {
     io.result := io.opA << io.opB(4, 0) // Logical left shift
-  }.elsewhen(io.uop == isSRL){
+	//io.result :=io.opB;
+  }.elsewhen(io.uop === isSRL){
     io.result := io.opA >> io.opB(4, 0) // Logical right shift
-  }.elsewhen(io.uop == isSRA){
+  }.elsewhen(io.uop === isSRA){
     io.result := (io.opA.asSInt >> io.opB(4, 0)).asUInt // Arithmetic right shift
-  }.elsewhen(io.uop == isSLT) {
+  }.elsewhen(io.uop === isSLT) {
     io.result := (io.opA.asSInt < io.opB.asSInt).asUInt // Set less than (signed)
-  }.elsewhen(io.uop == isSLTU) {
+  }.elsewhen(io.uop === isSLTU) {
     io.result := (io.opA < io.opB).asUInt // Set less than (unsigned)
-  }.elsewhen(io.uop == isAND) {
+  }.elsewhen(io.uop === isAND) {
     io.result := io.opA & io.opB // Bitwise AND
-  }.elsewhen(io.uop == isOR) {
+  }.elsewhen(io.uop === isOR) {
     io.result := io.opA | io.opB // Bitwise OR
-  }.elsewhen(io.uop == isXOR) {
+  }.elsewhen(io.uop === isXOR) {
     io.result := io.opA ^ io.opB // Bitwise XOR
   }.otherwise {
     io.result := 5.U // Default case
@@ -312,7 +321,7 @@ class WB extends Module {
     
     val addr = Output(UInt(5.W))
     val data = Output(UInt(32.W))
-    val wen = Output(Bool()))
+    val wen = Output(Bool())
   })
 
   /* 
@@ -321,7 +330,7 @@ class WB extends Module {
    */
   io.addr := io.rdIn
   io.data := io.result
-  io.wen := 1.U && (io.rdIn =/= 0.U) //&& io.wenIn
+  io.wen := 1.U & (io.rdIn =/= 0.U) //&& io.wenIn
 }
 
 
@@ -364,19 +373,19 @@ class IDBarrier extends Module {
     // What inputs and / or outputs does this barrier need?
     val op1In = Input(UInt(32.W))
     val op2In = Input(UInt(32.W))
-    val uopIn = Input(UInt(8.W))
+    val uopIn = Input(uopc())
     val immIn = Input(UInt(12.W))
     val rdIn  = Input(UInt(5.W))
-    val rs1In = Input(Uint(5.W))
-    val rs2In = Input(Uint(5.W))
+    val rs1In = Input(UInt(5.W))
+    val rs2In = Input(UInt(5.W))
 
     val op1Out = Output(UInt(32.W))
     val op2Out = Output(UInt(32.W))
-    val uopOut = Output(UInt(8.W))
+    val uopOut = Output(uopc())
     val immOut = Output(UInt(12.W))
     val rdOut  = Output(UInt(5.W))
-    val rs1Out = Output(Uint(5.W))
-    val rs2Out = Output(Uint(5.W))
+    val rs1Out = Output(UInt(5.W))
+    val rs2Out = Output(UInt(5.W))
   })
 
   /* 
@@ -387,7 +396,7 @@ class IDBarrier extends Module {
 
   val op1Reg = Reg(UInt(32.W))
   val op2Reg = Reg(UInt(32.W))
-  val uopReg = Reg(UInt(8.W))
+  val uopReg = Reg(uopc())
   val immReg = Reg(UInt(12.W))
   val rdReg  = Reg(UInt(5.W))
   val rs1Reg = Reg(UInt(5.W))
@@ -545,7 +554,7 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
 
   idBarrier.io.op1In := regFile.io.readResp.data1
   idBarrier.io.op2In := regFile.io.readResp.data2
-  idBarrier.io.uopIn := idStage.io.uopOut
+  idBarrier.io.uopIn := idStage.io.uop
   idBarrier.io.immIn := idStage.io.immOut
   idBarrier.io.rdIn := idStage.io.rdOut
   idBarrier.io.rs1In := idStage.io.rs1Out
@@ -563,8 +572,8 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
   memBarrier.io.resultIn := exBarrier.io.resultOut
   memBarrier.io.rdIn := exBarrier.io.rdOut
 
-  wbStage.io.result := memBarier.io.resultOut
-  wbStage.io.rdIn := memBarier.io.rdOut
+  wbStage.io.result := memBarrier.io.resultOut
+  wbStage.io.rdIn := memBarrier.io.rdOut
 
   regFile.io.writeReq.addr := wbStage.io.addr
   regFile.io.writeReq.data := wbStage.io.data
