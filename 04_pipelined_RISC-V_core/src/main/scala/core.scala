@@ -188,12 +188,14 @@ class IF (BinaryFile: String) extends Module {
 class ID extends Module {
   val io = IO(new Bundle {
     // What inputs and / or outputs does this pipeline stage need?
+    //val pcIn = Input(UInt(32.W)) // Next PC from the IF stage
+    //val regFileReadReq = Output(new regFileReadReq) // Read request for register file
     val instrIn = Input(UInt(32.W)) // Fetched instruction from the IF stage
-    val pcIn = Input(UInt(32.W)) // Next PC from the IF stage
-    val regFileReadReq = Output(new regFileReadReq) // Read request for register file
     val uop = Output(UInt(8.W)) // The micro-operation code (uopc)
     val immOut = Output(UInt(12.W))
     val rdOut = Output(UInt(5.W))
+    val rs1Out = Output(UInt(5.W))
+    val rs2Out = Output(UInt(5.W))
   })
 
   /* 
@@ -207,26 +209,6 @@ class ID extends Module {
   val rs2 = io.instr(24, 20)
   val funct7 = io.instr(31, 25)
   val immOut = io.instr(31, 20)
-
-  /* 
-    Determine the uop based on the disassembled instruction
-
-    when( condition ){
-      when( next condition ){
-        io.upo := isXYZ
-      }.otherwise{
-        maybe declare a case to catch invalid instructions
-      } 
-    }.elsewhen( different condition ){
-      when( next condition ){
-        io.upo := isXYZ
-      }.otherwise{
-        maybe declare a case to catch invalid instructions
-      } 
-    }.otherwise{
-      maybe declare a case to catch invalid instructions
-    }
-  */
 
   when(opcode === "b0110011".U && funct3 === "b000".U && funct7 === "b0000000".U) {
     io.uop := uopc.isADD
@@ -257,10 +239,10 @@ class ID extends Module {
   /* 
    * TODO: Read the operands from teh register file
    */
-  io.regFileReadReq.addr1 := rs1
-  io.regFileReadReq.addr2 := rs2
+  io.rs1Out := rs1
+  io.rs2Out := rs2
   io.immOut := immOut
-  io.edOut := rd
+  io.rdOut := rd
 }
 
 // -----------------------------------------
@@ -277,17 +259,6 @@ class EX extends Module {
     val result = Output(UInt(32.W))
   })
 
-  /* 
-    TODO: Perform the ALU operation based on the uopc
-
-    when( uopc === isXYZ ){
-      result := operandA + operandB
-    }.elsewhen( uopc === isABC ){
-      result := operandA - operandB
-    }.otherwise{
-      maybe also declare a case to catch invalid instructions
-    }
-  */
   when(io.uop == isADDI) {
     io.result := (io.imm.asSInt + io.opA.asSInt).asUInt
   }.elsewhen(io.uop == isADD) {
@@ -338,7 +309,6 @@ class WB extends Module {
     // What inputs and / or outputs does this pipeline stage need?
     val result = Input(UInt(32.W))
     val rdIn = Input(UInt(5.W))
-    val wenIn = Input(Bool()))
     
     val addr = Output(UInt(5.W))
     val data = Output(UInt(32.W))
@@ -363,9 +333,9 @@ class IFBarrier extends Module {
   val io = IO(new Bundle {
     // What inputs and / or outputs does this barrier need?
     val instrIn = Input(UInt(32.W)) // Input instruction from IF stage
-    val pcIn = Input(UInt(32.W)) // Input pc from IF stage
+    //val pcIn = Input(UInt(32.W)) // Input pc from IF stage
     val instrOut = Output(UInt(32.W)) // Output instruction to ID stage
-    val pcOut = Output(UInt(32.W)) // Output PC to ID stage
+    //val pcOut = Output(UInt(32.W)) // Output PC to ID stage
   })
 
   /* 
@@ -375,13 +345,13 @@ class IFBarrier extends Module {
    */
 
   val instrReg = Reg(UInt(32.W))
-  val pcReg = Reg(UInet(32.W))
+  //val pcReg = Reg(UInet(32.W))
 
   instrReg := io.instrIn
-  pcReg := io.pcIn
+  //pcReg := io.pcIn
 
   io.instrOut := instrReg
-  io.pcOut := pcReg
+  //io.pcOut := pcReg
 }
 
 
@@ -397,12 +367,16 @@ class IDBarrier extends Module {
     val uopIn = Input(UInt(8.W))
     val immIn = Input(UInt(12.W))
     val rdIn  = Input(UInt(5.W))
+    val rs1In = Input(Uint(5.W))
+    val rs2In = Input(Uint(5.W))
 
     val op1Out = Output(UInt(32.W))
     val op2Out = Output(UInt(32.W))
     val uopOut = Output(UInt(8.W))
     val immOut = Output(UInt(12.W))
     val rdOut  = Output(UInt(5.W))
+    val rs1Out = Output(Uint(5.W))
+    val rs2Out = Output(Uint(5.W))
   })
 
   /* 
@@ -416,18 +390,24 @@ class IDBarrier extends Module {
   val uopReg = Reg(UInt(8.W))
   val immReg = Reg(UInt(12.W))
   val rdReg  = Reg(UInt(5.W))
+  val rs1Reg = Reg(UInt(5.W))
+  val rs2Reg = Reg(UInt(5.W))
 
   op1Reg := io.op1In
   op2Reg := io.op2In
   uopReg := io.uopIn
   immReg := io.immIn
-  rdReg  := io.idIn
+  rdReg  := io.rdIn
+  rs1Reg := io.rs1In
+  rs2Reg := io.rs2In
   
   io.op1Out := op1Reg
   io.op2Out := op2Reg
   io.uopOut := uopReg
   io.immOut := immReg
   io.rdOut  := rdReg
+  io.rs1Out := rs1Reg
+  io.rs2Out := rs2Reg
 }
 
 
@@ -455,7 +435,7 @@ class EXBarrier extends Module {
   val rdReg  = Reg(UInt(5.W))
 
   resultReg := io.resultIn
-  rdReg     := io.idIn
+  rdReg     := io.rdIn
 
   io.resultOut := resultReg
   io.rdOut     := rdReg
@@ -472,7 +452,7 @@ class MEMBarrier extends Module {
     val resultIn = Input(UInt(32.W))
     val rdIn  = Input(UInt(5.W))
 
-    val resultOut = Input(UInt(32.W))
+    val resultOut = Output(UInt(32.W))
     val rdOut  = Output(UInt(5.W))
   })
 
@@ -486,7 +466,7 @@ class MEMBarrier extends Module {
   val rdReg  = Reg(UInt(5.W))
 
   resultReg := io.resultIn
-  rdReg     := io.idIn
+  rdReg     := io.rdIn
 
   io.resultOut := resultReg
   io.rdOut     := rdReg
@@ -500,6 +480,9 @@ class MEMBarrier extends Module {
 class WBBarrier extends Module {
   val io = IO(new Bundle {
     // What inputs and / or outputs does this barrier need?
+    val resultIn = Input(UInt(32.W))
+
+    val resultOut = Output(UInt(32.W))
   })
 
   /* 
@@ -508,6 +491,11 @@ class WBBarrier extends Module {
    * TODO: Fill registers from the inputs and write regioster values to the outputs
   */
 
+  val resultReg = Reg(UInt(32.W))
+
+  resultReg := io.resultIn
+
+  io.resultOut := resultReg
 }
 
 class PipelinedRV32Icore (BinaryFile: String) extends Module {
@@ -529,16 +517,17 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
    * TODO: Instantiate Pipeline Stages
    */
   val ifStage = Module(new IF(BinaryFile))
-  val idStage = Module(new ID(BinaryFile))
-  val exStage = Module(new EX(BinaryFile))
-  val memStage = Module(new MEM(BinaryFile))
-  val wbStage = Module(new WB(BinaryFile))
+  val idStage = Module(new ID)
+  val exStage = Module(new EX)
+  val memStage = Module(new MEM)
+  val wbStage = Module(new WB)
 
 
   /* 
    * TODO: Instantiate Register File
    */
 
+  val regFile = Module(new regFile)
   io.check_res := 0.U // necessary to make the empty design buildable TODO: change this
 
   /* 
@@ -546,19 +535,25 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
    * Do not forget the global output of the core module
    */
   ifBarrier.io.instrIn := ifStage.io.instrOut
-  ifBarrier.io.pcIn := ifStage.io.pcOut
+  //ifBarrier.io.pcIn := ifStage.io.pcOut
 
   idStage.io.instrIn := ifBarrier.io.instrOut
-  idStage.io.pcIn := ifBarrier.io.pcOut
-  
-  idBarrier.io.op1In := idStage.io.op1Out
-  idBarrier.io.op2In := idStage.io.op2Out
+  //idStage.io.pcIn := ifBarrier.io.pcOut
+ 
+  regFile.io.readReq.addr1 := idStage.io.rs1Out
+  regFile.io.readReq.addr2 := idStage.io.rs2Out
+
+  idBarrier.io.op1In := regFile.io.readResp.data1
+  idBarrier.io.op2In := regFile.io.readResp.data2
   idBarrier.io.uopIn := idStage.io.uopOut
   idBarrier.io.immIn := idStage.io.immOut
   idBarrier.io.rdIn := idStage.io.rdOut
+  idBarrier.io.rs1In := idStage.io.rs1Out
+  idBarrier.io.rs2In := idStage.io.rs2Out
 
   exStage.io.opA := idBarrier.io.op1Out
   exStage.io.opB := idBarrier.io.op2Out
+  exStage.io.rdIn := idBarrier.io.rdOut
   exStage.io.uop := idBarrier.io.uopOut
   exStage.io.imm := idBarrier.io.immOut
 
@@ -568,7 +563,15 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
   memBarrier.io.resultIn := exBarrier.io.resultOut
   memBarrier.io.rdIn := exBarrier.io.rdOut
 
-  exBarrier.io.resultIn := exStage.io.resultOut
- 
+  wbStage.io.result := memBarier.io.resultOut
+  wbStage.io.rdIn := memBarier.io.rdOut
+
+  regFile.io.writeReq.addr := wbStage.io.addr
+  regFile.io.writeReq.data := wbStage.io.data
+  regFile.io.writeReq.wen := wbStage.io.wen
+
+  wbBarrier.io.resultIn := wbStage.io.data
+
+  io.check_res := wbBarrier.io.resultOut
 }
 
