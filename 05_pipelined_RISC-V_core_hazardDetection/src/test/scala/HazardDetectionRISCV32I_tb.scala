@@ -20,21 +20,21 @@ class HazardDetectionRISCV32ITest extends AnyFlatSpec with ChiselScalatestTester
 
       dut.clock.step(5)             // it is important to wait until the first instruction travelled through the entire pipeline
 
-      dut.io.result.expect(0.U)     // ADDI x0, x0, 0
+      dut.io.result.expect(0.U)     // ADDI x0, x0, 0 (f 1CLK)
       dut.clock.step(1)
-      dut.io.result.expect(4.U)     // ADDI x1, x0, 4
+      dut.io.result.expect(4.U)     // ADDI x1, x0, 4 (F 2CLK)
       dut.clock.step(1)
-      dut.io.result.expect(5.U)     // ADDI x2, x0, 5
+      dut.io.result.expect(5.U)     // ADDI x2, x0, 5 (F 3CLK)
       dut.clock.step(1)
-      dut.io.result.expect(9.U)     // ADD x3, x1, x2
+      dut.io.result.expect(9.U)     // ADD x3, x1, x2 (F 4CLK)
       dut.clock.step(1)
-      dut.io.result.expect(2047.U)  // ADDI x4, x0, 2047
+      dut.io.result.expect(2047.U)  // ADDI x4, x0, 2047 (F 5CLK)
       dut.clock.step(1)
-      dut.io.result.expect(16.U)    // ADDI x5, x0, 16
+      dut.io.result.expect(16.U)    // ADDI x5, x0, 16 (F 6CLK)
       dut.clock.step(1)
-      dut.io.result.expect(2031.U)  // SUB x6, x4, x5
+      dut.io.result.expect(2031.U)  // SUB x6, x4, x5 (F 7 CLK)
       dut.clock.step(1)
-      dut.io.result.expect(2022.U)  // XOR x7, x6, x3
+      dut.io.result.expect(2022.U)  // XOR x7, x6, x3 (F 8 CLK)
       dut.clock.step(1)
       dut.io.result.expect(2047.U)  // OR x8, x6, x5
       dut.clock.step(1)
