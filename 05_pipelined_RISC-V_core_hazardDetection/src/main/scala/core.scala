@@ -100,19 +100,52 @@ class regFile extends Module {
 class ForwardingUnit extends Module {
   val io = IO(new Bundle {
     // What inputs and / or outputs does the forwarding unit need?
+
+    val exMem_wr_en = Input(Bool())
+    val memWb_wr_en = Input(Bool())
+    
+    val memWb_rdAddr = Input(UInt(5.W))
+    val exMem_rdAddr = Input(UInt(5.W))
+
+    val idEx_rs1Addr = Input(UInt(5.W))
+    val idEx_rs2Addr = Input(UInt(5.W))
+
+    val forwardA = Output(UInt(2.W))
+    val forwardB = Output(UInt(2.W))
+
   })
+
+  io.forwardA := "b00".U
+  io.forwardB := "b00".U
 
 
   /* TODO:
      Hazard detetction logic:
      Which pipeline stages are affected and how can a potential hazard be detetced there?
   */
+  // Data required for the ID/EX stage comes from the EX/MEM stage
+  when(io.exMem_wr_en && io.exMem_rdAddr =/= "b00000".U && (io.exMem_rdAddr === io.idEx_rs1Addr) && (io.exMem_rdAddr === io.idEx_rs2Addr)){
+    io.forwardA := "b01".U
+    io.forwardB := "b01".U
+  }.elsewhen(io.exMem_wr_en && io.exMem_rdAddr =/= "b00000".U && io.exMem_rdAddr === io.exMem_rdAddr === io.idEx_rs1Addr){
+    io.forwardA := "b01".U
+  }.elsewhen(io.exMem_wr_en && io.exMem_rdAddr =/= "b00000".U && io.exMem_rdAddr === io.exMem_rdAddr === io.idEx_rs2Addr){
+    io.forwardB := "b01".U
+  }
+
 
   /* TODO:
      Forwarding Selection:
      Select the appropriate value to forward from one stage to another based on the hazard checks.
   */
-
+  when(io.memWb_wr_en && io.memWb_rdAddr =/= "b00000".U && ~(io.exMem_wr_en && (io.exMem_rdAddr =/= "b00000".U) && (io.exMem_rdAddr === io.idEx_rs1Addr) && (io.exMem_rdAddr === io.idEx_rs2Addr)) && (io.memWb_rdAddr === io.idEx_rs1Addr) && (io.memWb_rdAddr === io.idEx_rs2Addr)){
+    io.forwardA := "b10".U
+    io.forwardB := "b10".U
+  }.elsewhen(io.memWb_wr_en && io.memWb_rdAddr =/= "b00000".U && ~(io.exMem_wr_en && (io.exMem_rdAddr =/= "b00000".U) && (io.exMem_rdAddr === io.idEx_rs2Addr)) && (io.memWb_rdAddr === io.idEx_rs2Addr)){
+    io.forwardB := "b10".U
+  }.elsewhen(io.memWb_wr_en && io.memWb_rdAddr =/= "b00000".U && ~(io.exMem_wr_en && (io.exMem_rdAddr =/= "b00000".U) && (io.exMem_rdAddr === io.idEx_rs2Addr)) && (io.memWb_rdAddr === io.idEx_rs1Addr)){
+    io.forwardA := "b10".U
+  }
 }
 
 
@@ -479,7 +512,7 @@ class HazardDetectionRV32Icore (BinaryFile: String) extends Module {
   /* 
     TODO: Instantiate the forwarding unit.
   */
-
+  val forwardingUnit = Module(new ForwardingUnit)
 
   //Register File
   val regFile = Module(new regFile)
@@ -503,12 +536,38 @@ class HazardDetectionRV32Icore (BinaryFile: String) extends Module {
   /* 
     TODO: Connect the I/Os of the forwarding unit 
   */
+  forwardingUnit.io.exMem_wr_en  := true.B
+  forwardingUnit.io.memWb_wr_en  := true.B
+  forwardingUnit.io.memWb_rdAddr := EXBarrier.io.outRD
+  forwardingUnit.io.exMem_rdAddr := MEMBarrier.io.outRD
+  forwardingUnit.io.idEx_rs1Addr := IDBarrier.io.outRS1
+  forwardingUnit.io.idEx_rs2Addr := IDBarrier.io.outRS2
 
   /* 
     TODO: Implement MUXes to select which values are sent to the EX stage as operands
   */
 
   EX.io.uop := IDBarrier.io.outUOP
+  
+  EX.io.operandA := MaxLookup(
+    forwardingUnit.io.forwardA,
+    IDBarrier.io.outOperandA,
+    Array(
+      1.U -> EXBarrier.io.inAluResult,  // forward from EX
+      2.U -> MEMBarrier.io.inAluResult, // forward from MEM
+      3.U -> WB.io.aluResult            // forward from WB
+    )
+  )
+
+  EX.io.operandB := MaxLookup(
+    forwardingUnit.io.forwardB,
+    IDBarrier.io.outOperandB,
+    Array(
+      1.U -> EXBarrier.io.inAluResult,  // forward from EX
+      2.U -> MEMBarrier.io.inAluResult, // forward from MEM
+      3.U -> WB.io.aluResult            // forward from WB
+    )
+  )
 
   /* 
     TODO: Connect operand inputs in EX stage to forwarding logic
