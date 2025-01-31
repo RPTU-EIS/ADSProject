@@ -7,9 +7,9 @@ name: 05_pipelined_RISC-V_core_hazardDetection
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "Group6" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "Group6" ]
 
 permissions:
   contents: read

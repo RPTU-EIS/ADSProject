@@ -53,7 +53,16 @@ object uopc extends ChiselEnum {
   val invalid = Value(0xFF.U)
 }
 
+object aluOpAMux extends  ChiselEnum {
+    val opA_id, AluResult_mem, AluResult_wb = Value
+}
+object aluOpBMux extends  ChiselEnum {
+    val opB_id, AluResult_mem, AluResult_wb = Value
+}
+
 import uopc._
+import aluOpAMux._
+import aluOpBMux._
 
 
 // -----------------------------------------
@@ -92,14 +101,29 @@ class regFile extends Module {
     }
   }
 
-  io.resp_1.data := Mux(io.req_1.addr === 0.U, 0.U, regFile(io.req_1.addr))
-  io.resp_2.data := Mux(io.req_2.addr === 0.U, 0.U, regFile(io.req_2.addr))
+  io.resp_1.data := Mux((io.req_1.addr === 0.U), 0.U, (Mux((io.req_1.addr === io.req_3.addr), io.req_3.data, regFile(io.req_1.addr))))
+  io.resp_2.data := Mux((io.req_2.addr === 0.U), 0.U, (Mux((io.req_2.addr === io.req_3.addr), io.req_3.data, regFile(io.req_2.addr))))
 
 }
 
 class ForwardingUnit extends Module {
   val io = IO(new Bundle {
     // What inputs and / or outputs does the forwarding unit need?
+
+    // from decode stage
+    val rs1_id          = Input(UInt(5.W))
+    val rs2_id          = Input(UInt(5.W))
+    val uop_id          = Input(uopc())
+
+    // forwarded signals
+    val rd_mem          = Input(UInt(5.W))
+    val wrEn_mem        = Input(UInt(1.W))
+    val rd_wb           = Input(UInt(5.W))
+    val wrEn_wb         = Input(UInt(1.W))
+
+    //  alu input mux controllers
+    val aluOpA_ctrl = Output(aluOpAMux())
+    val aluOpB_ctrl = Output(aluOpBMux())
   })
 
 
@@ -107,11 +131,43 @@ class ForwardingUnit extends Module {
      Hazard detetction logic:
      Which pipeline stages are affected and how can a potential hazard be detetced there?
   */
+  val rs1_mem_hazard = Wire(UInt(1.W))
+  val rs2_mem_hazard = Wire(UInt(1.W))
+  val rs1_wb_hazard = Wire(UInt(1.W))
+  val rs2_wb_hazard = Wire(UInt(1.W))
+
+  rs1_mem_hazard := ((io.uop_id =/= invalid) && (io.rs1_id === io.rd_mem) && (io.wrEn_mem === 1.U))
+  rs1_wb_hazard := ((io.uop_id =/= invalid) && (io.rs1_id === io.rd_wb) && (io.wrEn_wb === 1.U))
+  
+  rs2_mem_hazard := ((io.uop_id =/= invalid) && (io.uop_id =/= isADDI) && (io.rs2_id === io.rd_mem) && (io.wrEn_mem === 1.U))
+  rs2_wb_hazard := ((io.uop_id =/= invalid) && (io.uop_id =/= isADDI) && (io.rs2_id === io.rd_wb) && (io.wrEn_wb === 1.U))
+
 
   /* TODO:
      Forwarding Selection:
      Select the appropriate value to forward from one stage to another based on the hazard checks.
   */
+  // operandA mux
+  when (rs1_mem_hazard === 1.U){
+    io.aluOpA_ctrl := aluOpAMux.AluResult_mem
+  }
+  .elsewhen(rs1_wb_hazard === 1.U){
+    io.aluOpA_ctrl := aluOpAMux.AluResult_wb
+  }
+  .otherwise{
+    io.aluOpA_ctrl := aluOpAMux.opA_id
+  }
+
+  // operandB mux
+  when (rs2_mem_hazard === 1.U){
+    io.aluOpB_ctrl := aluOpBMux.AluResult_mem
+  }
+  .elsewhen(rs2_wb_hazard === 1.U){
+    io.aluOpB_ctrl := aluOpBMux.AluResult_wb
+  }
+  .otherwise{
+    io.aluOpB_ctrl := aluOpBMux.opB_id
+  }
 
 }
 
@@ -156,6 +212,7 @@ class ID extends Module {
     val rs2           = Output(UInt(5.W))
     val operandA      = Output(UInt(32.W))
     val operandB      = Output(UInt(32.W))
+    val wrEn          = Output(UInt(1.W))
   })
 
   val opcode  = io.instr(6, 0)
@@ -245,6 +302,8 @@ class ID extends Module {
 
   io.rs1     := rs1
   io.rs2     := rs2
+
+  io.wrEn := (io.uop =/= invalid)
   
 }
 
@@ -314,12 +373,14 @@ class WB extends Module {
     val regFileReq = Flipped(new regFileWriteReq) 
     val rd         = Input(UInt(5.W))
     val aluResult  = Input(UInt(32.W))
+    val wrEn      = Input(UInt(1.W))
     val check_res  = Output(UInt(32.W))
   })
 
  io.regFileReq.addr  := io.rd
  io.regFileReq.data  := io.aluResult
- io.regFileReq.wr_en := io.aluResult =/= "h_FFFF_FFFF".U  // could depend on the current uopc, if ISA is extendet beyond R-type and I-type instructions
+ io.regFileReq.wr_en := io.wrEn
+//  io.regFileReq.wr_en := io.aluResult =/= "h_FFFF_FFFF".U  // could depend on the current uopc, if ISA is extendet beyond R-type and I-type instructions
 
  io.check_res := io.aluResult
 
@@ -362,6 +423,8 @@ class IDBarrier extends Module {
     val outRS2      = Output(UInt(5.W))
     val outOperandA = Output(UInt(32.W))
     val outOperandB = Output(UInt(32.W))
+    val inWrEn      = Input(UInt(1.W))
+    val outWrEn     = Output(UInt(1.W))
   })
 
   val uop      = Reg(uopc())
@@ -370,6 +433,7 @@ class IDBarrier extends Module {
   val rs2      = RegInit(0.U(5.W))
   val operandA = RegInit(0.U(32.W))
   val operandB = RegInit(0.U(32.W))
+  val wrEn     = RegInit(0.U(1.W))
 
   io.outUOP := uop
   uop := io.inUOP
@@ -383,6 +447,8 @@ class IDBarrier extends Module {
   operandA := io.inOperandA
   io.outOperandB := operandB
   operandB := io.inOperandB
+  io.outWrEn := wrEn
+  wrEn := io.inWrEn
 
 }
 
@@ -397,16 +463,22 @@ class EXBarrier extends Module {
     val outAluResult = Output(UInt(32.W))
     val inRD         = Input(UInt(5.W))
     val outRD        = Output(UInt(5.W))
+    val inWrEn       = Input(UInt(1.W))
+    val outWrEn      = Output(UInt(1.W))
   })
 
   val aluResult = RegInit(0.U(32.W))
   val rd       = RegInit(0.U(5.W))
+  val wrEn     = RegInit(0.U(1.W))
 
   io.outAluResult := aluResult
   aluResult       := io.inAluResult
 
   io.outRD := rd
   rd := io.inRD
+
+  io.outWrEn := wrEn
+  wrEn := io.inWrEn
 
 }
 
@@ -421,16 +493,22 @@ class MEMBarrier extends Module {
     val outAluResult = Output(UInt(32.W))
     val inRD         = Input(UInt(5.W))
     val outRD        = Output(UInt(5.W))
+    val inWrEn       = Input(UInt(1.W))
+    val outWrEn      = Output(UInt(1.W))
   })
 
   val aluResult = RegInit(0.U(32.W))
   val rd        = RegInit(0.U(5.W))
+  val wrEn      = RegInit(0.U(1.W))
 
   io.outAluResult := aluResult
   aluResult       := io.inAluResult
 
   io.outRD := rd
   rd := io.inRD
+
+  io.outWrEn := wrEn
+  wrEn := io.inWrEn
 
 }
 
@@ -479,6 +557,7 @@ class HazardDetectionRV32Icore (BinaryFile: String) extends Module {
   /* 
     TODO: Instantiate the forwarding unit.
   */
+  val forwarding = Module(new ForwardingUnit)
 
 
   //Register File
@@ -499,10 +578,18 @@ class HazardDetectionRV32Icore (BinaryFile: String) extends Module {
   IDBarrier.io.inRS2        := ID.io.rs2
   IDBarrier.io.inOperandA   := ID.io.operandA
   IDBarrier.io.inOperandB   := ID.io.operandB
+  IDBarrier.io.inWrEn       := ID.io.wrEn
 
   /* 
     TODO: Connect the I/Os of the forwarding unit 
   */
+  forwarding.io.rs1_id   := IDBarrier.io.outRS1
+  forwarding.io.rs2_id   := IDBarrier.io.outRS2
+  forwarding.io.uop_id   := IDBarrier.io.outUOP
+  forwarding.io.rd_mem   := EXBarrier.io.outRD
+  forwarding.io.wrEn_mem := EXBarrier.io.outWrEn
+  forwarding.io.rd_wb    := MEMBarrier.io.outRD
+  forwarding.io.wrEn_wb  := MEMBarrier.io.outWrEn
 
   /* 
     TODO: Implement MUXes to select which values are sent to the EX stage as operands
@@ -513,17 +600,31 @@ class HazardDetectionRV32Icore (BinaryFile: String) extends Module {
   /* 
     TODO: Connect operand inputs in EX stage to forwarding logic
   */
-  EX.io.operandA := 0.U // just there to make empty project buildable
-  EX.io.operandB := 0.U // just there to make empty project buildable
+
+    EX.io.operandA := IDBarrier.io.outOperandA // default case
+    EX.io.operandB := IDBarrier.io.outOperandB // default case
+    switch(forwarding.io.aluOpA_ctrl){
+      is(aluOpAMux.opA_id)        {EX.io.operandA := IDBarrier.io.outOperandA}
+      is(aluOpAMux.AluResult_mem) {EX.io.operandA := EXBarrier.io.outAluResult}
+      is(aluOpAMux.AluResult_wb)  {EX.io.operandA := MEMBarrier.io.outAluResult}
+    }
+    switch(forwarding.io.aluOpB_ctrl){
+        is(aluOpBMux.opB_id)        {EX.io.operandB := IDBarrier.io.outOperandB}
+        is(aluOpBMux.AluResult_mem) {EX.io.operandB := EXBarrier.io.outAluResult}
+        is(aluOpBMux.AluResult_wb)  {EX.io.operandB := MEMBarrier.io.outAluResult}
+    }
 
   EXBarrier.io.inRD         := IDBarrier.io.outRD
   EXBarrier.io.inAluResult  := EX.io.aluResult
+  EXBarrier.io.inWrEn       := IDBarrier.io.outWrEn
 
   MEMBarrier.io.inRD        := EXBarrier.io.outRD
   MEMBarrier.io.inAluResult := EXBarrier.io.outAluResult
+  MEMBarrier.io.inWrEn      := EXBarrier.io.outWrEn
 
   WB.io.rd                  := MEMBarrier.io.outRD
   WB.io.aluResult           := MEMBarrier.io.outAluResult
+  WB.io.wrEn               := MEMBarrier.io.outWrEn
   WB.io.regFileReq          <> regFile.io.req_3
 
   WBBarrier.io.inCheckRes   := WB.io.check_res
