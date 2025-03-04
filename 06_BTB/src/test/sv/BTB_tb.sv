@@ -72,7 +72,7 @@ class LRU_model #(int NSETS = 8);
     endfunction
 
     function automatic bit get_LRU_value(input int set);
-        // $display("get LRU set: %0d, value: %d", set, lru_counter[set]);
+        $display("get LRU set: %0d, value: %d", set, lru_counter[set]);
         return lru_counter[set];
     endfunction
 
@@ -144,7 +144,7 @@ class TwoWayBTB_model #(int NSETS = 8);
                 replace_way = lru.get_LRU_value(updatePC[SET_BITS+BYTE_OFFSET-1:BYTE_OFFSET]); // else get the LRU way to replace
             end
             way[replace_way].write(.updatePC(updatePC), .updateTarget(updateTarget), .mispredicted(mispredicted));
-            // print_BTB();
+            print_BTB();
         end
     endfunction
 
@@ -184,37 +184,52 @@ class TwoWayBTB_driver;
         }
         instructions[NUM_INSTRUCTIONS-1] == JUMP_INS; // last instruction should jump back to 0th instruction
         foreach(target_addresses[i]){
-            target_addresses[i] inside {[0:NUM_INSTRUCTIONS*4-1]};
-            target_addresses[i][1:0] == 2'b0; // multiple of 4
+            target_addresses[i] inside {[0:NUM_INSTRUCTIONS-1]};
         }
         target_addresses[NUM_INSTRUCTIONS-1] == 0; // last instruction should jump back to 0th instruction
     }
     
     constraint three_jumps_single_btb_set_c{ // 0->1->2->9->10->17->18->0
-        instructions[0]  == OTHER_INS;
-        instructions[1]  == OTHER_INS;
-        instructions[2]  == JUMP_INS;
-        instructions[9]  == OTHER_INS;
-        instructions[10] == JUMP_INS;
-        instructions[17] == OTHER_INS;
-        instructions[18] == JUMP_INS;
+        // instructions[0]  == OTHER_INS;
+        // instructions[1]  == OTHER_INS;
+        // instructions[2]  == JUMP_INS;
+        // instructions[3]  == OTHER_INS;
+        // instructions[4]  == OTHER_INS;
+        // instructions[9]  == OTHER_INS;
+        // instructions[10] == JUMP_INS;
+        // instructions[17] == OTHER_INS;
+        // instructions[18] == JUMP_INS;
 
         // temporarily add till driver is corrected to flush wrong predictions
         // instructions[3] == OTHER_INS;
         // instructions[4] == OTHER_INS;
 
-        target_addresses[2]  == 9*4;
-        target_addresses[10] == 17*4;
-        target_addresses[18] == 0*4;
+        // target_addresses[2]  == 9;
+        // target_addresses[10] == 17;
+        // target_addresses[18] == 0;
+
+        instructions[0]  == BRANCH_INS;
+        instructions[4]  == BRANCH_INS;
+        instructions[8]  == BRANCH_INS;
+        instructions[16]  == JUMP_INS;
+
+        target_addresses[0]  == 4;
+        target_addresses[4] == 8;
+        target_addresses[8] == 16;
+        target_addresses[16] == 0;
+
     }
 
     function new();
         // initialize fifos
-        foreach(PC_fifo[i]) PC_fifo[i] = '0;
-        foreach(valid_fifo[i]) valid_fifo[i] = 1'b0;
-        foreach(target_fifo[i]) target_fifo[i] = '0;
-        foreach(predictTaken_fifo[i]) predictTaken_fifo[i] = 1'b0;
+        for(int i=0; i<FIFO_DEPTH; i++) begin
+            PC_fifo.push_front('0);
+            valid_fifo.push_front(1'b0);
+            target_fifo.push_front('0);
+            predictTaken_fifo.push_front(1'b0);
+        end
         assert(this.randomize());
+        // $display("target_addresses: %0p", target_addresses);
     endfunction
 
     function automatic capture_BTB(input bit valid, input int target, input bit predictTaken);
@@ -225,8 +240,8 @@ class TwoWayBTB_driver;
         target_fifo.push_front(target);
         predictTaken_fifo.push_front(predictTaken);
 
-        $display("Captured BTB output: PC: 0x%0x valid: %0d, target: 0x%0x, predictTaken: %0d", current_PC*4, valid, target, predictTaken);
-
+        // $display("Captured BTB output: PC: 0x%0x valid: %0d, target: 0x%0x, predictTaken: %0d", current_PC*4, valid, target, predictTaken);
+        // $display("PC_fifo: %0p", PC_fifo);
     endfunction
 
     int flush_counter; //used to ignore instructions in fifos when they are flushed
@@ -250,8 +265,8 @@ class TwoWayBTB_driver;
         bit new_speculatively_branched = (new_valid == 1'b1) && (new_predictTaken == 1'b1);
         bit old_speculatively_branched = (old_valid == 1'b1) && (old_predictTaken == 1'b1);
 
-        $display("fetch stage: PC: 0x%0x, Ins: %0d, valid: %0d, target: 0x%0x, predictTaken: %0d", current_PC*4, new_instruction, new_valid, new_target, new_predictTaken);
-        $display("ex stage:    PC: 0x%0x, Ins: %0d, valid: %0d, target: 0x%0x, predictTaken: %0d", old_PC*4, old_instruction, old_valid, old_target, old_predictTaken);
+        // $display("fetch stage: PC: 0x%0x, Ins: %0d, valid: %0d, target: 0x%0x, predictTaken: %0d", current_PC*4, new_instruction, new_valid, new_target, new_predictTaken);
+        // $display("ex stage:    PC: 0x%0x, Ins: %0d, valid: %0d, target: 0x%0x, predictTaken: %0d", old_PC*4, old_instruction, old_valid, old_target, old_predictTaken);
 
         if (flush_counter > 0) begin // already inside a flushed instruction. Neglect values in execution stage
             if(new_speculatively_branched) current_PC = new_target;
@@ -261,6 +276,7 @@ class TwoWayBTB_driver;
             if (!old_speculatively_branched) begin // need to flush next 2 instructions
                 current_PC = target_addresses[old_PC];
                 flush_counter = 2;
+                // $display("old_PC: %0d, current_PC: %0d", old_PC, current_PC);
             end
             else begin
                 if(new_speculatively_branched) current_PC = new_target;
@@ -291,7 +307,7 @@ class TwoWayBTB_driver;
 
         PC = current_PC*4;
         instruction = instructions[current_PC];
-        $display("PC: 0x%0x, instruction: 0x%0x", PC, instruction);
+        // $display("PC: 0x%0x, instruction: 0x%0x", PC, instruction);
     endfunction
 
     // BTB should be updated in these 3 cases for branch and jump instructions in execution stage
@@ -299,21 +315,22 @@ class TwoWayBTB_driver;
     //  2. when valid entry is available but the prediction was wrong
     //  3. when valid entry is available and the prediction was correct (used to update prediction state machine)
     function automatic void generate_BTB_update(output bit update, output int updatePC, output int updateTarget, output bit mispredicted);
-        int pc = PC_fifo[FIFO_DEPTH-1];
-        bit valid = valid_fifo[FIFO_DEPTH-1];
-        int target = target_fifo[FIFO_DEPTH-1];
-        bit predictTaken = predictTaken_fifo[FIFO_DEPTH-1];
+        int pc = PC_fifo[FIFO_DEPTH-2];
+        bit valid = valid_fifo[FIFO_DEPTH-2];
+        int target = target_fifo[FIFO_DEPTH-2];
+        bit predictTaken = predictTaken_fifo[FIFO_DEPTH-2];
         int instruction = instructions[pc];
         int real_target = target_addresses[pc];
 
         // $display("generate BTB fifos: PC: %0p, valid: %0p, target: %0p, predictTaken: %0p, instruction: %0d", PC_fifo, valid_fifo, target_fifo, predictTaken_fifo, instruction);
+        // $display("PC_fifo: %0p", PC_fifo);
         $display("ex stage PC: 0x%0x, instruction: %0d, valid: %d, target: 0x%0x", pc*4, instruction, valid, real_target);
 
         if ((instruction == BRANCH_INS)||(instruction == JUMP_INS)) begin
             if (valid == 1'b0) begin // entry ins not available in BTB
                 update = 1'b1;
                 updatePC = pc*4;
-                updateTarget = real_target;
+                updateTarget = real_target*4;
                 mispredicted = 1'b0;
                 // $display("should update BTB miss");
             end
@@ -321,7 +338,7 @@ class TwoWayBTB_driver;
                 assert(target == real_target); // compare the actual target and target from BTB
                 update = 1'b1;
                 updatePC = pc*4;
-                updateTarget = real_target;
+                updateTarget = real_target*4;
                 mispredicted = (branch_or_not == predictTaken) ? 1'b0: 1'b1; // prediction is true or false
                 // $display("should update BTB hit");
             end
@@ -341,7 +358,7 @@ module TwoWayBTB_tb();
     timeunit 1ns;
     timeprecision 1ps;
 
-    localparam ITERATIONS = 10;
+    localparam ITERATIONS = 15;
 
     localparam real CLK_FREQ = 100; // MHz
     localparam real CLK_PERIOD = 1000/CLK_FREQ;
