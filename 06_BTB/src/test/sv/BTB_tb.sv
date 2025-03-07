@@ -52,6 +52,8 @@ class Way_model #(int NSETS = 8);
             2'd1, 2'd3: newPrediction = (mispredicted)? currentPrediction + 1'b1: currentPrediction-1;
         endcase
 
+        $display("Current prediction: %0d, new prediction: %0d", currentPrediction, newPrediction);
+
         currentPrediction = newPrediction;
     endfunction
 
@@ -100,7 +102,7 @@ class TwoWayBTB_model #(int NSETS = 8);
 
         for(int i=0; i<2; i++) begin
             way[i].read(.PC(PC), .valid(w_valid[i]), .predicate(w_predicate[i]), .target(w_target[i]), .readHit(w_readHit[i]));
-            // $display("Read way%0d pc: 0x%0x, valid: %0d, predicate: %0d, target: 0x%0x, hit: %0d", i, PC, w_valid[i], w_predicate[i], w_target[i], w_readHit[i]);
+            $display("Read way%0d pc: 0x%0x, valid: %0d, predicate: %0d, target: 0x%0x, hit: %0d", i, PC, w_valid[i], w_predicate[i], w_target[i], w_readHit[i]);
         end
 
         if (w_readHit[0] && w_readHit[1]) $fatal("Both ways have same address 0x%0x", PC);
@@ -148,7 +150,7 @@ class TwoWayBTB_model #(int NSETS = 8);
         end
     endfunction
 
-    function print_BTB;
+    function automatic void print_BTB;
         $display("set | valid |  tag  | target| prediction || valid |  tag  | target| prediction |");
         for(int i=0; i<NSETS; i++) begin
             $display("  %0d |   %0d   | 0x%3x | 0x%3x |     %0d      ||   %0d   | 0x%3x | 0x%3x |     %0d      |", i, way[0].valid_array[i], way[0].tag_array[i], way[0].target_array[i], way[0].prediction_array[i], way[1].valid_array[i], way[1].tag_array[i], way[1].target_array[i], way[1].prediction_array[i]);
@@ -178,6 +180,8 @@ class TwoWayBTB_driver;
     int target_fifo[$:FIFO_DEPTH-1];
     int predictTaken_fifo[$:FIFO_DEPTH-1];
 
+    int flush_counter; //used to ignore instructions in fifos when they are flushed
+
     constraint instruction_c{
         foreach (instructions[j]) {
             instructions[j] dist {BRANCH_INS := 1, JUMP_INS := 1, OTHER_INS:= 20}; 
@@ -189,40 +193,27 @@ class TwoWayBTB_driver;
         target_addresses[NUM_INSTRUCTIONS-1] == 0; // last instruction should jump back to 0th instruction
     }
     
-    constraint three_jumps_single_btb_set_c{ // 0->1->2->9->10->17->18->0
-        // instructions[0]  == OTHER_INS;
-        // instructions[1]  == OTHER_INS;
-        // instructions[2]  == JUMP_INS;
-        // instructions[3]  == OTHER_INS;
-        // instructions[4]  == OTHER_INS;
-        // instructions[9]  == OTHER_INS;
-        // instructions[10] == JUMP_INS;
-        // instructions[17] == OTHER_INS;
-        // instructions[18] == JUMP_INS;
+    constraint three_jumps_single_btb_set_c{
 
-        // temporarily add till driver is corrected to flush wrong predictions
-        // instructions[3] == OTHER_INS;
-        // instructions[4] == OTHER_INS;
+        instructions[0]   == OTHER_INS;
+        instructions[1]   == OTHER_INS;
+        instructions[2]   == OTHER_INS;
+        instructions[3]   == OTHER_INS;
+        instructions[4]   == BRANCH_INS;
+        instructions[8]   == BRANCH_INS;
+        instructions[12]  == BRANCH_INS;
+        instructions[20]  == JUMP_INS;
 
-        // target_addresses[2]  == 9;
-        // target_addresses[10] == 17;
-        // target_addresses[18] == 0;
-
-        instructions[0]  == BRANCH_INS;
-        instructions[4]  == BRANCH_INS;
-        instructions[8]  == BRANCH_INS;
-        instructions[16]  == JUMP_INS;
-
-        target_addresses[0]  == 4;
-        target_addresses[4] == 8;
-        target_addresses[8] == 16;
-        target_addresses[16] == 0;
+        target_addresses[4]  == 8;
+        target_addresses[8] == 12;
+        target_addresses[12] == 20;
+        target_addresses[20] == 0;
 
     }
 
     function new();
         // initialize fifos
-        for(int i=0; i<FIFO_DEPTH; i++) begin
+        for(int i=0; i<FIFO_DEPTH-1; i++) begin
             PC_fifo.push_front('0);
             valid_fifo.push_front(1'b0);
             target_fifo.push_front('0);
@@ -232,7 +223,7 @@ class TwoWayBTB_driver;
         // $display("target_addresses: %0p", target_addresses);
     endfunction
 
-    function automatic capture_BTB(input bit valid, input int target, input bit predictTaken);
+    function automatic void capture_BTB(input bit valid, input int target, input bit predictTaken);
 
         // update fifos
         PC_fifo.push_front(current_PC);
@@ -244,7 +235,48 @@ class TwoWayBTB_driver;
         // $display("PC_fifo: %0p", PC_fifo);
     endfunction
 
-    int flush_counter; //used to ignore instructions in fifos when they are flushed
+    // BTB should be updated in these 3 cases for branch and jump instructions in execution stage
+    //  1. when valid entry is not available
+    //  2. when valid entry is available but the prediction was wrong
+    //  3. when valid entry is available and the prediction was correct (used to update prediction state machine)
+    function automatic void generate_BTB_update(output bit update, output int updatePC, output int updateTarget, output bit mispredicted);
+        int pc = PC_fifo[FIFO_DEPTH-2];
+        bit valid = valid_fifo[FIFO_DEPTH-2];
+        int target = target_fifo[FIFO_DEPTH-2];
+        bit predictTaken = predictTaken_fifo[FIFO_DEPTH-2];
+        int instruction = instructions[pc];
+        int real_target = target_addresses[pc];
+
+        if ((instruction == BRANCH_INS)||(instruction == JUMP_INS)) begin
+
+            if (instruction == BRANCH_INS) assert(std::randomize(branch_or_not)); // this is used in generate_next_pc as well
+            else branch_or_not = 1'b1;
+
+            if (valid == 1'b0) begin // entry ins not available in BTB
+                update = 1'b1;
+                updatePC = pc*4;
+                updateTarget = real_target*4;
+                mispredicted = 1'b0;
+                $display("should update BTB miss");
+            end
+            else begin // entry available (valid == 1'b1)
+                assert(target == real_target*4) else $error("target %0d != %0d", target, real_target*4); // compare the actual target and target from BTB
+                update = 1'b1;
+                updatePC = pc*4;
+                updateTarget = real_target*4;
+                mispredicted = (branch_or_not == predictTaken) ? 1'b0: 1'b1; // prediction is true or false
+                $display("should update BTB hit");
+            end
+            $display("BTB Update driver: update: %0d, updatePC: 0x%0x, target: 0x%0x, mispredicted: %0d, branch: %0d", update, updatePC, updateTarget, mispredicted, branch_or_not);
+        end
+        else begin // no update required
+            update = 1'b0;
+            updatePC = '0;
+            updateTarget = '0;
+            mispredicted = 1'b0;
+        end
+
+    endfunction
 
     // next PC is generated mainly by execution stage. However, BTB will decide the next PC if execution stage has no special requirement
     function automatic void generate_next_pc(output int PC, output bit[1:0]instruction);
@@ -265,9 +297,6 @@ class TwoWayBTB_driver;
         bit new_speculatively_branched = (new_valid == 1'b1) && (new_predictTaken == 1'b1);
         bit old_speculatively_branched = (old_valid == 1'b1) && (old_predictTaken == 1'b1);
 
-        // $display("fetch stage: PC: 0x%0x, Ins: %0d, valid: %0d, target: 0x%0x, predictTaken: %0d", current_PC*4, new_instruction, new_valid, new_target, new_predictTaken);
-        // $display("ex stage:    PC: 0x%0x, Ins: %0d, valid: %0d, target: 0x%0x, predictTaken: %0d", old_PC*4, old_instruction, old_valid, old_target, old_predictTaken);
-
         if (flush_counter > 0) begin // already inside a flushed instruction. Neglect values in execution stage
             if(new_speculatively_branched) current_PC = new_target;
             else current_PC = current_PC + 1;
@@ -284,7 +313,6 @@ class TwoWayBTB_driver;
             end
         end
         else if(old_instruction == BRANCH_INS) begin
-            assert(std::randomize(branch_or_not));
             if((!old_speculatively_branched) && (branch_or_not == 1'b1)) begin
                 current_PC = target_addresses[old_PC];
                 flush_counter = 2;
@@ -307,119 +335,101 @@ class TwoWayBTB_driver;
 
         PC = current_PC*4;
         instruction = instructions[current_PC];
-        // $display("PC: 0x%0x, instruction: 0x%0x", PC, instruction);
+        $display("PC: 0x%0x, instruction: 0x%0x", PC, instruction);
     endfunction
 
-    // BTB should be updated in these 3 cases for branch and jump instructions in execution stage
-    //  1. when valid entry is not available
-    //  2. when valid entry is available but the prediction was wrong
-    //  3. when valid entry is available and the prediction was correct (used to update prediction state machine)
-    function automatic void generate_BTB_update(output bit update, output int updatePC, output int updateTarget, output bit mispredicted);
-        int pc = PC_fifo[FIFO_DEPTH-2];
-        bit valid = valid_fifo[FIFO_DEPTH-2];
-        int target = target_fifo[FIFO_DEPTH-2];
-        bit predictTaken = predictTaken_fifo[FIFO_DEPTH-2];
-        int instruction = instructions[pc];
-        int real_target = target_addresses[pc];
+endclass
 
-        // $display("generate BTB fifos: PC: %0p, valid: %0p, target: %0p, predictTaken: %0p, instruction: %0d", PC_fifo, valid_fifo, target_fifo, predictTaken_fifo, instruction);
-        // $display("PC_fifo: %0p", PC_fifo);
-        $display("ex stage PC: 0x%0x, instruction: %0d, valid: %d, target: 0x%0x", pc*4, instruction, valid, real_target);
-
-        if ((instruction == BRANCH_INS)||(instruction == JUMP_INS)) begin
-            if (valid == 1'b0) begin // entry ins not available in BTB
-                update = 1'b1;
-                updatePC = pc*4;
-                updateTarget = real_target*4;
-                mispredicted = 1'b0;
-                // $display("should update BTB miss");
-            end
-            else begin // entry available (valid == 1'b1)
-                assert(target == real_target); // compare the actual target and target from BTB
-                update = 1'b1;
-                updatePC = pc*4;
-                updateTarget = real_target*4;
-                mispredicted = (branch_or_not == predictTaken) ? 1'b0: 1'b1; // prediction is true or false
-                // $display("should update BTB hit");
-            end
-        end
-        else begin // no update required
-            update = 1'b0;
-            updatePC = '0;
-            updateTarget = '0;
-            mispredicted = 1'b0;
-        end
-
+class Monitor;
+    function automatic void compare_dut_and_model(input logic dut_valid, input logic [31:0]dut_target, input logic dut_predictedTaken, input bit model_valid, input int model_target, input bit model_predictTaken);
+        assert(dut_valid == model_valid) else $error("Dut_valid: %0d != Model_valid: %0d", dut_valid, model_valid);
+        assert(dut_target == model_target) else $error("Dut_target: %0d != model_target: %0d", dut_target, model_target);
+        assert(dut_predictedTaken == model_predictTaken) else $error("dut_predictedTaken: %0d != model_predictTaken: %0d", dut_predictedTaken, model_predictTaken);
     endfunction
-
 endclass
 
 module TwoWayBTB_tb();
     timeunit 1ns;
     timeprecision 1ps;
 
-    localparam ITERATIONS = 15;
+    localparam ITERATIONS = 200;
 
     localparam real CLK_FREQ = 100; // MHz
     localparam real CLK_PERIOD = 1000/CLK_FREQ;
 
     TwoWayBTB_model BTB_model;
     TwoWayBTB_driver BTB_driver;
+    Monitor monitor;
     
-    bit clk, reset;
+    bit clock, reset;
 
-    int PC;
+    int PC, nextPC;
     bit update;
     int updatePC;
     int updateTarget;
     bit mispredicted;
 
-    bit valid;
-    int target;
-    bit predictTaken;
+    bit model_valid;
+    int model_target;
+    bit model_predictTaken;
 
     bit [1:0]instruction;
 
-    bit debugWire;
+    logic        dut_valid;
+    logic [31:0] dut_target;
+    logic        dut_predictedTaken;
+
+    TwoWayBTB dut(
+        .clock(clock),
+        .reset(reset),
+        .io_PC(PC),
+        .io_update(update),
+        .io_updatePC(updatePC),
+        .io_updateTarget(updateTarget),
+        .io_mispredicted(mispredicted),
+        .io_valid(dut_valid),
+        .io_target(dut_target),
+        .io_predictedTaken(dut_predictedTaken));
 
     initial begin
-        clk = 1'b0;
+        clock = 1'b0;
         forever begin
             #(CLK_PERIOD/2);
-            clk = ~clk;
+            clock = ~clock;
         end
     end
 
     initial begin
         BTB_model = new();
         BTB_driver = new();
+        monitor = new();
     end
 
     initial begin
+        $dumpfile("dump.vcd"); $dumpvars;
+        @(posedge clock);
         reset = 1'b1;
         #(CLK_PERIOD*2);
+        @(posedge clock);
         reset = 1'b0;
+        nextPC = '0;
 
         for (int i=0;i<ITERATIONS;i++) begin
-            @(posedge clk);
+            @(posedge clock);
+            PC = nextPC;
             BTB_driver.generate_BTB_update(update, updatePC, updateTarget, mispredicted);
             BTB_model.write(update, updatePC, updateTarget, mispredicted);
-            BTB_model.read(PC, valid, target, predictTaken);
-            BTB_driver.capture_BTB(valid, target, predictTaken); //(ref bit clk, ref bit valid, input int target, input bit predictTaken)
-            BTB_driver.generate_next_pc(PC, instruction);
+            BTB_model.read(PC, model_valid, model_target, model_predictTaken);
+            BTB_driver.capture_BTB(model_valid, model_target, model_predictTaken);
+
+            @(negedge clock);
+            monitor.compare_dut_and_model(dut_valid, dut_target, dut_predictedTaken, model_valid, model_target, model_predictTaken);
+            
+            #(CLK_PERIOD*0.4);
+            BTB_driver.generate_next_pc(nextPC, instruction);
         end
-        // forever begin
-        //     @(posedge clk);
-        //     fork
-        //         begin
-        //             BTB_driver.generate_next_pc(PC, instruction);
-        //             BTB_model.read(PC, valid, target, predictTaken);
-        //             BTB_driver.generate_BTB_update(update, updatePC, updateTarget, mispredicted);
-        //             BTB_model.write(updatePC, updateTarget, mispredicted);
-        //         end
-        //         BTB_driver.capture_BTB(clk, valid, target, predictTaken);
-        //     join
-        // end
+        $finish;
     end
+
 
 endmodule
