@@ -87,6 +87,7 @@ class BTB_way (NSETS: Int) extends Module { // NSETS: number of sets
         val tag = Output(UInt(TAG_WIDTH.W))
         val target = Output(UInt(32.W))
         val predictedTaken = Output(UInt(1.W))
+        val updatePC_available = Output(UInt(1.W)) // used to decide which way will be updated
     })
 
     val validMem   = RegInit(VecInit(Seq.fill(NSETS)(0.U(1.W))))
@@ -106,6 +107,8 @@ class BTB_way (NSETS: Int) extends Module { // NSETS: number of sets
     io.tag := tagMem(read_index)
     io.target := targetMem(read_index)
     io.predictedTaken := predictedTaken_vec(read_index)
+
+    io.updatePC_available := validMem(write_index) & (io.updatePC(31,32-TAG_WIDTH) === tagMem(write_index))
 
     // update memories
     when(io.update === 1.U){
@@ -147,6 +150,7 @@ class TwoWayLRU (NSETS: Int) extends  Module{
 }
 
 class TwoWayBTB (NSETS: Int) extends Module{
+    val NWAYS = 2
     val BYTE_OFFSET = 2
     val INDEX_WIDTH = log2Ceil(NSETS)
     val TAG_WIDTH = 32 - INDEX_WIDTH - BYTE_OFFSET // ADDR_WIDTH - INDEX_WIDTH - BYTE_OFFSET
@@ -162,9 +166,8 @@ class TwoWayBTB (NSETS: Int) extends Module{
         val predictedTaken = Output(UInt(1.W))
     })
 
-    val NWAYS = 2
-
     val w_update = Wire(Vec(NWAYS, UInt(1.W)))
+    val w_updatePC_available = Wire(Vec(NWAYS, UInt(1.W)))
     val w_valid = Wire(Vec(NWAYS, UInt(1.W)))
     val w_tag = Wire(Vec(NWAYS, UInt(TAG_WIDTH.W)))
     val w_target = Wire(Vec(NWAYS, UInt(32.W)))
@@ -186,11 +189,12 @@ class TwoWayBTB (NSETS: Int) extends Module{
         w_tag(i) := ways(i).io.tag
         w_target(i) := ways(i).io.target
         w_predictedTaken(i) := ways(i).io.predictedTaken
+        w_updatePC_available(i) := ways(i).io.updatePC_available
     }
 
     // instantiate LRU unit
     val TwoWayLRU_inst = Module(new TwoWayLRU(NSETS = NSETS))
-    TwoWayLRU_inst.io.set := io.PC(INDEX_WIDTH+BYTE_OFFSET-1,BYTE_OFFSET)
+    TwoWayLRU_inst.io.set := io.updatePC(INDEX_WIDTH+BYTE_OFFSET-1,BYTE_OFFSET)
     TwoWayLRU_inst.io.readHitWay := readHit.asUInt
     writeWay := TwoWayLRU_inst.io.LRU_way
 
@@ -198,9 +202,10 @@ class TwoWayBTB (NSETS: Int) extends Module{
         // value should be updated in following cases. (should be updated when the instruction in the EX stage)
         // 1. after 2 cycles from read miss. (no info)
         // 2. after 2 cycles from read hit. (wrong prediction)
-        w_update(i) := io.update & (i.U === writeWay)
+        w_update(i) := io.update & (w_updatePC_available(i) | ((i.U === writeWay) & !w_updatePC_available(~i.B))) // select the way if it already has the line or (LRU select it and other way does not have it)
         readHit(i) := ways(i).io.valid & (w_tag(i) === io.PC(31,BYTE_OFFSET+INDEX_WIDTH))
     }
+    assert(!((readHit(0)===1.U) && (readHit(1) === 1.U)), f"Both ways have same address. PC: ${io.PC(31,BYTE_OFFSET+INDEX_WIDTH)}")
 
     io.valid := readHit.reduce(_ | _)
     io.target := Mux((readHit(0)===1.U), w_target(0), Mux((readHit(1)===1.U), w_target(1), 0.U))

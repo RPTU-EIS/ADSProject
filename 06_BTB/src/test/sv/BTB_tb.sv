@@ -416,6 +416,7 @@ module TwoWayBTB_tb();
 
         for (int i=0;i<ITERATIONS;i++) begin
             @(posedge clock);
+            #(CLK_PERIOD*0.1);
             PC = nextPC;
             BTB_driver.generate_BTB_update(update, updatePC, updateTarget, mispredicted);
             BTB_model.write(update, updatePC, updateTarget, mispredicted);
