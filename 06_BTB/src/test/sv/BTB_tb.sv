@@ -151,9 +151,9 @@ class TwoWayBTB_model #(int NSETS = 8);
     endfunction
 
     function automatic void print_BTB;
-        $display("set | valid |  tag  | target| prediction || valid |  tag  | target| prediction |");
+        $display("set | valid |  tag  | target| predictor || valid |  tag  | target| predictor |");
         for(int i=0; i<NSETS; i++) begin
-            $display("  %0d |   %0d   | 0x%3x | 0x%3x |     %0d      ||   %0d   | 0x%3x | 0x%3x |     %0d      |", i, way[0].valid_array[i], way[0].tag_array[i], way[0].target_array[i], way[0].prediction_array[i], way[1].valid_array[i], way[1].tag_array[i], way[1].target_array[i], way[1].prediction_array[i]);
+            $display("  %0d |   %0d   | 0x%3x | 0x%3x |     %0d     ||   %0d   | 0x%3x | 0x%3x |     %0d     |", i, way[0].valid_array[i], way[0].tag_array[i], way[0].target_array[i], way[0].prediction_array[i], way[1].valid_array[i], way[1].tag_array[i], way[1].target_array[i], way[1].prediction_array[i]);
         end
 
     endfunction
@@ -183,7 +183,7 @@ class TwoWayBTB_driver #(int NUM_INSTRUCTIONS = 40);
 
     constraint instruction_c{
         foreach (instructions[j]) {
-            instructions[j] dist {BRANCH_INS := 1, JUMP_INS := 1, OTHER_INS:= 20}; 
+            instructions[j] dist {BRANCH_INS := 5, JUMP_INS := 1, OTHER_INS:= 20}; 
         }
         instructions[NUM_INSTRUCTIONS-1] == JUMP_INS; // last instruction should jump back to 0th instruction
         foreach(target_addresses[i]){
@@ -264,7 +264,7 @@ class TwoWayBTB_driver #(int NUM_INSTRUCTIONS = 40);
                 updatePC = pc*4;
                 updateTarget = real_target*4;
                 mispredicted = (branch_or_not == predictTaken) ? 1'b0: 1'b1; // prediction is true or false
-                // $display("should update BTB hit");
+                // $display("should update BTB hit Instruction: %0d branch_or_not: %0d", instruction, branch_or_not);
             end
             // $display("BTB Update driver: update: %0d, updatePC: 0x%0x, target: 0x%0x, mispredicted: %0d, branch: %0d", update, updatePC, updateTarget, mispredicted, branch_or_not);
         end
@@ -409,13 +409,14 @@ module TwoWayBTB_tb();
             #(CLK_PERIOD*0.1);
             PC = nextPC;
             BTB_driver.generate_BTB_update(update, updatePC, updateTarget, mispredicted);
-            BTB_model.write(update, updatePC, updateTarget, mispredicted);
             BTB_model.read(PC, model_valid, model_target, model_predictTaken);
+            BTB_model.write(update, updatePC, updateTarget, mispredicted); // in hardware, BTB write happens in posedge. To have the same behavior, I write to BTB after read from BTB
             BTB_driver.capture_BTB(model_valid, model_target, model_predictTaken);
 
             #(CLK_PERIOD*0.9);
             BTB_driver.generate_next_pc(nextPC, instruction);
         end
+        BTB_model.print_BTB();
         $finish;
     end
 
