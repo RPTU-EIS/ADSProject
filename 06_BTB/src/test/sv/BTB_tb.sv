@@ -52,7 +52,7 @@ class Way_model #(int NSETS = 8);
             2'd1, 2'd3: newPrediction = (mispredicted)? currentPrediction + 1'b1: currentPrediction-1;
         endcase
 
-        $display("Current prediction: %0d, new prediction: %0d", currentPrediction, newPrediction);
+        // $display("Current prediction: %0d, new prediction: %0d", currentPrediction, newPrediction);
 
         currentPrediction = newPrediction;
     endfunction
@@ -74,7 +74,7 @@ class LRU_model #(int NSETS = 8);
     endfunction
 
     function automatic bit get_LRU_value(input int set);
-        $display("get LRU set: %0d, value: %d", set, lru_counter[set]);
+        // $display("get LRU set: %0d, value: %d", set, lru_counter[set]);
         return lru_counter[set];
     endfunction
 
@@ -102,7 +102,7 @@ class TwoWayBTB_model #(int NSETS = 8);
 
         for(int i=0; i<2; i++) begin
             way[i].read(.PC(PC), .valid(w_valid[i]), .predicate(w_predicate[i]), .target(w_target[i]), .readHit(w_readHit[i]));
-            $display("Read way%0d pc: 0x%0x, valid: %0d, predicate: %0d, target: 0x%0x, hit: %0d", i, PC, w_valid[i], w_predicate[i], w_target[i], w_readHit[i]);
+            // $display("Read way%0d pc: 0x%0x, valid: %0d, predicate: %0d, target: 0x%0x, hit: %0d", i, PC, w_valid[i], w_predicate[i], w_target[i], w_readHit[i]);
         end
 
         if (w_readHit[0] && w_readHit[1]) $fatal("Both ways have same address 0x%0x", PC);
@@ -146,7 +146,7 @@ class TwoWayBTB_model #(int NSETS = 8);
                 replace_way = lru.get_LRU_value(updatePC[SET_BITS+BYTE_OFFSET-1:BYTE_OFFSET]); // else get the LRU way to replace
             end
             way[replace_way].write(.updatePC(updatePC), .updateTarget(updateTarget), .mispredicted(mispredicted));
-            print_BTB();
+            // print_BTB();
         end
     endfunction
 
@@ -160,8 +160,7 @@ class TwoWayBTB_model #(int NSETS = 8);
 
 endclass
 
-class TwoWayBTB_driver;
-    localparam NUM_INSTRUCTIONS = 40;
+class TwoWayBTB_driver #(int NUM_INSTRUCTIONS = 40);
 
     localparam BRANCH_INS = 2'd0;
     localparam JUMP_INS   = 2'd1;
@@ -193,23 +192,23 @@ class TwoWayBTB_driver;
         target_addresses[NUM_INSTRUCTIONS-1] == 0; // last instruction should jump back to 0th instruction
     }
     
-    constraint three_jumps_single_btb_set_c{
+    // constraint three_jumps_single_btb_set_c{
 
-        instructions[0]   == OTHER_INS;
-        instructions[1]   == OTHER_INS;
-        instructions[2]   == OTHER_INS;
-        instructions[3]   == OTHER_INS;
-        instructions[4]   == BRANCH_INS;
-        instructions[8]   == BRANCH_INS;
-        instructions[12]  == BRANCH_INS;
-        instructions[20]  == JUMP_INS;
+    //     instructions[0]   == OTHER_INS;
+    //     instructions[1]   == OTHER_INS;
+    //     instructions[2]   == OTHER_INS;
+    //     instructions[3]   == OTHER_INS;
+    //     instructions[4]   == BRANCH_INS;
+    //     instructions[8]   == BRANCH_INS;
+    //     instructions[12]  == BRANCH_INS;
+    //     instructions[20]  == JUMP_INS;
 
-        target_addresses[4]  == 8;
-        target_addresses[8] == 12;
-        target_addresses[12] == 20;
-        target_addresses[20] == 0;
+    //     target_addresses[4]  == 8;
+    //     target_addresses[8] == 12;
+    //     target_addresses[12] == 20;
+    //     target_addresses[20] == 0;
 
-    }
+    // }
 
     function new();
         // initialize fifos
@@ -257,7 +256,7 @@ class TwoWayBTB_driver;
                 updatePC = pc*4;
                 updateTarget = real_target*4;
                 mispredicted = 1'b0;
-                $display("should update BTB miss");
+                // $display("should update BTB miss");
             end
             else begin // entry available (valid == 1'b1)
                 assert(target == real_target*4) else $error("target %0d != %0d", target, real_target*4); // compare the actual target and target from BTB
@@ -265,9 +264,9 @@ class TwoWayBTB_driver;
                 updatePC = pc*4;
                 updateTarget = real_target*4;
                 mispredicted = (branch_or_not == predictTaken) ? 1'b0: 1'b1; // prediction is true or false
-                $display("should update BTB hit");
+                // $display("should update BTB hit");
             end
-            $display("BTB Update driver: update: %0d, updatePC: 0x%0x, target: 0x%0x, mispredicted: %0d, branch: %0d", update, updatePC, updateTarget, mispredicted, branch_or_not);
+            // $display("BTB Update driver: update: %0d, updatePC: 0x%0x, target: 0x%0x, mispredicted: %0d, branch: %0d", update, updatePC, updateTarget, mispredicted, branch_or_not);
         end
         else begin // no update required
             update = 1'b0;
@@ -335,7 +334,7 @@ class TwoWayBTB_driver;
 
         PC = current_PC*4;
         instruction = instructions[current_PC];
-        $display("PC: 0x%0x, instruction: 0x%0x", PC, instruction);
+        // $display("PC: 0x%0x, instruction: 0x%0x", PC, instruction);
     endfunction
 
 endclass
@@ -344,13 +343,14 @@ module TwoWayBTB_tb();
     timeunit 1ns;
     timeprecision 1ps;
 
-    localparam ITERATIONS = 200;
+    localparam ITERATIONS = 1000;
+    localparam NUM_INSTRUCTIONS = 40;
 
     localparam real CLK_FREQ = 100; // MHz
     localparam real CLK_PERIOD = 1000/CLK_FREQ;
 
     TwoWayBTB_model BTB_model;
-    TwoWayBTB_driver BTB_driver;
+    TwoWayBTB_driver #(.NUM_INSTRUCTIONS(NUM_INSTRUCTIONS)) BTB_driver;
     
     bit clock, reset;
 
@@ -436,8 +436,8 @@ module TwoWayBTB_tb();
         dut_predictedTaken == model_predictTaken;
     endproperty
 
-    assert property (valid_check) $display("Dut_valid: %0d == Model_valid: %0d", dut_valid, model_valid); else begin $error("Dut_valid: %0d != Model_valid: %0d", dut_valid, model_valid); $stop; end
-    assert property (target_check) $display("Dut_target: %0d == model_target: %0d", dut_target, model_target); else begin $error("Dut_target: %0d != model_target: %0d", dut_target, model_target); $stop; end
-    assert property (predictedTaken_check) $display("dut_predictedTaken: %0d == model_predictTaken: %0d", dut_predictedTaken, model_predictTaken); else begin $error("dut_predictedTaken: %0d != model_predictTaken: %0d", dut_predictedTaken, model_predictTaken); $stop; end
+    assert property (valid_check) else begin $error("Dut_valid: %0d != Model_valid: %0d", dut_valid, model_valid); $stop; end
+    assert property (target_check) else begin $error("Dut_target: %0d != model_target: %0d", dut_target, model_target); $stop; end
+    assert property (predictedTaken_check) else begin $error("dut_predictedTaken: %0d != model_predictTaken: %0d", dut_predictedTaken, model_predictTaken); $stop; end
 
 endmodule
