@@ -18,7 +18,7 @@ class Way_model #(int NSETS = 8);
         bit [26:0]tag = PC[31:(SET_BITS+BYTE_OFFSET)];
         bit [2:0]index = PC[$clog2(NSETS)+1:2];
         valid = valid_array[index];
-        predicate = prediction_array[index];
+        predicate = ((prediction_array[index] == 2'b0) || (prediction_array[index] == 2'b1))? 1'b0 : 1'b1;
         target = target_array[index];
         readHit = ((tag_array[index] == tag) && (valid == 1'b1));
     endfunction
@@ -340,14 +340,6 @@ class TwoWayBTB_driver;
 
 endclass
 
-class Monitor;
-    function automatic void compare_dut_and_model(input logic dut_valid, input logic [31:0]dut_target, input logic dut_predictedTaken, input bit model_valid, input int model_target, input bit model_predictTaken);
-        assert(dut_valid == model_valid) else $error("Dut_valid: %0d != Model_valid: %0d", dut_valid, model_valid);
-        assert(dut_target == model_target) else $error("Dut_target: %0d != model_target: %0d", dut_target, model_target);
-        assert(dut_predictedTaken == model_predictTaken) else $error("dut_predictedTaken: %0d != model_predictTaken: %0d", dut_predictedTaken, model_predictTaken);
-    endfunction
-endclass
-
 module TwoWayBTB_tb();
     timeunit 1ns;
     timeprecision 1ps;
@@ -359,7 +351,6 @@ module TwoWayBTB_tb();
 
     TwoWayBTB_model BTB_model;
     TwoWayBTB_driver BTB_driver;
-    Monitor monitor;
     
     bit clock, reset;
 
@@ -402,7 +393,6 @@ module TwoWayBTB_tb();
     initial begin
         BTB_model = new();
         BTB_driver = new();
-        monitor = new();
     end
 
     initial begin
@@ -423,14 +413,31 @@ module TwoWayBTB_tb();
             BTB_model.read(PC, model_valid, model_target, model_predictTaken);
             BTB_driver.capture_BTB(model_valid, model_target, model_predictTaken);
 
-            @(negedge clock);
-            monitor.compare_dut_and_model(dut_valid, dut_target, dut_predictedTaken, model_valid, model_target, model_predictTaken);
-            
-            #(CLK_PERIOD*0.4);
+            #(CLK_PERIOD*0.9);
             BTB_driver.generate_next_pc(nextPC, instruction);
         end
         $finish;
     end
 
+    // property checks for verification
+
+    property valid_check;
+        @(negedge clock) disable iff (reset)
+        dut_valid == model_valid;
+    endproperty
+
+    property target_check;
+        @(negedge clock) disable iff (reset)
+        dut_target == model_target;
+    endproperty
+
+    property predictedTaken_check;
+        @(negedge clock) disable iff (reset)
+        dut_predictedTaken == model_predictTaken;
+    endproperty
+
+    assert property (valid_check) $display("Dut_valid: %0d == Model_valid: %0d", dut_valid, model_valid); else begin $error("Dut_valid: %0d != Model_valid: %0d", dut_valid, model_valid); $stop; end
+    assert property (target_check) $display("Dut_target: %0d == model_target: %0d", dut_target, model_target); else begin $error("Dut_target: %0d != model_target: %0d", dut_target, model_target); $stop; end
+    assert property (predictedTaken_check) $display("dut_predictedTaken: %0d == model_predictTaken: %0d", dut_predictedTaken, model_predictTaken); else begin $error("dut_predictedTaken: %0d != model_predictTaken: %0d", dut_predictedTaken, model_predictTaken); $stop; end
 
 endmodule

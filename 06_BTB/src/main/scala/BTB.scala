@@ -129,22 +129,23 @@ class BTB_way (NSETS: Int) extends Module { // NSETS: number of sets
 
 class TwoWayLRU (NSETS: Int) extends  Module{
     val io = IO(new Bundle{
-        val set = Input(UInt(log2Ceil(NSETS).W))
+        val readSet = Input(UInt(log2Ceil(NSETS).W)) // used to update LRU when read hit
         val readHitWay = Input(UInt(2.W)) // which way was read hit
-        val LRU_way = Output(UInt(1.W)) //0: way0, 1: way1
+        val writeSet = Input(UInt(log2Ceil(NSETS).W)) // used to decide which way is going to update
+        val LRU_way = Output(UInt(1.W)) //The way should be replaced (when BTB miss) 0: way0, 1: way1
     })
 
     // resets to 0 => if both are ways are available, write to way0
     val LRUMem   = RegInit(VecInit(Seq.fill(NSETS)(0.U(1.W))))
 
-    io.LRU_way := LRUMem(io.set)
+    io.LRU_way := LRUMem(io.writeSet)
 
     switch(io.readHitWay){
         is(1.U){ // read way0
-            LRUMem(io.set) := 1.U // LRU way = way1
+            LRUMem(io.readSet) := 1.U // LRU way = way1
         }
         is(2.U){ // read way1
-            LRUMem(io.set) := 0.U // LRU way = way0
+            LRUMem(io.readSet) := 0.U // LRU way = way0
         }
     }
 }
@@ -194,7 +195,8 @@ class TwoWayBTB (NSETS: Int) extends Module{
 
     // instantiate LRU unit
     val TwoWayLRU_inst = Module(new TwoWayLRU(NSETS = NSETS))
-    TwoWayLRU_inst.io.set := io.updatePC(INDEX_WIDTH+BYTE_OFFSET-1,BYTE_OFFSET)
+    TwoWayLRU_inst.io.writeSet := io.updatePC(INDEX_WIDTH+BYTE_OFFSET-1,BYTE_OFFSET)
+    TwoWayLRU_inst.io.readSet := io.PC(INDEX_WIDTH+BYTE_OFFSET-1,BYTE_OFFSET)
     TwoWayLRU_inst.io.readHitWay := readHit.asUInt
     writeWay := TwoWayLRU_inst.io.LRU_way
 
