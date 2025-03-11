@@ -23,7 +23,15 @@ class TwoBitPredictor extends Module {
 
     stateReg := stateReg // default case
     when (io.reset_state === 1.U){
-        stateReg := predictorStates.strongNotTaken
+        // Here I define mispredicted signal when reset a way with a new address as below
+        // 1. mispredicted == 0 : branch taken = 1
+        // 2. mispredicted == 1 : branch taken = 0
+        when(io.mispredicted === 1.U){
+            stateReg := predictorStates.strongTaken
+        }
+        .otherwise{
+            stateReg := predictorStates.strongNotTaken
+        }
     }
     .otherwise{
         switch (stateReg){
@@ -57,7 +65,8 @@ class TwoBitPredictor extends Module {
         
         // assertions
         assert(((stateReg === RegNext(stateReg)) || (io.update =/= 1.U)), "io.update == 0.U => state should not be changed.")
-        assert(((io.reset_state =/= 1.U) || (RegNext(stateReg) === predictorStates.strongNotTaken)), "io.reset_state => NextState = strongNotTaken.")
+        assert((!((io.reset_state === 1.U) && (io.mispredicted === 0.U)) || (RegNext(stateReg) === predictorStates.strongNotTaken)), "(io.reset_state && ~io.mispredicted) => NextState = strongNotTaken.")
+        assert((!((io.reset_state === 1.U) && (io.mispredicted === 1.U)) || (RegNext(stateReg) === predictorStates.strongTaken)), "(io.reset_state && io.mispredicted) => NextState = strongTaken.")
     }
 
     // set prediction based on state
@@ -108,7 +117,9 @@ class BTB_way (NSETS: Int) extends Module { // NSETS: number of sets
     io.target := targetMem(read_index)
     io.predictedTaken := predictedTaken_vec(read_index)
 
-    io.updatePC_available := validMem(write_index) & (io.updatePC(31,32-TAG_WIDTH) === tagMem(write_index))
+    val updatePC_available_wire = Wire(UInt(1.W))
+    updatePC_available_wire := validMem(write_index) & (io.updatePC(31,32-TAG_WIDTH) === tagMem(write_index))
+    io.updatePC_available := updatePC_available_wire
 
     // update memories
     when(io.update === 1.U){
@@ -121,7 +132,7 @@ class BTB_way (NSETS: Int) extends Module { // NSETS: number of sets
     for (i <- 0 until NSETS){
         predictors(i).io.update := (io.update === 1.U) & (write_index === i.U)
         predictors(i).io.mispredicted := (io.mispredicted === 1.U) & (write_index === i.U)
-        predictors(i).io.reset_state := (io.update === 1.U) & (write_index === i.U) & (io.updatePC(31,32-TAG_WIDTH) =/= tagMem(write_index))
+        predictors(i).io.reset_state := (io.update === 1.U) & (write_index === i.U) & ~updatePC_available_wire
         predictedTaken_vec(i) := predictors(i).io.prediction
     }
 

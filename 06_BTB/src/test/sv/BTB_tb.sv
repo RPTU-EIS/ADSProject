@@ -1,24 +1,33 @@
 class Way_model #(int NSETS = 8);
     localparam SET_BITS = $clog2(NSETS);
     localparam BYTE_OFFSET = 2;
+    int WAY_ID = 0;
+
+    typedef enum bit[1:0] { 
+        strongNotTaken,
+        weakNotTaken,
+        strongTaken,
+        weakTaken
+     } prediction_t;
 
     bit valid_array[NSETS-1:0];
     bit [31-SET_BITS-BYTE_OFFSET:0]tag_array[NSETS-1:0];
     bit [31:0]target_array[NSETS-1:0];
-    bit [1:0]prediction_array[NSETS-1:0];
+    prediction_t prediction_array[NSETS-1:0];
 
-    function new();
+    function new(int way_id = 0);
+        WAY_ID = way_id;
         valid_array = '{default: 0};
         tag_array = '{default: 0};
         target_array = '{default: 0};
-        prediction_array = '{default: 0}; // 0: strongTaken, 1: weakTaken, 2: strongNotTaken, 3: weakNotTaken
+        prediction_array = '{default: strongNotTaken}; // 0: strongTaken, 1: weakTaken, 2: strongNotTaken, 3: weakNotTaken
     endfunction
 
     function automatic void read(input int PC, ref bit valid, ref bit predicate, ref int target, ref bit readHit);
         bit [26:0]tag = PC[31:(SET_BITS+BYTE_OFFSET)];
         bit [2:0]index = PC[$clog2(NSETS)+1:2];
         valid = valid_array[index];
-        predicate = ((prediction_array[index] == 2'b0) || (prediction_array[index] == 2'b1))? 1'b0 : 1'b1;
+        predicate = ((prediction_array[index] == strongNotTaken) || (prediction_array[index] == weakNotTaken))? 1'b0 : 1'b1;
         target = target_array[index];
         readHit = ((tag_array[index] == tag) && (valid == 1'b1));
     endfunction
@@ -31,28 +40,31 @@ class Way_model #(int NSETS = 8);
         bit [2:0]index = updatePC[$clog2(NSETS)+1:2];
 
         if ((tag_array[index] == tag) && (valid_array[index] == 1'b1)) begin // value available, need to update the prediction
+            $display("prediction_array[%0d]: %0p", index, prediction_array[index]);
             updatePrediction(prediction_array[index], mispredicted);
         end
         else begin // replace existing value with a new value
             valid_array[index] = 1'b1;
             tag_array[index] = tag;
             target_array[index] = updateTarget;
-            prediction_array[index] = '0; // reset prediction            
+            prediction_array[index] = (mispredicted == 1'b0)? strongNotTaken : strongTaken; // reset prediction            
         end
         
-        // $display("Updated way index: %d, tag: 0x%0x, target: 0x%0x", index, tag, updateTarget);
+        // $display("way_id: %0d, Updated way index: %0d, tag: 0x%0x, target: 0x%0x, prediction: %0p", WAY_ID, index, tag, updateTarget, prediction_array[index]);
         
     endfunction
 
-    function automatic void updatePrediction(ref bit[1:0]currentPrediction, input bit mispredicted);
-        bit [1:0] newPrediction; // 0: strongTaken, 1: weakTaken, 2: strongNotTaken, 3: weakNotTaken
+    function automatic void updatePrediction(ref prediction_t currentPrediction, input bit mispredicted);
+        prediction_t newPrediction; // 0: strongTaken, 1: weakTaken, 2: strongNotTaken, 3: weakNotTaken
 
         case(currentPrediction)
-            2'd0, 2'd2: newPrediction = (mispredicted)? currentPrediction + 1'b1: currentPrediction;
-            2'd1, 2'd3: newPrediction = (mispredicted)? currentPrediction + 1'b1: currentPrediction-1;
+            strongNotTaken : newPrediction = (mispredicted)? weakNotTaken  : strongNotTaken;
+            weakNotTaken   : newPrediction = (mispredicted)? strongTaken   : strongNotTaken;
+            strongTaken    : newPrediction = (mispredicted)? weakTaken     : strongTaken;
+            weakTaken      : newPrediction = (mispredicted)? strongNotTaken: strongTaken;
         endcase
 
-        // $display("Current prediction: %0d, new prediction: %0d", currentPrediction, newPrediction);
+        // $display("way_id: %0d, Current prediction: %0p, new prediction: %0p", WAY_ID, currentPrediction, newPrediction);
 
         currentPrediction = newPrediction;
     endfunction
@@ -84,12 +96,12 @@ class TwoWayBTB_model #(int NSETS = 8);
     localparam SET_BITS = $clog2(NSETS);
     localparam BYTE_OFFSET = 2;
 
-    Way_model way[2];
+    Way_model #(.NSETS(NSETS))way[2];
     LRU_model lru;
 
     function new();
         for(int i=0; i<2; i++) begin
-            way[i] = new();
+            way[i] = new(.way_id(i));
         end
         this.lru  = new();
     endfunction
@@ -255,7 +267,7 @@ class TwoWayBTB_driver #(int NUM_INSTRUCTIONS = 40);
                 update = 1'b1;
                 updatePC = pc*4;
                 updateTarget = real_target*4;
-                mispredicted = 1'b0;
+                mispredicted = branch_or_not;
                 // $display("should update BTB miss");
             end
             else begin // entry available (valid == 1'b1)
