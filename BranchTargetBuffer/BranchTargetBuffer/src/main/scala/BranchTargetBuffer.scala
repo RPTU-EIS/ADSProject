@@ -53,8 +53,10 @@ for (i <- 0 until numWays) {
     wayHits(i) := true.B // no se usa si tampoco se usa el mux de wayhits
     hit := true.B
     hitWay := i.asUInt(1.W)
+    lru(index) := false.B
   }.otherwise {
     wayHits(i) := false.B // no se usa si tampoco se usa el mux de wayhits
+    lru(index) := true.B
   }
 }
   val hit_stage1 = RegNext(hit, false.B)
@@ -87,6 +89,8 @@ for (i <- 0 until numWays) {
     // Update LRU
     lru(updateIndex) := !updateWay
   }
+
+
 /*
 The 2-bit predictor is a simple saturating counter:
 
