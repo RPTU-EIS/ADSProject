@@ -1,3 +1,32 @@
-        /* 
-         * TODO: Insert your testcases from the previous assignments and adapt them for the pipelined core
-         */
+00000013 // ADDI x0, x0, 0 | NOP
+00400093 // ADDI x1, x0, 4
+00500113 // ADDI x2, x0, 5
+002081b3 // ADD x3, x1, x2
+
+/*
+ * TODO: Add testcases for all R-type instructions in 'BinaryFile' and check the expected results here
+ */
+
+00a00093 // addi x1, x0, 10
+01400113 // addi x2, x0, 20
+ffb00193 // addi x3, x0, -5
+00f00213 // addi x4, x0, 15
+00300293 // addi x5, x0, 3
+00000013 // ADDI x0, x0, 0 | NOP
+00000013 // ADDI x0, x0, 0 | NOP
+00000013 // ADDI x0, x0, 0 | NOP
+00000013 // ADDI x0, x0, 0 | NOP
+40110333 // sub x6, x2, x1
+005213b3 // sll x7, x4, x5
+00525433 // srl x8, x4, x5
+00000013 // ADDI x0, x0, 0 | NOP
+00000013 // ADDI x0, x0, 0 | NOP
+4051d4b3 // sra x9, x3, x5
+0020a533 // slt x10, x1, x2
+00527633 // and x12, x4, x5
+005266b3 // or x13, x4, x5
+00524733 // xor x14, x4, x5
+00000013 // ADDI x0, x0, 0 | NOP
+00000013 // ADDI x0, x0, 0 | NOP
+0021b5b3 // sltu x11, x3, x2
+// Instruction	Binary Representation

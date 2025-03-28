@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ScalaCompilerConfiguration">
+    <profile name="sbt 1" modules="02_single-cycle_risc-v_core_2172" />
+    <profile name="sbt 2" modules="root-02_single-cycle_risc-v_core">
+      <option name="reflectiveCalls" value="true" />
+      <option name="deprecationWarnings" value="true" />
+      <option name="uncheckedWarnings" value="true" />
+      <option name="featureWarnings" value="true" />
+      <parameters>
+        <parameter value="-Xfatal-warnings" />
+      </parameters>
+      <plugins>
+        <plugin path="C:\Users\maqui\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\edu\berkeley\cs\chisel3-plugin_2.12.13\3.5.0\chisel3-plugin_2.12.13-3.5.0.jar" />
+      </plugins>
+    </profile>
+  </component>
+</project>

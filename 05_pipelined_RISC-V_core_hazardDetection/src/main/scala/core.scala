@@ -62,7 +62,7 @@ import uopc._
 
 class regFileReadReq extends Bundle {
     val addr  = Input(UInt(5.W))
-}
+  }
 
 class regFileReadResp extends Bundle {
     val data  = Output(UInt(32.W))
@@ -83,30 +83,93 @@ class regFile extends Module {
     val req_3  = new regFileWriteReq
 })
 
+  // Register file memory
   val regFile = Mem(32, UInt(32.W))
-  regFile(0) := 0.U                           // hard-wired zero for x0
+  
+  // Ensure x0 is always 0
+  regFile(0) := 0.U
 
-  when(io.req_3.wr_en){
-    when(io.req_3.addr =/= 0.U){
+  // Handle register reads with write-through
+  val read1Value = WireDefault(0.U(32.W))
+  when(io.req_1.addr === 0.U) {
+      read1Value := 0.U
+  }.elsewhen(io.req_3.wr_en && io.req_3.addr === io.req_1.addr) {
+      read1Value := io.req_3.data
+  }.otherwise {
+      read1Value := regFile(io.req_1.addr)
+  }
+
+
+  val read2Value = WireDefault(0.U(32.W))
+  when(io.req_2.addr === 0.U) {
+      read2Value := 0.U
+  }.elsewhen(io.req_3.wr_en && io.req_3.addr === io.req_2.addr) {
+      read2Value := io.req_3.data
+  }.otherwise {
+      read2Value := regFile(io.req_2.addr)
+  }
+
+  // Connect read ports
+  io.resp_1.data := read1Value
+  io.resp_2.data := read2Value
+
+  // Handle write requests (protect x0)
+  when(io.req_3.wr_en) {
+    when(io.req_3.addr =/= 0.U) {
       regFile(io.req_3.addr) := io.req_3.data
     }
   }
-
-  io.resp_1.data := Mux(io.req_1.addr === 0.U, 0.U, regFile(io.req_1.addr))
-  io.resp_2.data := Mux(io.req_2.addr === 0.U, 0.U, regFile(io.req_2.addr))
-
 }
 
 class ForwardingUnit extends Module {
   val io = IO(new Bundle {
     // What inputs and / or outputs does the forwarding unit need?
+
+    val exMem_wr_en = Input(Bool())
+    val memWb_wr_en = Input(Bool())
+    
+    val memWb_rdAddr = Input(UInt(5.W))
+    val exMem_rdAddr = Input(UInt(5.W))
+
+    val idEx_rs1Addr = Input(UInt(5.W))
+    val idEx_rs2Addr = Input(UInt(5.W))
+
+    val forwardA = Output(UInt(2.W))
+    val forwardB = Output(UInt(2.W))
+
   })
+
+  io.forwardA := "b00".U
+  io.forwardB := "b00".U
 
 
   /* TODO:
      Hazard detetction logic:
      Which pipeline stages are affected and how can a potential hazard be detetced there?
   */
+  // Data required for the ID/EX stage comes from the EX/MEM stage
+  
+  //prevoius write ra (rd)
+ //next use/read ra (rs1)
+when(io.exMem_wr_en && io.exMem_rdAddr === io.idEx_rs1Addr && io.exMem_rdAddr =/= "b00000".U)
+{
+    io.forwardA := "b01".U
+}.elsewhen(io.memWb_wr_en && io.memWb_rdAddr === io.idEx_rs1Addr && io.memWb_rdAddr =/= "b00000".U)
+{
+    io.forwardA := "b10".U
+}.otherwise {io.forwardA := "b00".U}
+
+when(io.exMem_wr_en && io.exMem_rdAddr === io.idEx_rs2Addr && io.exMem_rdAddr =/= "b00000".U)
+{
+    io.forwardB := "b01".U
+}.elsewhen(io.memWb_wr_en && io.memWb_rdAddr === io.idEx_rs2Addr && io.memWb_rdAddr =/= "b00000".U)
+{
+    io.forwardB := "b10".U
+}.otherwise {io.forwardB := "b00".U}
+ //prevoius write ra (rd)
+ //next use/read ra (rs2/rt)
+ 
+
 
   /* TODO:
      Forwarding Selection:
@@ -479,7 +542,7 @@ class HazardDetectionRV32Icore (BinaryFile: String) extends Module {
   /* 
     TODO: Instantiate the forwarding unit.
   */
-
+  val forwardingUnit = Module(new ForwardingUnit)
 
   //Register File
   val regFile = Module(new regFile)
@@ -503,19 +566,56 @@ class HazardDetectionRV32Icore (BinaryFile: String) extends Module {
   /* 
     TODO: Connect the I/Os of the forwarding unit 
   */
+  //forwardingUnit.io.exMem_wr_en  := true.B
+  //forwardingUnit.io.memWb_wr_en  := true.B
+    forwardingUnit.io.memWb_rdAddr := MEMBarrier.io.outRD // CHANGE
+    forwardingUnit.io.exMem_rdAddr := EXBarrier.io.outRD  // CHANGE
+  forwardingUnit.io.idEx_rs1Addr := IDBarrier.io.outRS1
+  forwardingUnit.io.idEx_rs2Addr := IDBarrier.io.outRS2
+
+  forwardingUnit.io.exMem_wr_en := EXBarrier.io.outAluResult =/= "h_FFFF_FFFF".U
+  forwardingUnit.io.memWb_wr_en := MEMBarrier.io.outAluResult =/= "h_FFFF_FFFF".U
 
   /* 
     TODO: Implement MUXes to select which values are sent to the EX stage as operands
   */
+  // EX.io.operandA := IDBarrier.io.outOperandA// just there to make empty project buildable
+  // EX.io.operandB := IDBarrier.io.outOperandB // just there to make empty project buildable
 
   EX.io.uop := IDBarrier.io.outUOP
+  
+  when(forwardingUnit.io.forwardA === "b00".U)
+  {
+	EX.io.operandA := IDBarrier.io.outOperandA
+  } .elsewhen (forwardingUnit.io.forwardA === "b01".U)
+  {
+	EX.io.operandA := EXBarrier.io.outAluResult
+  }.elsewhen (forwardingUnit.io.forwardA === "b10".U)
+  {
+	EX.io.operandA := MEMBarrier.io.outAluResult
+  }.otherwise {EX.io.operandA := IDBarrier.io.outOperandA} 
+  //{io.check_res  := 4.U}
+  
+
+
+  
+  when(forwardingUnit.io.forwardB === "b00".U)
+  {
+	EX.io.operandB := IDBarrier.io.outOperandB  // FIXUP
+	//io.check_res  := 1.U
+  } .elsewhen (forwardingUnit.io.forwardB === "b01".U)
+  {
+	EX.io.operandB := EXBarrier.io.outAluResult
+  }.elsewhen (forwardingUnit.io.forwardB === "b10".U)
+  {
+	EX.io.operandB := MEMBarrier.io.outAluResult
+  }.otherwise {EX.io.operandB := IDBarrier.io.outOperandB}
+  //{io.check_res  := 2.U}
 
   /* 
     TODO: Connect operand inputs in EX stage to forwarding logic
   */
-  EX.io.operandA := 0.U // just there to make empty project buildable
-  EX.io.operandB := 0.U // just there to make empty project buildable
-
+ 
   EXBarrier.io.inRD         := IDBarrier.io.outRD
   EXBarrier.io.inAluResult  := EX.io.aluResult
 
@@ -527,8 +627,14 @@ class HazardDetectionRV32Icore (BinaryFile: String) extends Module {
   WB.io.regFileReq          <> regFile.io.req_3
 
   WBBarrier.io.inCheckRes   := WB.io.check_res
-
+  
   io.check_res              := WBBarrier.io.outCheckRes
+  //io.check_res              := forwardingUnit.io.forwardA
+  printf(p"Writeback: ${WBBarrier.io.outCheckRes}\n")
+  // printf(p"EX.io.operandA: ${EX.io.operandA}\n")
+  // printf(p"EX.io.operandB: ${EX.io.operandB}\n")
+  // printf(p"forwardA : ${forwardingUnit.io.forwardA}\n")
+  // printf(p"forwardB : ${forwardingUnit.io.forwardB}\n\n\n")
 
 }
 
