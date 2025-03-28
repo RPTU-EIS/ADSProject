@@ -42,7 +42,9 @@ class BranchTargetBuffer extends Module {
 
   val wayHits = Wire(Vec(numWays, Bool())) // Create an output vector of Booleans
   // Loop through each way in the set
+
   val hit = Wire(Bool())
+
   val hitWay = Wire(UInt(1.W))
   hitWay := 0.U
   hit := false.B
@@ -55,7 +57,14 @@ for (i <- 0 until numWays) {
     wayHits(i) := false.B // no se usa si tampoco se usa el mux de wayhits
   }
 }
+  val hit_stage1 = RegNext(hit, false.B)
+  val hit_stage2 = RegNext(hit_stage1, false.B)
 
+  val index_stage1 = RegNext(index, 0.U)
+  val index_stage2 = RegNext(index_stage1, 0.U)
+
+  val hitWay_stage1 = RegNext(hitWay, 0.U)
+  val hitWay_stage2 = RegNext(hitWay_stage1, 0.U)
 
   //val hitWay = Mux(wayHits(0), 0.U, 1.U) usar si no funciona hitway en el for
   
@@ -87,19 +96,19 @@ The 2-bit predictor is a simple saturating counter:
 "11" → Strongly Taken
 */
   // Predictor FSM update
-  when(hit) { // ** Is io.update necesary?
-    val predState = btb(index)(hitWay).predictor
+  when(hit_stage2) { // ** Is io.update necesary?
+    val predState = btb(index_stage2)(hitWay_stage2).predictor
     when(io.mispredicted) {
-      when(predState === 3.U) { btb(index)(hitWay).predictor := 2.U }
-      .elsewhen(predState === 2.U) { btb(index)(hitWay).predictor := 0.U }
-      .elsewhen(predState === 1.U) { btb(index)(hitWay).predictor := 3.U }
-      .otherwise { btb(index)(hitWay).predictor := 1.U }
+      when(predState === 3.U) { btb(index_stage2)(hitWay_stage2).predictor := 2.U }
+      .elsewhen(predState === 2.U) { btb(index_stage2)(hitWay_stage2).predictor := 0.U }
+      .elsewhen(predState === 1.U) { btb(index_stage2)(hitWay_stage2).predictor := 3.U }
+      .otherwise { btb(index_stage2)(hitWay_stage2).predictor := 1.U }
     }.otherwise {
-      when(predState === 0.U) { btb(index)(hitWay).predictor := 0.U }
-      .elsewhen(predState === 1.U) { btb(index)(hitWay).predictor := 0.U }
-      .elsewhen(predState === 2.U) { btb(index)(hitWay).predictor := 3.U }
-      .otherwise { btb(index)(hitWay).predictor := 3.U }
+      when(predState === 0.U) { btb(index_stage2)(hitWay_stage2).predictor := 0.U }
+      .elsewhen(predState === 1.U) { btb(index_stage2)(hitWay_stage2).predictor := 0.U }
+      .elsewhen(predState === 2.U) { btb(index_stage2)(hitWay_stage2).predictor := 3.U }
+      .otherwise { btb(index_stage2)(hitWay_stage2).predictor := 3.U }
     }
   }
-  printf(p"btb(index)(hitWay).predictor: ${btb(index)(hitWay).predictor}\n")
+  printf(p"btb(index)(hitWay).predictor: ${btb(index_stage2)(hitWay_stage2).predictor}\n")
 }
