@@ -19,17 +19,25 @@ class FullAdderTester extends AnyFlatSpec with ChiselScalatestTester {
 
   "FullAdder" should "work" in {
     test(new FullAdder).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-
-          /*dut.io.a.poke(...)
-           *dut.io.b.poke(...)
-           *dut.io.ci.poke(...)
-           *dut.io.s.expect(...)
-           *dut.io.co.expect(...)
-           *...
-           *TODO: Insert your test cases
-           */
+      val truthTable = Seq(
+        (0,0,0,0,0),
+        (0,0,1,1,0),
+        (0,1,0,1,0),
+        (0,1,1,0,1),
+        (1,0,0,1,0),
+        (1,0,1,0,1),
+        (1,1,0,0,1),
+        (1,1,1,1,1)
+      )
+      for((input1, input2, ci, expectedSum, expectedCo) <- truthTable){
+        dut.io.input1.poke(input1.B)
+        dut.io.input2.poke(input2.B)
+        dut.io.ci.poke(ci.B)
+        dut.io.output.expect(expectedSum.B)
+        dut.io.co.expect(expectedCo.B)
+         }
 
         }
-    } 
+    }
 }
 

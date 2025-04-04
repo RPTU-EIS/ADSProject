@@ -21,15 +21,17 @@ import chisel3.util._
 class HalfAdder extends Module{
   
   val io = IO(new Bundle {
-    /* 
-     * TODO: Define IO ports of a half adder as presented in the lecture
-     */
-    })
+    val input1 = Input(UInt(1.W))
+    val input2 = Input(UInt(1.W))
+    val output = Output(UInt(1.W)) //sum
+    val co     = Output(UInt(1.W)) //carry out
+  })
 
   /* 
    * TODO: Describe output behaviour based on the input values
    */
-
+    io.output:= io.input1 ^ io.input2 //XOR for sum A XOR B
+    io.co    := io.input1 & io.input2 // AND for carry
 }
 
 /** 
@@ -45,22 +47,33 @@ class HalfAdder extends Module{
   */
 class FullAdder extends Module{
 
-  val io = IO(new Bundle {
-    /* 
-     * TODO: Define IO ports of a half adder as presented in the lecture
-     */
+   val io = IO(new Bundle {
+    val input1 = Input(UInt(1.W))
+    val input2 = Input(UInt(1.W))
+    val ci     = Input(UInt(1.W)) //carry-in bit
+    val output = Output(UInt(1.W))
+    val co = Output(UInt(1.W)) //carry out bit
     })
 
+//First Half Adder (a+b) giving intermediate sum ha1.io.output and ha1.io.co
+// sum = a XOR b
+// carry = a AND b
+    val ha1 = Module (new HalfAdder)
+    ha1.io.input1 := io.input1
+    ha1.io.input2 := i o.input2
 
-  /* 
-   * TODO: Instanciate the two half adders you want to use based on your HalfAdder class
-   */
+//Second Hald Adder
+// sum = (a XOR b) XOR ci
+// carry = (a XOR b) AND ci
 
+    val ha2 = Module (new HalfAdder)
+    ha2.io.input1 := ha1.io.output
+    ha2.io.input2 := io.ci
 
-  /* 
-   * TODO: Describe output behaviour based on the input values and the internal signals
-   */
-
+ // Sum output ( output = input1 XOR input2 XOR ci )
+    io.output := ha2.io.output
+ // Carry-out (co = (input1 AND input2) OR (sum + ci)
+    io.co := ha1.io.co | ha2.io.co
 }
 
 /** 
