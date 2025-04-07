@@ -29,11 +29,11 @@ class FullAdderTester extends AnyFlatSpec with ChiselScalatestTester {
         (1,1,0,0,1),
         (1,1,1,1,1)
       )
-      for((input1, input2, ci, expectedSum, expectedCo) <- truthTable){
-        dut.io.input1.poke(input1.B)
-        dut.io.input2.poke(input2.B)
+      for((a, b, ci, expectedSum, expectedCo) <- truthTable){
+        dut.io.a.poke(a.B)
+        dut.io.b.poke(b.B)
         dut.io.ci.poke(ci.B)
-        dut.io.output.expect(expectedSum.B)
+        dut.io.s.expect(expectedSum.B)
         dut.io.co.expect(expectedCo.B)
          }
 

@@ -26,10 +26,10 @@ class HalfAdderTester extends AnyFlatSpec with ChiselScalatestTester {
         (1,0,1,0),
         (1,1,0,1)
           )
-          for ((input1,input2,expectedSum,expectedCarry) <- truthTable) {
-            dut.io.input1.poke(input1.B)
-            dut.io.input2.poke(input2.B)
-            dut.io.output.expect(expectedSum.B)
+          for ((a,b,expectedSum,expectedCarry) <- truthTable) {
+            dut.io.a.poke(a.B)
+            dut.io.b.poke(b.B)
+            dut.io.s.expect(expectedSum.B)
             dut.io.co.expect(expectedCarry.B)
           }
         }
