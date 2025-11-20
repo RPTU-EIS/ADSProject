@@ -20,10 +20,6 @@
 [![Issues][issues-shield]][issues-url]-->
 
  ![CI Pipeline: 01 Warm-Up](https://github.com/RPTU-EIS/ADSProject/actions/workflows/01_warm-up.yml/badge.svg?event=push)
- ![CI Pipeline: 02 Single-Cycle RISC-V Core](https://github.com/RPTU-EIS/ADSProject/actions/workflows/02_single-cycle_RISC-V_core.yml/badge.svg?event=push)
- ![CI Pipeline: 03 Multi-Cycle RISC-V Core](https://github.com/RPTU-EIS/ADSProject/actions/workflows/03_multi-cycle_RISC-V_core.yml/badge.svg?event=push)
- ![CI Pipeline: 04 Pipelined RISC-V Core](https://github.com/RPTU-EIS/ADSProject/actions/workflows/04_pipelined_RISC-V_core.yml/badge.svg?event=push)
- ![CI Pipeline: 05 Pipelined RISC-V Core with Forwarding Unit](https://github.com/RPTU-EIS/ADSProject/actions/workflows/05_pipelined_RISC-V_core_hazardDetection.yml/badge.svg?event=push)
 
 <!--
 [![MIT License][license-shield]][license-url]
@@ -42,7 +38,7 @@
   <br />
   Group #XXX
   <br />
-  Winter Semester 202X/202X
+  Winter Semester 2025/2026
   </h3>
 
   <p align="center">
@@ -174,7 +170,7 @@ That's it! You have now successfully forked a repository, cloned it, created a n
 
 <!-- CONTACT -->
 ## Contact
-Tobias Jauch - tobias.jauch@rptu.de
+Tobias Jauch - tobias.jauch@rptu.de<br />
 Andro Mazmishvili - syq71ran@rptu.de
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -183,7 +179,7 @@ Andro Mazmishvili - syq71ran@rptu.de
 ## Acknowledgments
 Many thanks to our student Tharindu Samarakoon (<a href="https://github.com/tharinduSamare">tharinduSamare</a>) for helping us to bring this class project to the next level by implementing a broader instruction set and a UVM testbench!
 
-<p align="right">(<a href="#top">back to top</a>)</p>-->
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ### Additional Materials
 
