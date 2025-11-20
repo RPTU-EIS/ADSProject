@@ -166,17 +166,22 @@ git pull
 
 That's it! You have now successfully forked a repository, cloned it, created a new branch, and pushed your changes to the new branch on GitHub.
 
+<div align="center">
+   <img src="doc/figures/git.png" alt="initial git commit message" width="700">
+</div>
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- CONTACT -->
 ## Contact
 Tobias Jauch - tobias.jauch@rptu.de
+Andro Mazmishvili - syq71ran@rptu.de
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- ACKNOWLEDGMENTS -->
-<!--## Acknowledgments
-Thanks to XY
+## Acknowledgments
+Many thanks to our student Tharindu Samarakoon (<a href="https://github.com/tharinduSamare">tharinduSamare</a>) for helping us to bring this class project to the next level by implementing a broader instruction set and a UVM testbench!
 
 <p align="right">(<a href="#top">back to top</a>)</p>-->
 
