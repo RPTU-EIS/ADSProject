@@ -29,6 +29,28 @@ class FullAdderTester extends AnyFlatSpec with ChiselScalatestTester {
            *TODO: Insert your test cases
            */
 
+      for(a <- 0 to 1)
+        {
+          for(b<- 0 to 1)
+            {
+              for(ci<- 0 to 1)
+                {
+                  val sum = a^b^ci
+                  val carry = (a&b) | (ci & (a^b))
+
+                  dut.io.a.poke(a.U)
+                  dut.io.b.poke(b.U)
+                  dut.io.ci.poke(ci.U)
+                  dut.clock.step(1)
+
+                  println(s"Testing a=$a, b=$b, cin=$ci -> expected sum=$sum, carry=$carry, got sum=${dut.io.s.peek().litValue}, carry=${dut.io.co.peek().litValue}")
+
+                  dut.io.s.expect(sum.U)
+                  dut.io.co.expect(carry.U)
+                }
+            }
+        }
+
         }
     } 
 }
