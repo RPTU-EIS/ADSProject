@@ -80,10 +80,10 @@ class FullAdder extends Module {
 class FourBitAdder extends Module {
 
   val io = IO(new Bundle {
-    val a = Input(UInt.4W)
-    val b = Input(UInt.4W)
-    val s = Output(UInt.4W)
-    val c_o = Output(UInt.1W)
+    val a = Input(UInt(4.W))
+    val b = Input(UInt(4.W))
+    val s = Output(UInt(4.W))
+    val c_o = Output(UInt(4.W))
   })
 
   val ha = Module(new HalfAdder)
@@ -91,4 +91,24 @@ class FourBitAdder extends Module {
   val fa2 = Module(new FullAdder)
   val fa3 = Module(new FullAdder)
 
+  ha.io.a := io.a(0)
+  ha.io.b := io.b(0)
+  io.s(0) := ha.io.s
+
+  fa1.io.a := io.a(1)
+  fa1.io.b := io.b(1)
+  fa1.io.c_i := ha.io.c_o
+  io.s(1) := fa1.io.s
+
+  fa2.io.a := io.a(2)
+  fa2.io.b := io.b(2)
+  fa2.io.c_i := fa1.io.c_o
+  io.s(2) := fa2.io.s
+
+  fa3.io.a := io.a(3)
+  fa3.io.b := io.b(3)
+  fa3.io.c_i := fa2.io.c_o
+  io.s(3) := fa3.io.s
+
+  io.c_o := fa3.io.c_o
 }
