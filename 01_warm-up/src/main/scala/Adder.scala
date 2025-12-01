@@ -45,10 +45,6 @@ class HalfAdder extends Module {
  */
 class FullAdder extends Module {
 
-  val s_t = Wire(Bool())
-  val c_o_t = Wire(Bool())
-  val c_o_t2 = Wire(Bool())
-
   val io = IO(new Bundle {
     val a = Input(Bool())
     val b = Input(Bool())
@@ -63,8 +59,8 @@ class FullAdder extends Module {
   halfadder1.io.a := io.a
   halfadder1.io.b := io.b
 
-  halfadder2.io.a := halfadder1.io.sum
-  halfadder2.io.b := io.c_i
+  halfadder2.io.a := halfadder1.io.s
+  halfadder2.io.b := io.c_i.B
 
   io.s := halfadder2.io.s
   io.c_o := halfadder1.io.c_o | halfadder2.io.c_o
