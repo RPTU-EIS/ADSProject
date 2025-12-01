@@ -21,14 +21,14 @@ import chisel3.util._
 class HalfAdder extends Module{
   
   val io = IO(new Bundle {
-    /* 
-     * TODO: Define IO ports of a half adder as presented in the lecture
-     */
+    val a = Input(Bool())
+    val b = Input(Bool())
+    val s  = Output(Bool())
+    val c_o = Output(Bool())
     })
 
-  /* 
-   * TODO: Describe output behaviour based on the input values
-   */
+  io.s := io.a ^ io.b
+  io.c_o := io.a & io.b
 
 }
 
