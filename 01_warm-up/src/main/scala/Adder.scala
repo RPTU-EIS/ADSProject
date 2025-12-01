@@ -46,13 +46,15 @@ class HalfAdder extends Module{
 class FullAdder extends Module{
 
   val io = IO(new Bundle {
-    /* 
-     * TODO: Define IO ports of a half adder as presented in the lecture
-     */
+    val a = Input(Bool())
+    val b = Input(Bool())
+    val c_i = Input(Bool())
+    val s  = Output(Bool())
+    val c_o = Output(Bool())
     })
 
 
-  /* 
+  /*
    * TODO: Instanciate the two half adders you want to use based on your HalfAdder class
    */
 
