@@ -11,25 +11,71 @@ import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
 
 
-/** 
-  * Full adder tester
-  * Use the truth table from the exercise sheet to test all possible input combinations and the corresponding results exhaustively
-  */
+/**
+ * Full adder tester
+ * Use the truth table from the exercise sheet to test all possible input combinations and the corresponding results exhaustively
+ */
 class FullAdderTester extends AnyFlatSpec with ChiselScalatestTester {
 
   "FullAdder" should "work" in {
     test(new FullAdder).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
 
-          /*dut.io.a.poke(...)
-           *dut.io.b.poke(...)
-           *dut.io.ci.poke(...)
-           *dut.io.s.expect(...)
-           *dut.io.co.expect(...)
-           *...
-           *TODO: Insert your test cases
-           */
+      dut.io.a.poke(0.B)
+      dut.io.b.poke(0.B)
+      dut.io.c_i.poke(0.B)
+      dut.clock.step(1)
+      dut.io.s.expect(0.B)
+      dut.io.c_o.expect(0.B)
 
-        }
-    } 
+      dut.io.a.poke(0.B)
+      dut.io.b.poke(0.B)
+      dut.io.c_i.poke(1.B)
+      dut.clock.step(1)
+      dut.io.s.expect(1.B)
+      dut.io.c_o.expect(0.B)
+
+      dut.io.a.poke(0.B)
+      dut.io.b.poke(1.B)
+      dut.io.c_i.poke(0.B)
+      dut.clock.step(1)
+      dut.io.s.expect(1.B)
+      dut.io.c_o.expect(0.B)
+
+      dut.io.a.poke(0.B)
+      dut.io.b.poke(1.B)
+      dut.io.c_i.poke(1.B)
+      dut.clock.step(1)
+      dut.io.s.expect(0.B)
+      dut.io.c_o.expect(1.B)
+
+      dut.io.a.poke(1.B)
+      dut.io.b.poke(0.B)
+      dut.io.c_i.poke(0.B)
+      dut.clock.step(1)
+      dut.io.s.expect(1.B)
+      dut.io.c_o.expect(0.B)
+
+      dut.io.a.poke(1.B)
+      dut.io.b.poke(0.B)
+      dut.io.c_i.poke(1.B)
+      dut.clock.step(1)
+      dut.io.s.expect(0.B)
+      dut.io.c_o.expect(1.B)
+
+      dut.io.a.poke(1.B)
+      dut.io.b.poke(1.B)
+      dut.io.c_i.poke(0.B)
+      dut.clock.step(1)
+      dut.io.s.expect(0.B)
+      dut.io.c_o.expect(1.B)
+
+      dut.io.a.poke(1.B)
+      dut.io.b.poke(1.B)
+      dut.io.c_i.poke(1.B)
+      dut.clock.step(1)
+      dut.io.s.expect(1.B)
+      dut.io.c_o.expect(1.B)
+    }
+  }
 }
 

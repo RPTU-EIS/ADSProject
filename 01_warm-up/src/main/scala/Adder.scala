@@ -60,7 +60,7 @@ class FullAdder extends Module {
   halfadder1.io.b := io.b
 
   halfadder2.io.a := halfadder1.io.s
-  halfadder2.io.b := io.c_i.B
+  halfadder2.io.b := io.c_i
 
   io.s := halfadder2.io.s
   io.c_o := halfadder1.io.c_o | halfadder2.io.c_o
