@@ -80,17 +80,15 @@ class FullAdder extends Module {
 class FourBitAdder extends Module {
 
   val io = IO(new Bundle {
-    /* 
-     * TODO: Define IO ports of a 4-bit ripple-carry-adder as presented in the lecture
-     */
+    val a = Input(UInt.4W)
+    val b = Input(UInt.4W)
+    val s = Output(UInt.4W)
+    val c_o = Output(UInt.1W)
   })
 
-  /* 
-   * TODO: Instanciate the full adders and one half adderbased on the previously defined classes
-   */
+  val ha = Module(new HalfAdder)
+  val fa1 = Module(new FullAdder)
+  val fa2 = Module(new FullAdder)
+  val fa3 = Module(new FullAdder)
 
-
-  /* 
-   * TODO: Describe output behaviour based on the input values and the internal 
-   */
 }
