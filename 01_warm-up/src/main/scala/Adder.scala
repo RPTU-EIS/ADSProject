@@ -83,7 +83,7 @@ class FourBitAdder extends Module {
     val a = Input(UInt(4.W))
     val b = Input(UInt(4.W))
     val s = Output(UInt(4.W))
-    val c_o = Output(UInt(4.W))
+    val c_o = Output(UInt(1.W))
   })
 
   val ha = Module(new HalfAdder)
