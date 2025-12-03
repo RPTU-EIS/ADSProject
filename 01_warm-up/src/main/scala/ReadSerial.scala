@@ -12,11 +12,11 @@ import chisel3.util._
 
 /** controller class */
 class Controller extends Module{
-  
+
   val io = IO(new Bundle {
-    /* 
-     * TODO: Define IO ports of a the component as stated in the documentation
-     */
+    val reset_n = Input(UInst(1.W)) ???
+    val rxd = Input(UInst(1.W))
+    val valid = Output(UInt(1.W))
     })
 
   // internal variables
