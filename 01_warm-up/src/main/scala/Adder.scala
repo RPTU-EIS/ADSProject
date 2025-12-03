@@ -21,14 +21,14 @@ import chisel3.util._
 class HalfAdder extends Module{
   
   val io = IO(new Bundle {
-    /* 
-     * TODO: Define IO ports of a half adder as presented in the lecture
-     */
+    val a = Input(Bool())
+    val b = Input(Bool())
+    val s = Output(Bool())
+    val co = Output(Bool())
     })
 
-  /* 
-   * TODO: Describe output behaviour based on the input values
-   */
+  io.s := io.a ^ io.b  //XOR for sum
+  io.co := io.a & io.b  //AND for carry out
 
 }
 
@@ -46,20 +46,39 @@ class HalfAdder extends Module{
 class FullAdder extends Module{
 
   val io = IO(new Bundle {
-    /* 
-     * TODO: Define IO ports of a half adder as presented in the lecture
-     */
+    val a = Input(Bool())
+    val b = Input(Bool())
+    val cin = Input(Bool())
+    val s = Output(Bool())
+    val co = Output(Bool())
     })
 
 
   /* 
    * TODO: Instanciate the two half adders you want to use based on your HalfAdder class
    */
+   // Instantiate two half adders
+  val ha1 = Module(new HalfAdder)
+  val ha2 = Module(new HalfAdder)
 
+  // First addition: a + b
+  ha1.io.a := io.a
+  ha1.io.b := io.b
 
   /* 
    * TODO: Describe output behaviour based on the input values and the internal signals
    */
+
+  // Second addition: sum1 + cin
+  ha2.io.a := ha1.io.s
+  ha2.io.b := io.cin
+
+  // Outputs
+  io.s  := ha2.io.s
+  io.co := ha1.io.co | ha2.io.co   // OR the two carries
+
+
+  
 
 }
 
@@ -79,14 +98,45 @@ class FourBitAdder extends Module{
     /* 
      * TODO: Define IO ports of a 4-bit ripple-carry-adder as presented in the lecture
      */
-    })
+    val a  = Input(UInt(4.W))
+    val b  = Input(UInt(4.W))
+    val sum = Output(UInt(4.W))
+    val co  = Output(Bool())
+  })
 
   /* 
    * TODO: Instanciate the full adders and one half adderbased on the previously defined classes
    */
+  val ha = Module(new HalfAdder)
+  val fa1 = Module(new FullAdder)
+  val fa2 = Module(new FullAdder)
+  val fa3 = Module(new FullAdder)
 
+    // Bit 0 (LSB) using Half Adder
+  ha.io.a := io.a(0)
+  ha.io.b := io.b(0)
 
+  // Bit 1
+  fa1.io.a := io.a(1)
+  fa1.io.b := io.b(1)
+  fa1.io.cin := ha.io.co
+
+  // Bit 2
+  fa2.io.a := io.a(2)
+  fa2.io.b := io.b(2)
+  fa2.io.cin := fa1.io.co
+
+  // Bit 3 (MSB)
+  fa3.io.a := io.a(3)
+  fa3.io.b := io.b(3)
+  fa3.io.cin := fa2.io.co
   /* 
    * TODO: Describe output behaviour based on the input values and the internal 
    */
+   
+  // Connect outputs
+  io.sum := Cat(fa3.io.s, fa2.io.s, fa1.io.s, ha.io.s)
+  io.co  := fa3.io.co
+  
+
 }
