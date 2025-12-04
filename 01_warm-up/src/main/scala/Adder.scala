@@ -21,10 +21,10 @@ import chisel3.util._
 class HalfAdder extends Module {
 
   val io = IO(new Bundle {
-    val a = Input(Bool())
-    val b = Input(Bool())
-    val s = Output(Bool())
-    val c_o = Output(Bool())
+    val a = Input(UInt(1.W))
+    val b = Input(UInt(1.W))
+    val s = Output(UInt(1.W))
+    val c_o = Output(UInt(1.W))
   })
 
   io.s := io.a ^ io.b
@@ -46,11 +46,11 @@ class HalfAdder extends Module {
 class FullAdder extends Module {
 
   val io = IO(new Bundle {
-    val a = Input(Bool())
-    val b = Input(Bool())
-    val c_i = Input(Bool())
-    val s = Output(Bool())
-    val c_o = Output(Bool())
+    val a = Input(UInt(1.W))
+    val b = Input(UInt(1.W))
+    val c_i = Input(UInt(1.W))
+    val s = Output(UInt(1.W))
+    val c_o = Output(UInt(1.W))
   })
 
   val halfadder1 = Module(new HalfAdder)
@@ -93,22 +93,20 @@ class FourBitAdder extends Module {
 
   ha.io.a := io.a(0)
   ha.io.b := io.b(0)
-  io.s(0) := ha.io.s
 
   fa1.io.a := io.a(1)
   fa1.io.b := io.b(1)
   fa1.io.c_i := ha.io.c_o
-  io.s(1) := fa1.io.s
 
   fa2.io.a := io.a(2)
   fa2.io.b := io.b(2)
   fa2.io.c_i := fa1.io.c_o
-  io.s(2) := fa2.io.s
 
   fa3.io.a := io.a(3)
   fa3.io.b := io.b(3)
   fa3.io.c_i := fa2.io.c_o
-  io.s(3) := fa3.io.s
+
+  io.s := Cat(fa3.io.s, fa2.io.s, fa1.io.s, ha.io.s)
 
   io.c_o := fa3.io.c_o
 }

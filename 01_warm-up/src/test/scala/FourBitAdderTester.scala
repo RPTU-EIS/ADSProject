@@ -44,7 +44,7 @@ class FourBitAdderTester extends AnyFlatSpec with ChiselScalatestTester {
           val expectedCarry = if (sum > 15) 1 else 0
 
           dut.io.s.expect(expectedSum.U)
-          dut.io.c_o.expect(expectedCarry.U) //vorher (...).B
+          dut.io.c_o.expect(expectedCarry.U)
         }
       }
       
