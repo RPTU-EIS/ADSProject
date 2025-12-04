@@ -14,15 +14,13 @@ import chisel3.util._
 class Controller extends Module{
 
   val io = IO(new Bundle {
-    val reset_n = Input(UInst(1.W)) ???
-    val rxd = Input(UInst(1.W))
-    val valid = Output(UInt(1.W))
+    //val reset_n = Input(UInst(1.W)) ???
+    //val rxd = Input(UInst(1.W))
+    //val valid = Output(UInt(1.W))
     })
 
   // internal variables
-  /* 
-   * TODO: Define internal variables (registers and/or wires), if needed
-   */
+
 
   // state machine
   /* 
