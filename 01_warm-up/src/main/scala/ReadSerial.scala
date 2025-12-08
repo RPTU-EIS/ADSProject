@@ -21,11 +21,23 @@ class Controller extends Module {
     val valid = Output(UInt(1.W))
   })
 
-  val start = UInt(1.W)
-  start := 0.U
+  val cnt_en_flag = RegInit(0.U(1.W))
 
-  when(io.rxd === 0.U && start) {
+  io.cnt_en := cnt_en_flag
+  io.valid := 0.U
 
+  when(cnt_en_flag === 1.U && io.cnt_s > 7.U) {
+    io.valid := 1.U
+  }
+
+  when(io.rxd === 0.U && cnt_en_flag === 0.U) {
+    io.cnt_en := 1.U
+    cnt_en_flag := 1.U
+  }
+
+  when(io.reset_n === 1.U) {
+    io.cnt_en := 0.U
+    cnt_en_flag := 0.U
   }
 
 }
@@ -50,7 +62,7 @@ class Counter extends Module {
     reg := 0.U
   }
 
-  io.s := reg
+  io.cnt_s := reg
 
 }
 
@@ -58,15 +70,15 @@ class Counter extends Module {
 class ShiftRegister extends Module {
 
   val io = IO(new Bundle {
-    val in = Input(UInt(1.W))
+    val rxd = Input(UInt(1.W))
     val data = Output(UInt(8.W))
   })
 
-  val reg = RegInit(0.U(8.W))
+  val reg = RegInit(0.U(9.W))
 
-  reg := Cat(io.in, reg(7, 1))
+  reg := Cat(io.rxd, reg(8, 1))
 
-  io.out := reg
+  io.data := reg(8, 1)
 }
 
 /**
@@ -83,25 +95,25 @@ class ShiftRegister extends Module {
 class ReadSerial extends Module {
 
   val io = IO(new Bundle {
-    /* 
-     * TODO: Define IO ports of a the component as stated in the documentation
-     */
+    val reset_n = Input(UInt(1.W))
+    val rxd = Input(UInt(1.W))
+    val valid = Output(UInt(1.W))
+    val data = Output(UInt(8.W))
   })
 
+  val controller = Module(new Controller)
+  val counter = Module(new Counter)
+  val shiftRegister = Module(new ShiftRegister)
 
-  // instanciation of modules
-  /* 
-   * TODO: Instanciate the modules that you need
-   */
+  controller.io.reset_n := io.reset_n
+  controller.io.rxd := io.rxd
+  controller.io.cnt_s := counter.io.cnt_s
 
-  // connections between modules
-  /* 
-   * TODO: connect the signals between the modules
-   */
+  counter.io.reset_n := io.reset_n
+  counter.io.cnt_en := controller.io.cnt_en
 
-  // global I/O 
-  /* 
-   * TODO: Describe output behaviour based on the input values and the internal signals
-   */
+  shiftRegister.io.rxd := io.rxd
 
+  io.valid := controller.io.valid
+  io.data := shiftRegister.io.data
 }
