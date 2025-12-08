@@ -21,23 +21,24 @@ class Controller extends Module {
     val valid = Output(UInt(1.W))
   })
 
-  val cnt_en_flag = RegInit(0.U(1.W))
+  val active = RegInit(0.U(1.W))
 
-  io.cnt_en := cnt_en_flag
+  io.cnt_en := active
   io.valid := 0.U
 
-  when(cnt_en_flag === 1.U && io.cnt_s > 7.U) {
-    io.valid := 1.U
+  when(active === 1.U) {
+    when(io.cnt_s === 8.U) {
+      io.valid := 1.U
+      active := 0.U
+    }
+  }.otherwise {
+    when(io.rxd === 0.U) {
+      active := 1.U
+    }
   }
 
-  when(io.rxd === 0.U && cnt_en_flag === 0.U) {
-    io.cnt_en := 1.U
-    cnt_en_flag := 1.U
-  }
-
-  when(io.reset_n === 1.U) {
-    io.cnt_en := 0.U
-    cnt_en_flag := 0.U
+  when(io.reset_n === 0.U) {
+    active := 0.U
   }
 
 }
@@ -58,7 +59,7 @@ class Counter extends Module {
     reg := reg + 1.U
   }
 
-  when(io.reset_n === 1.U) {
+  when(io.reset_n === 0.U) {
     reg := 0.U
   }
 

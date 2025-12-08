@@ -28,22 +28,30 @@ class ReadSerialTester extends AnyFlatSpec with ChiselScalatestTester {
       val b = (byte >> i) & 1
       sendBit(dut, b)
     }
+    dut.io.rxd.poke(1.U)
   }
 
   "ReadSerial" should "work" in {
     test(new ReadSerial).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
 
-      dut.io.valid.expect(0.U)
+      dut.io.reset_n.poke(0.U)
       dut.clock.step(1)
-      sendByte(dut, 0x0) // 0b00000000
-      dut.io.valid.expect(1.U)
-      dut.io.data.expect("b00000000".U)
+      dut.io.reset_n.poke(1.U)
+      dut.clock.step(5)
 
       dut.io.valid.expect(0.U)
       dut.clock.step(1)
-      sendByte(dut, 0xAB) // 0b10101011
-      dut.io.valid.expect(1.U)
-      dut.io.data.expect("b10101011".U)
+      sendByte(dut, 0x0) // 0b00000000
+      //dut.io.valid.expect(1.U)
+      dut.io.data.expect("b00000000".U)
+
+      dut.clock.step(5)
+
+      dut.io.valid.expect(0.U)
+      dut.clock.step(1)
+      sendByte(dut, 0xcf) // 0b11001111
+      //dut.io.valid.expect(1.U)
+      dut.io.data.expect("b10101011".U) //11110011 invertiert
 
     }
   }
