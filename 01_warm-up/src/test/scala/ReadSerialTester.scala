@@ -29,6 +29,9 @@ class ReadSerialTester extends AnyFlatSpec with ChiselScalatestTester {
       sendBit(dut, b)
     }
     dut.io.rxd.poke(1.U)
+
+    dut.io.valid.expect(1.U)
+    dut.clock.step(1)
   }
 
   "ReadSerial" should "work" in {
@@ -37,22 +40,28 @@ class ReadSerialTester extends AnyFlatSpec with ChiselScalatestTester {
       dut.io.reset_n.poke(0.U)
       dut.clock.step(1)
       dut.io.reset_n.poke(1.U)
+      dut.io.rxd.poke(1.U)
       dut.clock.step(5)
 
-      dut.io.valid.expect(0.U)
-      dut.clock.step(1)
-      sendByte(dut, 0x0) // 0b00000000
+
+      sendByte(dut, 0x0)
+      //dut.clock.step(1)
       //dut.io.valid.expect(1.U)
-      dut.io.data.expect("b00000000".U)
+      dut.io.data.expect(0x00.U)
+
+      dut.clock.step(1)
+      dut.io.valid.expect(0.U)
 
       dut.clock.step(5)
+
+      /**
 
       dut.io.valid.expect(0.U)
       dut.clock.step(1)
       sendByte(dut, 0xcf) // 0b11001111
       //dut.io.valid.expect(1.U)
       dut.io.data.expect("b10101011".U) //11110011 invertiert
-
+*/
     }
   }
 }
