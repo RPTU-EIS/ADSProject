@@ -21,6 +21,7 @@ import chisel3.util._
 class HalfAdder extends Module{
   
   val io = IO(new Bundle {
+<<<<<<< HEAD
     val a = Input(UInt(1.W))
     val b = Input(UInt(1.W))
     val co = Output(UInt(1.W))
@@ -30,6 +31,22 @@ class HalfAdder extends Module{
   io.s := io.a ^ io.b
   io.co := io.a & io.b
 
+=======
+    /* 
+     * TODO: Define IO ports of a half adder as presented in the lecture
+     */
+    val a  = Input(UInt(1.W))
+    val b  = Input(UInt(1.W))
+    val s  = Output(UInt(1.W))
+    val co  = Output(UInt(1.W))
+    })
+
+  /* 
+   * TODO: Describe output behaviour based on the input values
+   */
+  io.s  := io.a ^ io.b
+  io.co  := io.a & io.b
+>>>>>>> 841f4d3542123fd7143114bf51561e27b55c5ffd
 }
 
 /** 
@@ -93,14 +110,51 @@ class FourBitAdder extends Module{
     /* 
      * TODO: Define IO ports of a 4-bit ripple-carry-adder as presented in the lecture
      */
+
+    val a0  = Input(UInt(1.W))
+    val b0  = Input(UInt(1.W))
+    val a1  = Input(UInt(1.W))
+    val b1  = Input(UInt(1.W))
+    val a2  = Input(UInt(1.W))
+    val b2  = Input(UInt(1.W))
+    val a3  = Input(UInt(1.W))
+    val b3  = Input(UInt(1.W))
+    val s0  = Output(UInt(1.W))
+    val s1  = Output(UInt(1.W))
+    val s2  = Output(UInt(1.W))
+    val s3  = Output(UInt(1.W))
+    val co3 = Output(UInt(1.W))
     })
 
   /* 
    * TODO: Instanciate the full adders and one half adderbased on the previously defined classes
    */
-
-
+    val ha0 = Module(new HalfAdder())
+    val fa1 = Module(new FullAdder())
+    val fa2 = Module(new FullAdder())
+    val fa3 = Module(new FullAdder())
   /* 
    * TODO: Describe output behaviour based on the input values and the internal 
    */
+    ha0.io.a := io.a0
+    ha0.io.b := io.b0
+
+    fa1.io.a := io.a1
+    fa1.io.b := io.b1
+    fa1.io.ci := ha0.io.co
+
+    fa2.io.a := io.a2
+    fa2.io.b := io.b2
+    fa2.io.ci := fa1.io.co
+
+    fa3.io.a := io.a3
+    fa3.io.b := io.b3
+    fa3.io.ci := fa2.io.co
+    
+    io.s0 := ha0.io.s
+    io.s1 := fa1.io.s
+    io.s2 := fa2.io.s
+    io.s3 := fa3.io.s
+    io.co3 := fa3.io.co
+
 }
