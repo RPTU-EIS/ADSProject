@@ -1,6 +1,6 @@
 # ADSProject
 
-![01-warm-up](https://github.com/quochoangle-rptu/ADSProject/actions/workflows/01_warm-up.yml/badge.svg?branch=Sohamworkspace)
+<!--![01-warm-up](https://github.com/quochoangle-rptu/ADSProject/actions/workflows/01_warm-up.yml/badge.svg?branch=Sohamworkspace)-->
 
 <div id="top"></div>
 <!--
