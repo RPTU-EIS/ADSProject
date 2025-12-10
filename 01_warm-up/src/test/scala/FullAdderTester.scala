@@ -95,9 +95,5 @@ class FullAdderTester extends AnyFlatSpec with ChiselScalatestTester {
 
         }
     }
-<<<<<<< HEAD
 }
-=======
-} 
->>>>>>> 841f4d3542123fd7143114bf51561e27b55c5ffd
 
