@@ -37,7 +37,7 @@ class Controller extends Module {
     }
   }
 
-  when(io.reset_n === 0.U) {
+  when(io.reset_n === 1.U) {
     active := 0.U
   }
 
@@ -57,9 +57,11 @@ class Counter extends Module {
 
   when(io.cnt_en === 1.U) {
     reg := reg + 1.U
+  }.otherwise {
+    reg := 0.U
   }
 
-  when(io.reset_n === 0.U) {
+  when(io.reset_n === 1.U) {
     reg := 0.U
   }
 
@@ -75,11 +77,11 @@ class ShiftRegister extends Module {
     val data = Output(UInt(8.W))
   })
 
-  val reg = RegInit(0.U(9.W))
+  val reg = RegInit(0.U(8.W))
 
-  reg := Cat(io.rxd, reg(8, 1))
+  reg := Cat(reg(6, 0), io.rxd)
 
-  io.data := reg(8, 1)
+  io.data := reg
 }
 
 /**
