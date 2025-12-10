@@ -21,7 +21,6 @@ import chisel3.util._
 class HalfAdder extends Module{
   
   val io = IO(new Bundle {
-<<<<<<< HEAD
     val a = Input(UInt(1.W))
     val b = Input(UInt(1.W))
     val co = Output(UInt(1.W))
@@ -31,22 +30,6 @@ class HalfAdder extends Module{
   io.s := io.a ^ io.b
   io.co := io.a & io.b
 
-=======
-    /* 
-     * TODO: Define IO ports of a half adder as presented in the lecture
-     */
-    val a  = Input(UInt(1.W))
-    val b  = Input(UInt(1.W))
-    val s  = Output(UInt(1.W))
-    val co  = Output(UInt(1.W))
-    })
-
-  /* 
-   * TODO: Describe output behaviour based on the input values
-   */
-  io.s  := io.a ^ io.b
-  io.co  := io.a & io.b
->>>>>>> 841f4d3542123fd7143114bf51561e27b55c5ffd
 }
 
 /** 
