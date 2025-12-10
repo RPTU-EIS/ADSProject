@@ -27,7 +27,7 @@ class Controller extends Module {
   io.valid := 0.U
 
   when(active === 1.U) {
-    when(io.cnt_s === 7.U) {
+    when(io.cnt_s === 8.U) {
       io.valid := 1.U
       active := 0.U
     }
@@ -75,11 +75,11 @@ class ShiftRegister extends Module {
     val data = Output(UInt(8.W))
   })
 
-  val reg = RegInit(0.U(8.W))
+  val reg = RegInit(0.U(9.W))
 
-  reg := Cat(reg(6, 0), io.rxd)
+  reg := Cat(io.rxd, reg(8, 1))
 
-  io.data := reg
+  io.data := reg(8, 1)
 }
 
 /**
