@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ScalaCompilerConfiguration">
+    <profile name="sbt 1" modules="01_warm-up_2502,01_warm-up_2502.main,01_warm-up_2502.test,01_warm-up_6698,01_warm-up_6698.main,01_warm-up_6698.test,01_warm-up_9486,01_warm-up_9486.main,01_warm-up_9486.test" />
+  </component>
+</project>

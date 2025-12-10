@@ -11,8 +11,8 @@ class FourBitAdderTester extends AnyFlatSpec with ChiselScalatestTester {
     test(new FourBitAdder).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
 
       // Test all combinations of 4-bit inputs (0-15)
-      for (a <- 0 until 16) {
-        for (b <- 0 until 16) {
+      for (a <- 0 to 15) {
+        for (b <- 0 to 15) {
           val sum = a + b
           val expectedSum = sum & 0xF        // Lower 4 bits
           val expectedCarry = (sum >> 4) & 1 // Final carry out (co3)
