@@ -7,9 +7,9 @@ name: 01_warm-up
 
 on:
   push:
-    branches: [ "hoangworkspace" ]
+    branches: [ "Sohamworkspace" ]
   pull_request:
-    branches: [ "hoangworkspace" ]
+    branches: [ "Sohamworkspace" ]
 
 permissions:
   contents: read
