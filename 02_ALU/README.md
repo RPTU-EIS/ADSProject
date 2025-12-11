@@ -4,7 +4,7 @@ This is an implementation of a 32-bit Arithmetic Logic Unit (ALU) for an RV32I R
 
 ## ALU Operations Supported
 
-The ALU supports all 11 RV32I operations:
+The ALU supports the following operations:
 - **ADD**: Addition with two's-complement wraparound
 - **SUB**: Subtraction with two's-complement wraparound
 - **AND**: Logical bitwise AND
@@ -40,7 +40,7 @@ The ALU supports all 11 RV32I operations:
   - `alu_tb.sv`: Top module (DUT instantiation and testbench harness)
   - `alu_sim.tcl`: Tcl script for simulation in Vivado
 
-- **`generated-src/`**: Generated RTL
+- **`generated-src/`**: Will contain the generated RTL (after running `sbt run` or `sbt test`)
   - `ALU.v`: Generated Verilog from Chisel compilation
 
 ## Requirements
@@ -50,7 +50,7 @@ The ALU supports all 11 RV32I operations:
   - sbt (Scala Build Tool)
 
 - **Simulation**:
-  - Xilinx Vivado Design Suite (tested on version 2020.1)
+  - Xilinx Vivado Design Suite (tested on version 2020.1), free educational licenses available
   - or any SystemVerilog simulator supporting UVM (ModelSim, VCS, Verilator)
 
 ## Usage Instructions
@@ -108,50 +108,20 @@ For ModelSim, VCS, or Verilator, compile the UVM environment:
 - **Chisel tests**: VCD files in `test_run_dir/*/ALU.vcd`
 - **UVM simulation**: VCD file at `build/alu_dump.vcd` (in Vivado)
 
-### Run SystemVerilog Testbench (Legacy)
+Browser-based waveform viewer: [https://surfer-project.org/](https://surfer-project.org/)
 
-For direct SystemVerilog simulation without UVM:
-```bash
-# In Vivado:
-# 1. Create RTL project (Default Part)
-# 2. Add design source: generated-src/ALU.v
-# 3. Add simulation source: src/test/uvm/alu_tb.sv (if available)
-# 4. Run simulation
-```
 
 ## Key Implementation Features
 
 ### ALU Design (Chisel)
-- **Purely combinational**: No state, all operations completed within one clock cycle
+- **Purely combinational**: No state-holding elements, all operations complete within one clock cycle
 - **RV32I compliant**: Follows RISC-V 32-bit ISA specification
-- **Exception handling**: Includes `exception` output for detecting unsupported operations
-- **Two's-complement arithmetic**: ADD/SUB operations with modulo-2³² wraparound
-- **Proper shift semantics**: SLL/SRL/SRA use only lower 5 bits of operandB for shift amount
 
 ### Chisel Testbench (TDD)
 - **Modular test classes**: Separate test class for each operation
-- **Comprehensive coverage**: Edge cases including:
-  - Zero and maximum values
-  - Wraparound conditions
-  - Signed vs. unsigned comparisons
-  - Boundary shift amounts (0, 31)
+- **Comprehensive coverage**: Includes edge cases
 - **Automated VCD generation**: Waveforms for debugging
 
-## Test Coverage Summary
-
-| Operation | Tests | Corner Cases Covered |
-|-----------|-------|---------------------|
-| ADD | 5 | Zero, max, wraparound, positive/negative |
-| SUB | 5 | Zero, underflow, negative to positive transition |
-| AND | 5 | All-zeros, all-ones, alternating bits |
-| OR | 5 | All-zeros, all-ones, alternating bits |
-| XOR | 4 | All-zeros, all-ones, alternating bits |
-| SLL | 3 | Shift by 0, 1, 31 |
-| SRL | 3 | Shift by 0, 1, 31 (logical) |
-| SRA | 3 | Shift by 0, 1, 31 (arithmetic sign extension) |
-| SLT | 3 | Signed comparison, equal values, negative vs. positive |
-| SLTU | 4 | Unsigned comparison, max value, zero |
-| PASSB | 3 | Pass zero, max, arbitrary value |
 
 ### UVM Testbench
 - **Constrained-random stimulus**: Automatically generates valid ALU operations and operands
