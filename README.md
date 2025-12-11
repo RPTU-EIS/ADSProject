@@ -20,6 +20,7 @@
 [![Issues][issues-shield]][issues-url]-->
 
  ![CI Pipeline: 01 Warm-Up](https://github.com/RPTU-EIS/ADSProject/actions/workflows/01_warm-up.yml/badge.svg?event=push)
+ ![CI Pipeline: 02 ALU](https://github.com/RPTU-EIS/ADSProject/actions/workflows/02_ALU.yml/badge.svg?event=push)
 
 <!--
 [![MIT License][license-shield]][license-url]
