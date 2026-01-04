@@ -69,6 +69,14 @@ class ReadSerialTester extends AnyFlatSpec with ChiselScalatestTester {
 
       dut.io.rxd.poke(true.B) //return to idle
       dut.clock.step(2)
+
+      transmitByte(0xAA)
+      transmitByte(0xBB)
+
+      dut.io.rxd.poke(true.B)
+      dut.clock.step(1)
+
+
         }
     } 
 }
