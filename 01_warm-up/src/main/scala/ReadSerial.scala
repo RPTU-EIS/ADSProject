@@ -1,196 +1,195 @@
 // ADS I Class Project
 // Chisel Introduction
 //
-// Serial receiver implementation for Task 1.5
 // Chair of Electronic Design Automation, RPTU in Kaiserslautern
+// File created on 18/10/2022 by Tobias Jauch (@tojauch)
 
 package readserial
 
 import chisel3._
 import chisel3.util._
 
-/** Controller class
-  *
-  * io.rxd  : serial input line (1 = idle, start bit = 0)
-  * io.rst  : external reset input (when high, abort ongoing reception)
-  * io.en   : enable signal for counter/shift register (true while receiving data bits)
-  * io.valid: one-cycle pulse indicating an 8-bit word is available
-  */
-class Controller extends Module {
-  val io = IO(new Bundle {
-    val rxd   = Input(Bool())
-    val rst   = Input(Bool())
-    val en    = Output(Bool())   // enable receiving (counter + shift)
-    val done  = Input(Bool())    // from counter: true when last bit received
-    val valid = Output(Bool())   // one-cycle pulse when byte is ready
-  })
 
-  // FSM states
-  val sIdle :: sRecv :: Nil = Enum(2)
+/** controller class */
+class Controller extends Module{
+  
+  val io = IO(new Bundle {
+    /* 
+     * TODO: Define IO ports of a the component as stated in the documentation
+     */
+    val rxd = Input(Bool())
+    val cnt_s = Input(UInt(3.W)) // Input from Counter value
+    val cnt_en = Output(Bool())  // Enable Counter and Shifter
+    val rst = Output(Bool()) // Synchronous reset for the counter
+    val valid = Output(Bool())   // Valid signal to top level
+    })
+
+  // internal variables
+  /* 
+   * TODO: Define internal variables (registers and/or wires), if needed
+   */
+  val sIdle :: sReading :: sValid :: Nil = Enum(3)
   val state = RegInit(sIdle)
 
-  // valid pulse register
-  val validReg = RegInit(false.B)
-
-  // Default outputs
-  io.en := false.B
+  io.cnt_en := false.B
+  io.rst := false.B
   io.valid := false.B
 
-  // State transitions and outputs
-  when(io.rst) {
-    // external reset aborts everything and makes outputs 0
-    state := sIdle
-    validReg := false.B
-  } .otherwise {
-    switch(state) {
-      is(sIdle) {
-        validReg := false.B
-        // wait for start bit (rxd == 0)
-        when(io.rxd === false.B) {
-          // detected start bit -> begin receiving next cycle
-          state := sRecv
-          // enable receiving for the first data bit sample immediately
-          io.en := true.B
-        } .otherwise {
-          io.en := false.B
-        }
+
+  // state machine
+  /* 
+   * TODO: Describe functionality if the controller as a state machine
+   */
+  switch(state)
+  {
+    is(sIdle)
+    {
+      io.rst := true.B
+
+      when(io.rxd === false.B)
+      {
+        state := sReading
       }
-      is(sRecv) {
-        // while receiving, keep enable true
-        io.en := true.B
-        // if counter signals done, produce valid pulse for one cycle and go to Idle
-        when(io.done) {
-          validReg := true.B
-          state := sIdle
-          io.en := false.B
-        } .otherwise {
-          validReg := false.B
-        }
+    }
+
+    is(sReading)
+    {
+      io.cnt_en := true.B
+
+      when(io.cnt_s === 7.U) //when we have received 8 bits
+      {
+        state := sValid
+      }
+    }
+
+    is(sValid)
+    {
+      io.valid := true.B
+      io.rst := true.B
+
+      when(io.rxd === false.B)
+      {
+        state := sReading
+      }
+        .otherwise
+      {
+        state := sIdle
       }
     }
   }
 
-  // Drive valid output (pulse)
-  io.valid := validReg
 }
 
-/** Counter class
-  *
-  * Counts 0..7 on each rising clock while io.en is true.
-  * io.done goes high in the cycle when the counter reaches 7 and io.en was true.
-  *
-  * IO:
-  *  - en   : enable counting
-  *  - rst  : external reset (synchronous)
-  *  - done : output pulse when last bit received (count reached 7)
-  */
-class Counter extends Module {
+
+/** counter class */
+class Counter extends Module{
+  
   val io = IO(new Bundle {
-    val en   = Input(Bool())
-    val rst  = Input(Bool())
-    val done = Output(Bool())
-    val value = Output(UInt(3.W)) // current count (0..7)
-  })
+    /* 
+     * TODO: Define IO ports of a the component as stated in the documentation
+     */
+    val en = Input(Bool()) //start counting
+    val rst = Input(Bool()) //for reseting the counter
+    val cnt = Output(UInt(3.W)) //for counting 8 bits
+    })
 
-  val cnt = RegInit(0.U(3.W))
-  io.done := false.B
-  io.value := cnt
+  // internal variables
+  /* 
+   * TODO: Define internal variables (registers and/or wires), if needed
+   */
+  val countReg = RegInit(0.U(3.W))
 
-  when(io.rst) {
-    cnt := 0.U
-    io.done := false.B
-  } .elsewhen(io.en) {
-    when(cnt === 7.U) {
-      // if this was the 8th bit, assert done and reset counter (next reception will start at 0)
-      io.done := true.B
-      cnt := 0.U
-    } .otherwise {
-      cnt := cnt + 1.U
-      io.done := false.B
-    }
-  } .otherwise {
-    // hold count when not enabled
-    io.done := false.B
+  // state machine
+  /* 
+   * TODO: Describe functionality if the counter as a state machine
+   */
+  when(io.rst)
+  {
+    countReg := 0.U
   }
-}
-
-/** Shift register class
-  *
-  * Samples serial bits (msb-first) and accumulates them into an 8-bit word.
-  *
-  * Behavior:
-  *  - When io.en is true, on each rising clock the module shifts left by 1 bit and
-  *    appends the sampled bit into LSB, i.e. reg := Cat(reg(6,0), io.in)
-  *  - This procedure with MSB-first input results in the final register containing
-  *    the received byte with correct bit order (MSB in bit 7).
-  *
-  * IO:
-  *  - in   : serial input bit
-  *  - en   : sample/shift enable
-  *  - rst  : external reset
-  *  - out  : 8-bit parallel data
-  */
-class ShiftRegister extends Module {
-  val io = IO(new Bundle {
-    val in  = Input(Bool())
-    val en  = Input(Bool())
-    val rst = Input(Bool())
-    val out = Output(UInt(8.W))
-  })
-
-  val reg = RegInit(0.U(8.W))
-
-  when(io.rst) {
-    reg := 0.U
-  } .elsewhen(io.en) {
-    // shift left and append sampled bit at LSB
-    // Example (4-bit shown): after receiving bits b3 b2 b1 b0 (msb-first),
-    // successive operations produce final reg = b3 b2 b1 b0
-    reg := Cat(reg(6, 0), io.in)
-  } .otherwise {
-    reg := reg // hold
+    .elsewhen(io.en)
+  {
+    countReg := countReg+1.U
   }
+  io.cnt := countReg
 
-  io.out := reg
+
 }
 
-/** Top-level ReadSerial module
-  *
-  * IO:
-  *  - rxd   : serial input line (1 = idle)
-  *  - rst   : synchronous external reset (when high aborts reception)
-  *  - data  : 8-bit parallel output
-  *  - valid : one-cycle pulse when data is valid (new byte ready)
-  */
-class ReadSerial extends Module {
+/** shift register class */
+class ShiftRegister extends Module{
+  
   val io = IO(new Bundle {
-    val rxd   = Input(Bool())
-    val rst   = Input(Bool())
-    val data  = Output(UInt(8.W))
+    /* 
+     * TODO: Define IO ports of a the component as stated in the documentation
+     */
+    val rxd = Input(Bool())
+    //val en = Input(Bool())
+    val data = Output(UInt(8.W))
+    })
+
+  // internal variables
+  /* 
+   * TODO: Define internal variables (registers and/or wires), if needed
+   */
+  val shiftReg = RegInit(0.U(8.W))
+
+  // functionality
+  /* 
+   * TODO: Describe functionality if the shift register
+   */
+  shiftReg := Cat(shiftReg(6,0),io.rxd) //MSB transmitted first
+  io.data := shiftReg
+}
+
+/** 
+  * The last warm-up task deals with a more complex component. Your goal is to design a serial receiver.
+  * It scans an input line (“serial bus”) named rxd for serial transmissions of data bytes. A transmission 
+  * begins with a start bit ‘0’ followed by 8 data bits. The most significant bit (MSB) is transmitted first. 
+  * There is no parity bit and no stop bit. After the last data bit has been transferred a new transmission 
+  * (beginning with a start bit, ‘0’) may immediately follow. If there is no new transmission the bus line 
+  * goes high (‘1’, this is considered the “idle” bus signal). In this case the receiver waits until the next 
+  * transmission begins. The outputs of the design are an 8-bit parallel data signal and a valid signal. 
+  * The valid signal goes high (‘1’) for one clock cycle after the last serial bit has been transmitted, 
+  * indicating that a new data byte is ready.
+  */
+class ReadSerial extends Module{
+  
+  val io = IO(new Bundle {
+    /* 
+     * TODO: Define IO ports of a the component as stated in the documentation
+     */
+    val rxd = Input(Bool())
     val valid = Output(Bool())
-  })
+    val data = Output(UInt(8.W))
+    })
 
-  // instantiate submodules
+
+  // instanciation of modules
+  /* 
+   * TODO: Instanciate the modules that you need
+   */
   val ctrl = Module(new Controller)
-  val cnt  = Module(new Counter)
-  val shf  = Module(new ShiftRegister)
+  val cntr = Module(new Counter)
+  val shifter = Module(new ShiftRegister)
 
-  // connect reset and rxd
+  // connections between modules
+  /* 
+   * TODO: connect the signals between the modules
+   */
   ctrl.io.rxd := io.rxd
-  ctrl.io.rst := io.rst
+  ctrl.io.cnt_s := cntr.io.cnt
 
-  // controller drives enable for counter and shift register
-  // Note: controller also receives done from counter
-  cnt.io.en := ctrl.io.en
-  cnt.io.rst := io.rst
-  ctrl.io.done := cnt.io.done
+  cntr.io.en := ctrl.io.cnt_en
+  cntr.io.rst := ctrl.io.rst
 
-  // shift register connections
-  shf.io.in := io.rxd
-  shf.io.en := ctrl.io.en
-  shf.io.rst := io.rst
+  shifter.io.rxd := io.rxd
 
-  // top-level outputs
-  io.data := shf.io.out
+  // global I/O 
+  /* 
+   * TODO: Describe output behaviour based on the input values and the internal signals
+   */
   io.valid := ctrl.io.valid
+  io.data := shifter.io.data
+
 }
