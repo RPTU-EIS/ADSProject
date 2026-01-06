@@ -1,0 +1,25 @@
+1)
+
+ADD: ADD, ADDI
+SUB: SUB
+AND: AND, ANDI
+OR: OR, ORI
+XOR: XOR, XORI
+SLL: SLL, SLLI
+SRL: SRL, SRLI
+SRA: SRA, SRAI
+SLT: SRA, SRAI
+SLTU: SLTU, SLTIU
+PASSB: LUI
+
+2)
+
+Set output to 0
+
+3)
+
+overflow
+negativ values
+max shift width
+shift 0
+slt equal values
