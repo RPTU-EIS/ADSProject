@@ -31,7 +31,7 @@
   },
   {
     "class":"firrtl.transforms.CombinationalPath",
-    "sink":"~ALU|ALU>io_result",
+    "sink":"~ALU|ALU>io_aluResult",
     "sources":[
       "~ALU|ALU>io_operation",
       "~ALU|ALU>io_operandA",

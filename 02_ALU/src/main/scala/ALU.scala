@@ -21,25 +21,25 @@ class ALU extends Module {
     val operandA = Input(UInt(32.W))
     val operandB = Input(UInt(32.W))
     val operation = Input(ALUOp())
-    val result = Output(UInt(32.W))
+    val aluResult = Output(UInt(32.W))
   })
 
 
 
-  io.result := 0.U
+  io.aluResult := 0.U
 
   switch(io.operation) {
-    is(ALUOp.ADD) { io.result := io.operandA + io.operandB }
-    is(ALUOp.SUB) { io.result := io.operandA - io.operandB }
-    is(ALUOp.AND) { io.result := io.operandA & io.operandB }
-    is(ALUOp.OR) { io.result := io.operandA | io.operandB }
-    is(ALUOp.XOR) { io.result := io.operandA ^ io.operandB }
-    is(ALUOp.SLL) { io.result := io.operandA << io.operandB(4,0) }
-    is(ALUOp.SRL) { io.result := io.operandA >> io.operandB(4,0) }
-    is(ALUOp.SRA) { io.result := (io.operandA.asSInt >> io.operandB(4,0)).asUInt }
-    is(ALUOp.SLT) { io.result := (io.operandA.asSInt < io.operandB.asSInt).asUInt }
-    is(ALUOp.SLTU) { io.result := (io.operandA < io.operandB).asUInt }
-    is(ALUOp.PASSB) { io.result := io.operandB}
+    is(ALUOp.ADD) { io.aluResult := io.operandA + io.operandB }
+    is(ALUOp.SUB) { io.aluResult := io.operandA - io.operandB }
+    is(ALUOp.AND) { io.aluResult := io.operandA & io.operandB }
+    is(ALUOp.OR) { io.aluResult := io.operandA | io.operandB }
+    is(ALUOp.XOR) { io.aluResult := io.operandA ^ io.operandB }
+    is(ALUOp.SLL) { io.aluResult := io.operandA << io.operandB(4,0) }
+    is(ALUOp.SRL) { io.aluResult := io.operandA >> io.operandB(4,0) }
+    is(ALUOp.SRA) { io.aluResult := (io.operandA.asSInt >> io.operandB(4,0)).asUInt }
+    is(ALUOp.SLT) { io.aluResult := (io.operandA.asSInt < io.operandB.asSInt).asUInt }
+    is(ALUOp.SLTU) { io.aluResult := (io.operandA < io.operandB).asUInt }
+    is(ALUOp.PASSB) { io.aluResult := io.operandB}
   }
 
 }
