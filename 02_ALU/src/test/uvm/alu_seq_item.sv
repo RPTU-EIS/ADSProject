@@ -9,20 +9,42 @@
 import uvm_pkg::*;
 import alu_tb_config_pkg::*;
 
+object ALUOp extends ChiselEnum {
+  val ADD, SUB, AND, OR, XOR, SLL, SRL, SRA, SLT, SLTU, PASSB = Value
+}
+
 class alu_seq_item extends uvm_sequence_item;
 
-    //ToDo: define the fields of the sequence item
+    rand logic [31:0] operandA;
+    rand logic [31:0] operandB;
+    rand ALUOp operation;
 
-    //ToDo: register the class with the factory
+    logic [31:0] aluResult;
 
-    //ToDo: add constraint for operation field
+     `uvm_object_utils(alu_seq_item)
+
+     function new(string name = "alu_seq_item");
+        super.new(name);
+     endfunction
+
+    constraint aluOp_constraint {
+        operation inside {
+            ADD, SUB, AND, OR, XOR, SLL, SRL, SRA, SLT, SLTU, PASSB
+        };
+    }
 
     virtual function string convert2str();
-        return $sformatf("operandA: 0x%0x, operandB: 0x%0x, operation: %0p, aluResult: 0x%0x", operandA, operandB, operation, aluResult);
+        return $sformatf(
+            "operandA: 0x%0x, operandB: 0x%0x, operation: %0p, aluResult: 0x%0x",
+            operandA,
+            operandB,
+            operation,
+            aluResult
+        );
     endfunction
 
-    function new(string name = "alu_seq_item"); 
+    function new(string name = "alu_seq_item");
         super.new(name);
-    endfunction   
+    endfunction
 
 endclass
