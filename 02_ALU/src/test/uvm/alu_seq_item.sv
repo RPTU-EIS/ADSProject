@@ -39,8 +39,4 @@ class alu_seq_item extends uvm_sequence_item;
         );
     endfunction
 
-    function new(string name = "alu_seq_item");
-        super.new(name);
-    endfunction
-
 endclass
