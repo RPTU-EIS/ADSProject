@@ -9,10 +9,6 @@
 import uvm_pkg::*;
 import alu_tb_config_pkg::*;
 
-object ALUOp extends ChiselEnum {
-  val ADD, SUB, AND, OR, XOR, SLL, SRL, SRA, SLT, SLTU, PASSB = Value
-}
-
 class alu_seq_item extends uvm_sequence_item;
 
     rand logic [31:0] operandA;
