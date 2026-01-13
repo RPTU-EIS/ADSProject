@@ -24,6 +24,8 @@ class ALU extends Module {
     val result = Output(UInt(32.W))
   })
 
+
+
   io.result := 0.U
 
   switch(io.operation) {
