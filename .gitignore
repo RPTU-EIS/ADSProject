@@ -5,7 +5,4 @@ target/
 test_run_dir/
 .idea/
 
-*.v
-*.fir
-*.json
 *.vcd
