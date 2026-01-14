@@ -91,7 +91,7 @@ class FullAdderTester extends AnyFlatSpec with ChiselScalatestTester {
           dut.io.ci.poke(1.U)
           dut.clock.step(1)
           dut.io.s.expect(1.U)
-          dut.io.co.expect(1.U)
+          dut.io.co.expect(2.U)
 
         }
     }
