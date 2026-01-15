@@ -7,9 +7,9 @@ name: 02_ALU
 
 on:
   push:
-    branches: [ "hoangworkspace" ]
+    branches: [ "Sohamworkspace" ]
   pull_request:
-    branches: [ "hoangworkspace" ]
+    branches: [ "Sohamworkspace" ]
 
 permissions:
   contents: read
