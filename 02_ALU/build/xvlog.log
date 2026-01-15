@@ -1,0 +1,14 @@
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "../generated-src/ALU.v" into library work
+INFO: [VRFC 10-311] analyzing module ALU
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "../src/test/uvm/alu_tb_config_pkg.sv" into library work
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "../src/test/uvm/alu_if.sv" into library work
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "../src/test/uvm/alu_seq_item.sv" into library work
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "../src/test/uvm/alu_sequence.sv" into library work
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "../src/test/uvm/alu_driver.sv" into library work
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "../src/test/uvm/alu_monitor.sv" into library work
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "../src/test/uvm/alu_agent.sv" into library work
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "../src/test/uvm/alu_scoreboard.sv" into library work
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "../src/test/uvm/alu_env.sv" into library work
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "../src/test/uvm/alu_test.sv" into library work
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "../src/test/uvm/alu_tb.sv" into library work
+INFO: [VRFC 10-311] analyzing module alu_tb
