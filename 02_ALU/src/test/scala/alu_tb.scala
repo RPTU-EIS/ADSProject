@@ -559,4 +559,3 @@ class ALUPassbTest extends AnyFlatSpec with ChiselScalatestTester {
     }
   }
 }
-

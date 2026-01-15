@@ -1,3 +1,4 @@
+
 // ADS I Class Project
 // Assignment 02: Arithmetic Logic Unit and UVM Testbench
 //
@@ -19,17 +20,17 @@ import chisel3.experimental.ChiselEnum
 // IMPORTANT: This order must match the SystemVerilog enum in alu_tb_config_pkg.sv!
 
 object ALUOp extends ChiselEnum {
-  val ADD   = Value  // 0:  Addition (two's complement, modulo-2^32)
-  val SUB   = Value  // 1:  Subtraction (two's complement, modulo-2^32)
-  val AND   = Value  // 2:  Bitwise AND
-  val OR    = Value  // 3:  Bitwise OR
-  val XOR   = Value  // 4:  Bitwise XOR
-  val SLL   = Value  // 5:  Shift Left Logical
-  val SRL   = Value  // 6:  Shift Right Logical
-  val SRA   = Value  // 7:  Shift Right Arithmetic
-  val SLT   = Value  // 8:  Set Less Than (signed comparison)
-  val SLTU  = Value  // 9:  Set Less Than Unsigned
-  val PASSB = Value  // 10: Pass operandB to output unchanged
+  val ADD   = Value(0.U(8.W))   // 8'h0
+  val SUB   = Value(1.U(8.W))   // 8'h1
+  val AND   = Value(2.U(8.W))   // 8'h2
+  val OR    = Value(3.U(8.W))   // 8'h3
+  val XOR   = Value(4.U(8.W))   // 8'h4
+  val SLL   = Value(5.U(8.W))   // 8'h5
+  val SRL   = Value(6.U(8.W))   // 8'h6
+  val SRA   = Value(7.U(8.W))   // 8'h7
+  val SLT   = Value(8.U(8.W))   // 8'h8
+  val SLTU  = Value(9.U(8.W))   // 8'h9
+  val PASSB = Value(10.U(8.W))  // 8'hA
 }
 
 // =============================================================================
