@@ -19,9 +19,9 @@
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]-->
 
- ![CI Pipeline: 01 Warm-Up](https://github.com/RPTU-EIS/ADSProject/actions/workflows/01_warm-up.yml/badge.svg?event=push)
- ![CI Pipeline: 02 ALU](https://github.com/RPTU-EIS/ADSProject/actions/workflows/02_ALU.yml/badge.svg?event=push)
-
+ ![CI Pipeline: 01 Warm-Up](https://github.com/RPTU-EIS/ADSProject_Master/actions/workflows/01_warm-up.yml/badge.svg?event=push)
+ ![CI Pipeline: 02 ALU](https://github.com/RPTU-EIS/ADSProject_Master/actions/workflows/02_ALU.yml/badge.svg?event=push)
+ ![CI Pipeline: 03 RE32I Pipeline](https://github.com/RPTU-EIS/ADSProject_Master/actions/workflows/03_RV32I-pipeline.yml/badge.svg?event=push)
 <!--
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
@@ -178,7 +178,7 @@ Andro Mazmishvili - syq71ran@rptu.de
 
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
-Many thanks to our student Tharindu Samarakoon (<a href="https://github.com/tharinduSamare">tharinduSamare</a>) for helping us to bring this class project to the next level by implementing a broader instruction set and a UVM testbench!
+Many thanks to our student Tharindu Samarakoon (<a href="https://github.com/tharinduSamare">tharinduSamare</a>) for helping us taking this class project to the next level by implementing a broader instruction set and a UVM testbench!
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

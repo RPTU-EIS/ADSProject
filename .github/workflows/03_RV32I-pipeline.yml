@@ -3,7 +3,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: 01_warm-up
+name: 03_RV32I-pipeline
 
 on:
   push:
@@ -33,4 +33,4 @@ jobs:
       
 defaults:
   run:
-    working-directory: 01_warm-up # The working directory path
+    working-directory: 03_RV32I-pipeline # The working directory path

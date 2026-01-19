@@ -4,8 +4,18 @@ generated-src/
 project/
 target/
 test_run_dir/
+build/
+
+# Vivado:
+project*/
+
 
 *.v
 *.fir
 *.json
 *.vcd
+*.metals
+*.bloop
+*.log
+*.jou
+*.str
