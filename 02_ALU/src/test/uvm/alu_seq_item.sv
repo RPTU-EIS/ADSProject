@@ -17,17 +17,18 @@ class alu_seq_item extends uvm_sequence_item;
 
     logic [31:0] aluResult;
 
-     `uvm_object_utils(alu_seq_item)
+    `uvm_object_utils_begin(alu_seq_item)
+        `uvm_field_int(operandA, UVM_DEFAULT)
+        `uvm_field_int(operandB, UVM_DEFAULT)
+        `uvm_field_enum(ALUOp, operation, UVM_DEFAULT)
+        `uvm_field_int(aluResult, UVM_DEFAULT)
+    `uvm_object_utils_end
 
-     function new(string name = "alu_seq_item");
+    function new(string name = "alu_seq_item");
         super.new(name);
-     endfunction
+    endfunction
 
-    constraint aluOp_constraint {
-        operation inside {
-            ADD, SUB, AND, OR, XOR, SLL, SRL, SRA, SLT, SLTU, PASSB
-        };
-    }
+    constraint aluOp_constraint {operation inside {ADD, SUB, AND, OR, XOR, SLL, SRL, SRA, SLT, SLTU, PASSB};}
 
     virtual function string convert2str();
         return $sformatf(
