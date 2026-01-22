@@ -32,7 +32,7 @@ class alu_seq_item extends uvm_sequence_item;
 
     virtual function string convert2str();
         return $sformatf(
-            "operandA: 0x%0x, operandB: 0x%0x, operation: %0p, aluResult: 0x%0x",
+            "operandA: 0x%x, operandB: 0x%x, operation: %p, aluResult: 0x%x",
             operandA,
             operandB,
             operation,
