@@ -13,7 +13,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 
 class PipelinedRISCV32ITest extends AnyFlatSpec with ChiselScalatestTester {
 
-"RV32I_BasicTester" should "work" in {
+  "RV32I_BasicTester" should "work" in {
     test(new PipelinedRV32I("src/test/programs/BinaryFile_pipelined")).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
 
       dut.clock.setTimeout(0)

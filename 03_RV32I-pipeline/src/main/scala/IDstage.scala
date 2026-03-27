@@ -31,7 +31,7 @@ Outputs:
     uop: micro-operation code (identifies instruction type)
     rd: destination register index
     operandA: first operand
-    operandB: second operand 
+    operandB: second operand
     XcptInvalid: exception flag for invalid instructions
 */
 
@@ -191,4 +191,4 @@ class ID extends Module {
       io.XcptInvalid := true.B
     }
 }
-//ToDo: Add your implementation according to the specification above here 
+//ToDo: Add your implementation according to the specification above here
