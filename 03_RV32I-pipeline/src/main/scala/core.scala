@@ -3,49 +3,7 @@
 //
 // Chair of Electronic Design Automation, RPTU in Kaiserslautern
 // File created on 01/15/2023 by Tobias Jauch (@tojauch)
-
-/*
-The goal of this task is to implement a 5-stage pipeline that features a subset of RV32I (all R-type and I-type instructions). 
-
-    Instruction Memory:
-        The CPU has an instruction memory (IMem) with 4096 words, each of 32 bits.
-        The content of IMem is loaded from a binary file specified during the instantiation of the MultiCycleRV32Icore module.
-
-    CPU Registers:
-        The CPU has a program counter (PC) and a register file (regFile) with 32 registers, each holding a 32-bit value.
-        Register x0 is hard-wired to zero.
-
-    Microarchitectural Registers / Wires:
-        Various signals are defined as either registers or wires depending on whether they need to be used in the same cycle or in a later cycle.
-
-    Processor Stages:
-        The FSM of the processor has five stages: fetch, decode, execute, memory, and writeback.
-        All stages are active at the same time and process different instructions simultaneously.
-
-        Fetch Stage:
-            The instruction is fetched from the instruction memory based on the current value of the program counter (PC).
-
-        Decode Stage:
-            Instruction fields such as opcode, rd, funct3, and rs1 are extracted.
-            For R-type instructions, additional fields like funct7 and rs2 are extracted.
-            Control signals (isADD, isSUB, etc.) are set based on the opcode and funct3 values.
-            Operands (operandA and operandB) are determined based on the instruction type.
-
-        Execute Stage:
-            Arithmetic and logic operations are performed based on the control signals and operands.
-            The result is stored in the aluResult register.
-
-        Memory Stage:
-            No memory operations are implemented in this basic CPU.
-
-        Writeback Stage:
-            The result of the operation (writeBackData) is written back to the destination register (rd) in the register file.
-
-    Check Result:
-        The final result (writeBackData) is output to the io.check_res signal.
-        The exception signal is also passed to the wrapper module. It indicates whether an invalid instruction has been encountered.
-        In the fetch stage, a default value of 0 is assigned to io.check_res.
-*/
+// Modified for Assignment 04: Forwarding unit integration
 
 package core_tile
 
@@ -57,12 +15,12 @@ import uopc._
 
 class PipelinedRV32Icore (BinaryFile: String) extends Module {
   val io = IO(new Bundle {
-    val check_res = Output(UInt(32.W))  // Result for verification
-    val exception = Output(Bool())       // Exception flag
+    val check_res = Output(UInt(32.W))
+    val exception = Output(Bool())
   })
 
   // =========================================================================
-  // Instantiate all pipeline stages and barriers
+  // Instantiate all pipeline stages, barriers, and forwarding unit
   // =========================================================================
 
   // Stage 1: Instruction Fetch
@@ -88,63 +46,111 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
   // Register File (shared between ID and WB stages)
   val regFile = Module(new regFile)
 
-  // =========================================================================
-  // Connect pipeline stages
-  // =========================================================================
+  // Forwarding Unit (NEW)
+  val fwdUnit = Module(new ForwardingUnit)
 
-  // IF Stage -> IF Barrier
+  // =========================================================================
+  // Connect pipeline: IF Stage -> IF Barrier
+  // =========================================================================
   ifBarrier.io.inInstr := ifStage.io.instr
 
-  // IF Barrier -> ID Stage
+  // =========================================================================
+  // Connect pipeline: IF Barrier -> ID Stage
+  // =========================================================================
   idStage.io.instr := ifBarrier.io.outInstr
 
+  // =========================================================================
   // ID Stage <-> Register File (read ports)
+  // =========================================================================
   regFile.io.req_1  := idStage.io.regFileReq_A
   idStage.io.regFileResp_A := regFile.io.resp_1
   regFile.io.req_2  := idStage.io.regFileReq_B
   idStage.io.regFileResp_B := regFile.io.resp_2
 
-  // ID Stage -> ID Barrier
+  // =========================================================================
+  // Connect pipeline: ID Stage -> ID Barrier (including new signals)
+  // =========================================================================
   idBarrier.io.inUOP         := idStage.io.uop
   idBarrier.io.inRD          := idStage.io.rd
+  idBarrier.io.inRS1         := idStage.io.rs1          // NEW
+  idBarrier.io.inRS2         := idStage.io.rs2          // NEW
   idBarrier.io.inOperandA    := idStage.io.operandA
   idBarrier.io.inOperandB    := idStage.io.operandB
+  idBarrier.io.inOpBSel      := idStage.io.opBSel       // NEW
   idBarrier.io.inXcptInvalid := idStage.io.XcptInvalid
 
-  // ID Barrier -> EX Stage
+  // =========================================================================
+  // Forwarding Unit connections (NEW)
+  // =========================================================================
+  fwdUnit.io.idEx_rs1 := idBarrier.io.outRS1       // rs1 of instruction in EX
+  fwdUnit.io.idEx_rs2 := idBarrier.io.outRS2       // rs2 of instruction in EX
+  fwdUnit.io.exMem_rd := exBarrier.io.outRD         // rd of instruction in MEM
+  fwdUnit.io.memWb_rd := memBarrier.io.outRD         // rd of instruction in WB
+
+  // =========================================================================
+  // Forwarding Muxes (NEW)
+  //
+  // Select the correct operand source:
+  //   0 = no forwarding (use value from ID/EX barrier)
+  //   1 = forward from WB stage (MEM/WB barrier output)
+  //   2 = forward from MEM stage (EX/MEM barrier output)
+  // =========================================================================
+
+  // Forwarding mux for operandA — always applies (rs1 is always a register)
+  val fwdOperandA = MuxLookup(fwdUnit.io.forwardA, idBarrier.io.outOperandA, Seq(
+    1.U -> memBarrier.io.outAluResult,    // Forward from WB stage
+    2.U -> exBarrier.io.outAluResult      // Forward from MEM stage
+  ))
+
+  // Forwarding mux for operandB — only when operandB is from a register (R-type)
+  // For I-type instructions (opBSel=true), operandB is an immediate and must NOT be forwarded
+  val fwdOperandB = Mux(idBarrier.io.outOpBSel,
+    idBarrier.io.outOperandB,  // I-type: use immediate as-is
+    MuxLookup(fwdUnit.io.forwardB, idBarrier.io.outOperandB, Seq(
+      1.U -> memBarrier.io.outAluResult,  // Forward from WB stage
+      2.U -> exBarrier.io.outAluResult    // Forward from MEM stage
+    ))
+  )
+
+  // =========================================================================
+  // Connect pipeline: ID Barrier -> EX Stage (with forwarded operands)
+  // =========================================================================
   exStage.io.uop         := idBarrier.io.outUOP
-  exStage.io.operandA    := idBarrier.io.outOperandA
-  exStage.io.operandB    := idBarrier.io.outOperandB
+  exStage.io.operandA    := fwdOperandA              // CHANGED: use forwarded value
+  exStage.io.operandB    := fwdOperandB              // CHANGED: use forwarded value
   exStage.io.XcptInvalid := idBarrier.io.outXcptInvalid
 
-  // EX Stage -> EX Barrier
+  // =========================================================================
+  // Connect pipeline: EX Stage -> EX Barrier
+  // =========================================================================
   exBarrier.io.inAluResult   := exStage.io.aluResult
-  exBarrier.io.inRD          := idBarrier.io.outRD  // Pass RD through
+  exBarrier.io.inRD          := idBarrier.io.outRD
   exBarrier.io.inXcptInvalid := exStage.io.exception
 
-  // EX Barrier -> MEM Stage (MEM stage has no I/O in this implementation)
-  // MEM stage is a placeholder, so we pass data directly through
-
-  // EX Barrier -> MEM Barrier (pass through MEM stage)
+  // =========================================================================
+  // Connect pipeline: EX Barrier -> MEM Barrier (pass through MEM stage)
+  // =========================================================================
   memBarrier.io.inAluResult := exBarrier.io.outAluResult
   memBarrier.io.inRD        := exBarrier.io.outRD
   memBarrier.io.inException := exBarrier.io.outXcptInvalid
 
-  // MEM Barrier -> WB Stage
+  // =========================================================================
+  // Connect pipeline: MEM Barrier -> WB Stage
+  // =========================================================================
   wbStage.io.aluResult := memBarrier.io.outAluResult
   wbStage.io.rd        := memBarrier.io.outRD
 
+  // =========================================================================
   // WB Stage <-> Register File (write port)
+  // =========================================================================
   regFile.io.req_3 := wbStage.io.regFileReq
 
-  // WB Stage -> WB Barrier
+  // =========================================================================
+  // Connect pipeline: WB Stage -> WB Barrier -> Outputs
+  // =========================================================================
   wbBarrier.io.inCheckRes    := wbStage.io.check_res
   wbBarrier.io.inXcptInvalid := memBarrier.io.outException
 
-  // WB Barrier -> Outputs
   io.check_res := wbBarrier.io.outCheckRes
   io.exception := wbBarrier.io.outXcptInvalid
-
-//ToDo: Add your implementation according to the specification above here 
-
 }

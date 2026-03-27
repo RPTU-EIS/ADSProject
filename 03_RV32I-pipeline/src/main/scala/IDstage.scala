@@ -3,37 +3,7 @@
 //
 // Chair of Electronic Design Automation, RPTU in Kaiserslautern
 // File created on 01/09/2026 by Tobias Jauch (@tojauch)
-
-/*
-Instruction Decode (ID) Stage: decoding and operand fetch
-
-Extracted Fields from 32-bit Instruction (see RISC-V specification for reference):
-    opcode: instruction format identifier
-    funct3: selects variant within instruction format
-    funct7: further specifies operation type (R-type only)
-    rd: destination register address
-    rs1: first source register address
-    rs2: second source register address
-    imm: 12-bit immediate value (I-type, sign-extended)
-
-Register File Interfaces:
-    regFileReq_A, regFileResp_A: read port for rs1 operand
-    regFileReq_B, regFileResp_B: read port for rs2 operand
-
-Internal Signals:
-    Combinational decoders for instructions
-
-Functionality:
-    Decode opcode to determine instruction and identify operation (ADD, SUB, XOR, ...)
-    Output: uop (operation code), rd, operandA (from rs1), operandB (rs2 or immediate)
-
-Outputs:
-    uop: micro-operation code (identifies instruction type)
-    rd: destination register index
-    operandA: first operand
-    operandB: second operand
-    XcptInvalid: exception flag for invalid instructions
-*/
+// Modified for Assignment 04: Added rs1, rs2, opBSel outputs for forwarding unit
 
 package core_tile
 
@@ -49,7 +19,7 @@ class ID extends Module {
     // Input from IF barrier
     val instr = Input(UInt(32.W))
 
-    // Register file read interface (directly connect to external register file)
+    // Register file read interface
     val regFileReq_A  = Output(new regFileReadReq)
     val regFileResp_A = Input(new regFileReadResp)
     val regFileReq_B  = Output(new regFileReadReq)
@@ -58,8 +28,11 @@ class ID extends Module {
     // Outputs to ID barrier
     val uop         = Output(uopc())       // Micro-operation code
     val rd          = Output(UInt(5.W))    // Destination register
+    val rs1         = Output(UInt(5.W))    // Source register 1 (for forwarding unit)
+    val rs2         = Output(UInt(5.W))    // Source register 2 (for forwarding unit)
     val operandA    = Output(UInt(32.W))   // First operand (from rs1)
     val operandB    = Output(UInt(32.W))   // Second operand (from rs2 or immediate)
+    val opBSel      = Output(Bool())       // true = operandB is immediate (no forwarding on B)
     val XcptInvalid = Output(Bool())       // Invalid instruction flag
   })
 
@@ -83,6 +56,12 @@ class ID extends Module {
   io.regFileReq_B.addr := rs2
 
   // =====================================================
+  // Output source register addresses (for forwarding unit)
+  // =====================================================
+  io.rs1 := rs1
+  io.rs2 := rs2
+
+  // =====================================================
   // Decode instruction and determine micro-op
   // =====================================================
 
@@ -92,10 +71,12 @@ class ID extends Module {
   io.rd := rd
   io.operandA := io.regFileResp_A.data  // Default: rs1 value
   io.operandB := io.regFileResp_B.data  // Default: rs2 value (R-type)
+  io.opBSel := false.B                  // Default: operandB from register (R-type)
 
   // R-type instructions (opcode = 0110011)
   when(opcode === Opcodes.R_TYPE) {
     io.operandB := io.regFileResp_B.data  // Use rs2 for R-type
+    io.opBSel := false.B                  // operandB from register
 
     switch(funct3) {
       is(Funct3.ADD_SUB) {
@@ -141,6 +122,7 @@ class ID extends Module {
     // I-type instructions (opcode = 0010011)
     .elsewhen(opcode === Opcodes.I_TYPE) {
       io.operandB := immI  // Use sign-extended immediate for I-type
+      io.opBSel := true.B  // operandB is immediate — do NOT forward to operandB
 
       switch(funct3) {
         is(Funct3.ADD_SUB) {
@@ -162,7 +144,6 @@ class ID extends Module {
           io.uop := ANDI
         }
         is(Funct3.SLL) {
-          // SLLI: shamt is in bits [24:20], funct7 must be 0
           when(funct7 === Funct7.NORMAL) {
             io.uop := SLLI
             io.operandB := io.instr(24, 20).pad(32)  // shamt only
@@ -191,4 +172,3 @@ class ID extends Module {
       io.XcptInvalid := true.B
     }
 }
-//ToDo: Add your implementation according to the specification above here

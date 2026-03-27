@@ -1,0 +1,135 @@
+// ====================================================================
+// Combined Test Program: Old NOP-padded tests + New Forwarding tests
+// Old program: indices 0–96   (97 instructions, NOP-padded)
+// Separator:   indices 97–100 (4 NOPs)
+// New program:  indices 101–119 (19 forwarding instructions)
+// ====================================================================
+
+// === OLD PROGRAM (Assignment 3 — NOP-padded, no hazards) ===
+
+00000013 // I000: NOP: ADDI x0, x0, 0                          → 0
+00400093 // I001: ADDI x1, x0, 4                               → x1 = 4
+00500113 // I002: ADDI x2, x0, 5                               → x2 = 5
+00000013 // I003: NOP
+00000013 // I004: NOP
+00000013 // I005: NOP
+002081b3 // I006: ADD x3, x1, x2                               → x3 = 9
+7ff00213 // I007: ADDI x4, x0, 2047                            → x4 = 2047
+01000293 // I008: ADDI x5, x0, 16                              → x5 = 16
+00000013 // I009: NOP
+00000013 // I010: NOP
+00000013 // I011: NOP
+40520333 // I012: SUB x6, x4, x5                               → x6 = 2031
+00000013 // I013: NOP
+00000013 // I014: NOP
+00000013 // I015: NOP
+003343b3 // I016: XOR x7, x6, x3                               → x7 = 2022
+00536433 // I017: OR x8, x6, x5                                → x8 = 2047
+005374b3 // I018: AND x9, x6, x5                               → x9 = 0
+00000013 // I019: NOP
+00239533 // I020: SLL x10, x7, x2                              → x10 = 64704
+0023d5b3 // I021: SRL x11, x7, x2                              → x11 = 63
+4023d633 // I022: SRA x12, x7, x2                              → x12 = 63
+004226b3 // I023: SLT x13, x4, x4                              → x13 = 0
+005226b3 // I024: SLT x13, x4, x5                              → x13 = 0
+0042a6b3 // I025: SLT x13, x5, x4                              → x13 = 1
+004236b3 // I026: SLTU x13, x4, x4                             → x13 = 0
+005236b3 // I027: SLTU x13, x4, x5                             → x13 = 0
+0042b6b3 // I028: SLTU x13, x5, x4                             → x13 = 1
+00100013 // I029: ADDI x0, x0, 1                               → WB=1, x0=0
+fff00193 // I030: ADDI x3, x0, -1                              → x3 = 0xFFFFFFFF
+00000013 // I031: NOP
+00000013 // I032: NOP
+00000013 // I033: NOP
+0041a233 // I034: SLT x4, x3, x4                               → x4 = 1
+0041b2b3 // I035: SLTU x5, x3, x4                              → x5 = 0
+00000013 // I036: NOP
+00000013 // I037: NOP
+00000013 // I038: NOP
+00021333 // I039: SLL x6, x4, x0                               → x6 = 1
+01f21393 // I040: SLLI x7, x4, 31                              → x7 = 0x80000000
+00000013 // I041: NOP
+00000013 // I042: NOP
+00000013 // I043: NOP
+7ff04413 // I044: XORI x8, x0, 2047                            → x8 = 2047
+80004493 // I045: XORI x9, x0, -2048                           → x9 = 0xFFFFF800
+00000013 // I046: NOP
+00000013 // I047: NOP
+00000013 // I048: NOP
+00946533 // I049: OR x10, x8, x9                               → x10 = 0xFFFFFFFF
+00000013 // I050: NOP
+00000013 // I051: NOP
+00000013 // I052: NOP
+fff44613 // I053: XORI x12, x8, -1                             → x12 = 0xFFFFF800
+00000013 // I054: NOP
+00000013 // I055: NOP
+00000013 // I056: NOP
+fff00713 // I057: ADDI x14, x0, -1                             → x14 = 0xFFFFFFFF
+00000013 // I058: NOP
+00000013 // I059: NOP
+00000013 // I060: NOP
+41f75793 // I061: SRAI x15, x14, 31                            → x15 = 0xFFFFFFFF
+00000013 // I062: NOP
+00000013 // I063: NOP
+00000013 // I064: NOP
+01f79813 // I065: SLLI x16, x15, 31                            → x16 = 0x80000000
+00000013 // I066: NOP
+00000013 // I067: NOP
+00000013 // I068: NOP
+01f7d893 // I069: SRLI x17, x15, 31                            → x17 = 1
+00000013 // I070: NOP
+00000013 // I071: NOP
+00000013 // I072: NOP
+00e7c933 // I073: SLT x18, x15, x14                            → x18 = 0
+00000013 // I074: NOP
+00000013 // I075: NOP
+00000013 // I076: NOP
+7ff00993 // I077: ADDI x19, x0, 2047                           → x19 = 2047
+80000a13 // I078: ADDI x20, x0, -2048                          → x20 = 0xFFFFF800
+00000013 // I079: NOP
+00000013 // I080: NOP
+00000013 // I081: NOP
+414a0a33 // I082: SUB x20, x20, x20                            → x20 = 0
+00000013 // I083: NOP
+00000013 // I084: NOP
+00000013 // I085: NOP
+00000ab3 // I086: ADD x21, x0, x0                              → x21 = 0
+00100b13 // I087: ADDI x22, x0, 1                              → x22 = 1
+00000013 // I088: NOP
+00000013 // I089: NOP
+00000013 // I090: NOP
+fffb0b93 // I091: ADDI x23, x22, -1                            → x23 = 0
+00000013 // I092: NOP
+00000013 // I093: NOP
+00000013 // I094: NOP
+017b8c33 // I095: ADD x24, x23, x23                            → x24 = 0
+00000013 // I096: NOP
+
+// === SEPARATOR (4 NOPs to flush pipeline) ===
+
+00000013 // I097: NOP
+00000013 // I098: NOP
+00000013 // I099: NOP
+00000013 // I100: NOP
+
+// === NEW FORWARDING PROGRAM (back-to-back, no NOP padding) ===
+
+00A00093 // I101: ADDI x1, x0, 10                              → x1 = 10
+00508113 // I102: ADDI x2, x1, 5     [EX hazard: x1]           → x2 = 15
+002081B3 // I103: ADD  x3, x1, x2    [MEM: x1, EX: x2]        → x3 = 25
+40218233 // I104: SUB  x4, x3, x2    [EX: x3, MEM: x2]        → x4 = 10
+00100293 // I105: ADDI x5, x0, 1                               → x5 = 1
+00128293 // I106: ADDI x5, x5, 1     [EX hazard: x5]           → x5 = 2
+00128293 // I107: ADDI x5, x5, 1     [EX hazard: x5]           → x5 = 3
+00418333 // I108: ADD  x6, x3, x4    [from reg file, no hazard] → x6 = 35
+02A00013 // I109: ADDI x0, x0, 42    [x0 stays 0, WB=42]       → WB = 42
+001003B3 // I110: ADD  x7, x0, x1    [must NOT forward x0]     → x7 = 10
+06400413 // I111: ADDI x8, x0, 100                              → x8 = 100
+0C800413 // I112: ADDI x8, x0, 200   [overwrites x8]           → x8 = 200
+000404B3 // I113: ADD  x9, x8, x0    [double hazard, EX wins]  → x9 = 200
+00700513 // I114: ADDI x10, x0, 7                               → x10 = 7
+0FF54593 // I115: XORI x11, x10, 255 [EX on rs1, imm on B]    → x11 = 248
+FFF00613 // I116: ADDI x12, x0, -1                              → x12 = 0xFFFFFFFF
+41065693 // I117: SRAI x13, x12, 16  [EX hazard: x12]          → x13 = 0xFFFFFFFF
+01065713 // I118: SRLI x14, x12, 16  [MEM hazard: x12]         → x14 = 0x0000FFFF
+00000013 // I119: NOP                                            → 0
