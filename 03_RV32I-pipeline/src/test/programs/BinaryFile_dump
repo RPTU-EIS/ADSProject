@@ -1,0 +1,241 @@
+// ====================================================================
+// Combined Binary File Dump — Assignment 04
+// 179 instructions total
+//   Part A: indices 0–96   (97 instr, NOP-padded, from Assignment 3)
+//   Separator: indices 97–100 (4 NOPs)
+//   Part B: indices 101–119 (19 instr, forwarding tests)
+//   Separator: indices 120–123 (4 NOPs)
+//   Part C: indices 124–178 (55 instr, branch & jump tests)
+//
+// Format: HEX  // Iidx PC=byte_addr: ASM  → result/effect
+// ====================================================================
+
+// ============================================================
+// PART A: Old NOP-padded tests (Assignment 3)
+// ============================================================
+
+00000013  // I000 PC=   0: NOP (ADDI x0, x0, 0)                         → 0
+00400093  // I001 PC=   4: ADDI x1, x0, 4                               → x1 = 4
+00500113  // I002 PC=   8: ADDI x2, x0, 5                               → x2 = 5
+00000013  // I003 PC=  12: NOP
+00000013  // I004 PC=  16: NOP
+00000013  // I005 PC=  20: NOP
+002081b3  // I006 PC=  24: ADD x3, x1, x2                               → x3 = 9
+7ff00213  // I007 PC=  28: ADDI x4, x0, 2047                            → x4 = 2047 (0x7FF)
+01000293  // I008 PC=  32: ADDI x5, x0, 16                              → x5 = 16
+00000013  // I009 PC=  36: NOP
+00000013  // I010 PC=  40: NOP
+00000013  // I011 PC=  44: NOP
+40520333  // I012 PC=  48: SUB x6, x4, x5                               → x6 = 2031 (0x7EF)
+00000013  // I013 PC=  52: NOP
+00000013  // I014 PC=  56: NOP
+00000013  // I015 PC=  60: NOP
+003343b3  // I016 PC=  64: XOR x7, x6, x3                               → x7 = 2022 (0x7E6)
+00536433  // I017 PC=  68: OR x8, x6, x5                                → x8 = 2047 (0x7FF)
+005374b3  // I018 PC=  72: AND x9, x6, x5                               → x9 = 0
+00000013  // I019 PC=  76: NOP
+00239533  // I020 PC=  80: SLL x10, x7, x2                              → x10 = 64704 (2022 << 5)
+0023d5b3  // I021 PC=  84: SRL x11, x7, x2                              → x11 = 63 (2022 >> 5)
+4023d633  // I022 PC=  88: SRA x12, x7, x2                              → x12 = 63 (positive, same as SRL)
+004226b3  // I023 PC=  92: SLT x13, x4, x4                              → x13 = 0 (2047 < 2047 = false)
+005226b3  // I024 PC=  96: SLT x13, x4, x5                              → x13 = 0 (2047 < 16 = false)
+0042a6b3  // I025 PC= 100: SLT x13, x5, x4                              → x13 = 1 (16 < 2047 = true)
+004236b3  // I026 PC= 104: SLTU x13, x4, x4                             → x13 = 0
+005236b3  // I027 PC= 108: SLTU x13, x4, x5                             → x13 = 0
+0042b6b3  // I028 PC= 112: SLTU x13, x5, x4                             → x13 = 1
+00100013  // I029 PC= 116: ADDI x0, x0, 1                               → WB = 1 (x0 stays 0)
+fff00193  // I030 PC= 120: ADDI x3, x0, -1                              → x3 = 0xFFFFFFFF
+00000013  // I031 PC= 124: NOP
+00000013  // I032 PC= 128: NOP
+00000013  // I033 PC= 132: NOP
+0041a233  // I034 PC= 136: SLT x4, x3, x4                               → x4 = 1 (-1 < 2047 signed)
+0041b2b3  // I035 PC= 140: SLTU x5, x3, x4                              → x5 = 0 (0xFFFFFFFF > 1 unsigned)
+00000013  // I036 PC= 144: NOP
+00000013  // I037 PC= 148: NOP
+00000013  // I038 PC= 152: NOP
+00021333  // I039 PC= 156: SLL x6, x4, x0                               → x6 = 1 (shift by 0)
+01f21393  // I040 PC= 160: SLLI x7, x4, 31                              → x7 = 0x80000000
+00000013  // I041 PC= 164: NOP
+00000013  // I042 PC= 168: NOP
+00000013  // I043 PC= 172: NOP
+7ff04413  // I044 PC= 176: XORI x8, x0, 2047                            → x8 = 2047
+80004493  // I045 PC= 180: XORI x9, x0, -2048                           → x9 = 0xFFFFF800
+00000013  // I046 PC= 184: NOP
+00000013  // I047 PC= 188: NOP
+00000013  // I048 PC= 192: NOP
+00946533  // I049 PC= 196: OR x10, x8, x9                               → x10 = 0xFFFFFFFF
+00000013  // I050 PC= 200: NOP
+00000013  // I051 PC= 204: NOP
+00000013  // I052 PC= 208: NOP
+fff44613  // I053 PC= 212: XORI x12, x8, -1                             → x12 = 0xFFFFF800
+00000013  // I054 PC= 216: NOP
+00000013  // I055 PC= 220: NOP
+00000013  // I056 PC= 224: NOP
+fff00713  // I057 PC= 228: ADDI x14, x0, -1                             → x14 = 0xFFFFFFFF
+00000013  // I058 PC= 232: NOP
+00000013  // I059 PC= 236: NOP
+00000013  // I060 PC= 240: NOP
+41f75793  // I061 PC= 244: SRAI x15, x14, 31                            → x15 = 0xFFFFFFFF
+00000013  // I062 PC= 248: NOP
+00000013  // I063 PC= 252: NOP
+00000013  // I064 PC= 256: NOP
+01f79813  // I065 PC= 260: SLLI x16, x15, 31                            → x16 = 0x80000000
+00000013  // I066 PC= 264: NOP
+00000013  // I067 PC= 268: NOP
+00000013  // I068 PC= 272: NOP
+01f7d893  // I069 PC= 276: SRLI x17, x15, 31                            → x17 = 1
+00000013  // I070 PC= 280: NOP
+00000013  // I071 PC= 284: NOP
+00000013  // I072 PC= 288: NOP
+00e7c933  // I073 PC= 292: SLT x18, x15, x14                            → x18 = 0 (equal)
+00000013  // I074 PC= 296: NOP
+00000013  // I075 PC= 300: NOP
+00000013  // I076 PC= 304: NOP
+7ff00993  // I077 PC= 308: ADDI x19, x0, 2047                           → x19 = 2047
+80000a13  // I078 PC= 312: ADDI x20, x0, -2048                          → x20 = 0xFFFFF800
+00000013  // I079 PC= 316: NOP
+00000013  // I080 PC= 320: NOP
+00000013  // I081 PC= 324: NOP
+414a0a33  // I082 PC= 328: SUB x20, x20, x20                            → x20 = 0
+00000013  // I083 PC= 332: NOP
+00000013  // I084 PC= 336: NOP
+00000013  // I085 PC= 340: NOP
+00000ab3  // I086 PC= 344: ADD x21, x0, x0                              → x21 = 0
+00100b13  // I087 PC= 348: ADDI x22, x0, 1                              → x22 = 1
+00000013  // I088 PC= 352: NOP
+00000013  // I089 PC= 356: NOP
+00000013  // I090 PC= 360: NOP
+fffb0b93  // I091 PC= 364: ADDI x23, x22, -1                            → x23 = 0
+00000013  // I092 PC= 368: NOP
+00000013  // I093 PC= 372: NOP
+00000013  // I094 PC= 376: NOP
+017b8c33  // I095 PC= 380: ADD x24, x23, x23                            → x24 = 0
+00000013  // I096 PC= 384: NOP
+
+// ============================================================
+// SEPARATOR (4 NOPs)
+// ============================================================
+
+00000013  // I097 PC= 388: NOP
+00000013  // I098 PC= 392: NOP
+00000013  // I099 PC= 396: NOP
+00000013  // I100 PC= 400: NOP
+
+// ============================================================
+// PART B: Forwarding tests (back-to-back, no NOP padding)
+// ============================================================
+
+00A00093  // I101 PC= 404: ADDI x1, x0, 10                              → x1 = 10
+00508113  // I102 PC= 408: ADDI x2, x1, 5          [EX fwd: x1]         → x2 = 15
+002081B3  // I103 PC= 412: ADD  x3, x1, x2          [MEM: x1, EX: x2]   → x3 = 25
+40218233  // I104 PC= 416: SUB  x4, x3, x2          [EX: x3, MEM: x2]   → x4 = 10
+00100293  // I105 PC= 420: ADDI x5, x0, 1                               → x5 = 1
+00128293  // I106 PC= 424: ADDI x5, x5, 1           [EX fwd: x5]        → x5 = 2
+00128293  // I107 PC= 428: ADDI x5, x5, 1           [EX fwd: x5]        → x5 = 3
+00418333  // I108 PC= 432: ADD  x6, x3, x4          [from reg file]     → x6 = 35
+02A00013  // I109 PC= 436: ADDI x0, x0, 42          [x0 stays 0]        → WB = 42
+001003B3  // I110 PC= 440: ADD  x7, x0, x1          [x0 NOT forwarded]  → x7 = 10
+06400413  // I111 PC= 444: ADDI x8, x0, 100                             → x8 = 100
+0C800413  // I112 PC= 448: ADDI x8, x0, 200                             → x8 = 200
+000404B3  // I113 PC= 452: ADD  x9, x8, x0          [dbl hazard EX win] → x9 = 200
+00700513  // I114 PC= 456: ADDI x10, x0, 7                              → x10 = 7
+0FF54593  // I115 PC= 460: XORI x11, x10, 255       [EX fwd: x10 rs1]  → x11 = 248
+FFF00613  // I116 PC= 464: ADDI x12, x0, -1                             → x12 = 0xFFFFFFFF
+41065693  // I117 PC= 468: SRAI x13, x12, 16        [EX fwd: x12]       → x13 = 0xFFFFFFFF
+01065713  // I118 PC= 472: SRLI x14, x12, 16        [MEM fwd: x12]      → x14 = 0x0000FFFF
+00000013  // I119 PC= 476: NOP
+
+// ============================================================
+// SEPARATOR (4 NOPs)
+// ============================================================
+
+00000013  // I120 PC= 480: NOP
+00000013  // I121 PC= 484: NOP
+00000013  // I122 PC= 488: NOP
+00000013  // I123 PC= 492: NOP
+
+// ============================================================
+// PART C: Branch and Jump tests
+// ============================================================
+
+// --- Setup ---
+00500093  // I124 PC= 496: ADDI x1, x0, 5                               → x1 = 5
+00A00113  // I125 PC= 500: ADDI x2, x0, 10                              → x2 = 10
+00500193  // I126 PC= 504: ADDI x3, x0, 5                               → x3 = 5
+
+// --- BEQ ---
+00208863  // I127 PC= 508: BEQ x1, x2, +16          NOT TAKEN (5 != 10)
+00100213  // I128 PC= 512: ADDI x4, x0, 1            executes            → x4 = 1
+00308663  // I129 PC= 516: BEQ x1, x3, +12           TAKEN (5 == 5)      → target = 528
+00000013  // I130 PC= 520: NOP                        ** FLUSHED **
+00000013  // I131 PC= 524: NOP                        ** FLUSHED **
+00200293  // I132 PC= 528: ADDI x5, x0, 2            BEQ target          → x5 = 2
+
+// --- BNE ---
+00209663  // I133 PC= 532: BNE x1, x2, +12           TAKEN (5 != 10)     → target = 544
+00000013  // I134 PC= 536: NOP                        ** FLUSHED **
+00000013  // I135 PC= 540: NOP                        ** FLUSHED **
+00300313  // I136 PC= 544: ADDI x6, x0, 3            BNE target          → x6 = 3
+00309663  // I137 PC= 548: BNE x1, x3, +12           NOT TAKEN (5 == 5)
+00400393  // I138 PC= 552: ADDI x7, x0, 4            executes            → x7 = 4
+
+// --- BLT ---
+0020C663  // I139 PC= 556: BLT x1, x2, +12           TAKEN (5 < 10)      → target = 568
+00000013  // I140 PC= 560: NOP                        ** FLUSHED **
+00000013  // I141 PC= 564: NOP                        ** FLUSHED **
+00500413  // I142 PC= 568: ADDI x8, x0, 5            BLT target          → x8 = 5
+
+// --- BGE ---
+0020D663  // I143 PC= 572: BGE x1, x2, +12           NOT TAKEN (5 < 10)
+00600493  // I144 PC= 576: ADDI x9, x0, 6            executes            → x9 = 6
+00115663  // I145 PC= 580: BGE x2, x1, +12           TAKEN (10 >= 5)     → target = 592
+00000013  // I146 PC= 584: NOP                        ** FLUSHED **
+00000013  // I147 PC= 588: NOP                        ** FLUSHED **
+00700513  // I148 PC= 592: ADDI x10, x0, 7           BGE target          → x10 = 7
+
+// --- BLTU / BGEU (unsigned comparison with negative number) ---
+FFF00593  // I149 PC= 596: ADDI x11, x0, -1                             → x11 = 0xFFFFFFFF
+00B0E663  // I150 PC= 600: BLTU x1, x11, +12         TAKEN (5 < 0xFFFFFFFF)  → target = 612
+00000013  // I151 PC= 604: NOP                        ** FLUSHED **
+00000013  // I152 PC= 608: NOP                        ** FLUSHED **
+00800613  // I153 PC= 612: ADDI x12, x0, 8           BLTU target         → x12 = 8
+0015F663  // I154 PC= 616: BGEU x11, x1, +12         TAKEN (0xFFFFFFFF >= 5) → target = 628
+00000013  // I155 PC= 620: NOP                        ** FLUSHED **
+00000013  // I156 PC= 624: NOP                        ** FLUSHED **
+00900693  // I157 PC= 628: ADDI x13, x0, 9           BGEU target         → x13 = 9
+
+// --- JAL ---
+00C0076F  // I158 PC= 632: JAL x14, +12              x14 = 636, target = 644
+00000013  // I159 PC= 636: NOP                        ** FLUSHED **
+00000013  // I160 PC= 640: NOP                        ** FLUSHED **
+00A00793  // I161 PC= 644: ADDI x15, x0, 10          JAL target          → x15 = 10
+
+// --- JALR ---
+29800A13  // I162 PC= 648: ADDI x20, x0, 664         compute target      → x20 = 664
+000A0867  // I163 PC= 652: JALR x16, x20, 0          x16 = 656, jump to 664
+00000013  // I164 PC= 656: NOP                        ** FLUSHED **
+00000013  // I165 PC= 660: NOP                        ** FLUSHED **
+02A00913  // I166 PC= 664: ADDI x18, x0, 42          JALR target         → x18 = 42
+
+// --- Branch + Forwarding ---
+06400A93  // I167 PC= 668: ADDI x21, x0, 100                            → x21 = 100
+032A8B13  // I168 PC= 672: ADDI x22, x21, 50         [EX fwd: x21]      → x22 = 150
+016A8663  // I169 PC= 676: BEQ x21, x22, +12         NOT TAKEN (100!=150) [fwd]
+016A9663  // I170 PC= 680: BNE x21, x22, +12         TAKEN (100!=150)    → target = 692 [fwd]
+00000013  // I171 PC= 684: NOP                        ** FLUSHED **
+00000013  // I172 PC= 688: NOP                        ** FLUSHED **
+00B00B93  // I173 PC= 692: ADDI x23, x0, 11          BNE+fwd target     → x23 = 11
+
+// --- Backward Branch Loop (count x24 from 0 to 3) ---
+00000C13  // I174 PC= 696: ADDI x24, x0, 0           counter init        → x24 = 0
+00300C93  // I175 PC= 700: ADDI x25, x0, 3           limit               → x25 = 3
+//
+// Loop body (iterations repeat I176-I177):
+//   Iter 1: x24 = 0+1 = 1, BNE TAKEN  (1 != 3), flush 2, back to I176
+//   Iter 2: x24 = 1+1 = 2, BNE TAKEN  (2 != 3), flush 2, back to I176
+//   Iter 3: x24 = 2+1 = 3, BNE NOT TAKEN (3 == 3), falls through
+//
+001C0C13  // I176 PC= 704: ADDI x24, x24, 1          x24++  [loop body]
+FF9C1EE3  // I177 PC= 708: BNE x24, x25, -8          back to I176 if x24 != x25
+
+00000013  // I178 PC= 712: NOP                        end marker
