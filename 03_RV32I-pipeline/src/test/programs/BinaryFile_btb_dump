@@ -1,0 +1,22 @@
+// BTB Test Program — Loop counting x1 from 0 to 5
+//
+// PC= 0: 00000013  NOP
+// PC= 4: 00000093  ADDI x1, x0, 0       → x1 = 0 (counter)
+// PC= 8: 00500113  ADDI x2, x0, 5       → x2 = 5 (limit)
+// PC=12: 00108093  ADDI x1, x1, 1       → x1++ [LOOP BODY]
+// PC=16: FE209EE3  BNE x1, x2, -4       → if x1≠x2 goto PC=12
+// PC=20: 06300193  ADDI x3, x0, 99      → x3 = 99 (after loop)
+// PC=24: 00000013  NOP
+//
+// BTB trace:
+//   Iter1: BTB miss → static predict not-taken → taken → MISPREDICTION, flush 2
+//          BTB allocates entry at PC=16, init=weakTaken
+//   Iter2: BTB hit, weakTaken→predict taken → correct! No flush.
+//          FSM: weakTaken → strongTaken
+//   Iter3: BTB hit, strongTaken→predict taken → correct!
+//          FSM: stays strongTaken
+//   Iter4: BTB hit, strongTaken→predict taken → correct!
+//   Iter5: BTB hit, strongTaken→predict taken → NOT taken (5==5) → MISPREDICTION, flush 2
+//          FSM: strongTaken → weakTaken
+//
+// Performance: BTB=23 cycles, Static=27 cycles (saves 4 cycles)

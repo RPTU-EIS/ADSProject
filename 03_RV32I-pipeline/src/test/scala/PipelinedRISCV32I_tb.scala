@@ -245,4 +245,69 @@ class PipelinedRISCV32ITest extends AnyFlatSpec with ChiselScalatestTester {
       println("=" * 60)
     }
   }
+
+  "BTBPrediction" should "correctly predict loop branches" in {
+    test(new PipelinedRV32I("src/test/programs/BinaryFile_btb", useBTB = true))
+      .withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+
+        dut.clock.setTimeout(0)
+
+        def check(expected: BigInt, msg: String): Unit = {
+          dut.clock.step(1); dut.io.result.expect(expected.U)
+          dut.io.exception.expect(false.B); println(s"PASS: $msg -> $expected")
+        }
+        def nop(n: Int = 1): Unit = (0 until n).foreach { _ =>
+          dut.clock.step(1); dut.io.result.expect(0.U)
+        }
+
+        println("=" * 60)
+        println("  BTB Test: Loop counting to 5")
+        println("=" * 60)
+
+        // Pipeline fill
+        dut.clock.step(5)
+        dut.io.result.expect(0.U)
+        println("PASS: NOP -> 0")
+
+        // Setup
+        check(0, "ADDI x1=0 (counter)")
+        check(5, "ADDI x2=5 (limit)")
+
+        // ---- Iter 1: BTB miss → predict not-taken → taken → MISPREDICTION ----
+        println("\n--- Iter 1: BTB miss ---")
+        check(1, "ADDI x1=1 (iter1)")
+        check(0, "BNE: BTB miss, taken → misprediction")
+        nop(2)  // flush bubbles
+
+        // ---- Iter 2: BTB hit, weakTaken → predict taken → correct! ----
+        println("\n--- Iter 2: BTB hit, correct (weakTaken) ---")
+        check(2, "ADDI x1=2 (iter2)")
+        check(0, "BNE: BTB hit, predicted taken, correct!")
+
+        // ---- Iter 3: BTB hit, strongTaken → correct ----
+        println("\n--- Iter 3: BTB hit, correct (strongTaken) ---")
+        check(3, "ADDI x1=3 (iter3)")
+        check(0, "BNE: BTB hit, predicted taken, correct!")
+
+        // ---- Iter 4: BTB hit, strongTaken → correct ----
+        println("\n--- Iter 4: BTB hit, correct (strongTaken) ---")
+        check(4, "ADDI x1=4 (iter4)")
+        check(0, "BNE: BTB hit, predicted taken, correct!")
+
+        // ---- Iter 5: BTB hit, strongTaken → NOT taken → MISPREDICTION ----
+        println("\n--- Iter 5: BTB exit misprediction ---")
+        check(5, "ADDI x1=5 (iter5)")
+        check(0, "BNE: BTB hit, predicted taken, actually NOT taken → misprediction")
+        nop(2)  // flush bubbles
+
+        // After loop
+        check(99, "ADDI x3=99 (after loop)")
+        check(0, "NOP (end)")
+
+        println("\n" + "=" * 60)
+        println("  BTB PREDICTION: ALL TESTS PASSED")
+        println("  Cycle count: 23 (vs 27 with static = 15% improvement)")
+        println("=" * 60)
+      }
+  }
 }
