@@ -236,6 +236,6 @@ FFF00593  // I149 PC= 596: ADDI x11, x0, -1                             → x11 
 //   Iter 3: x24 = 2+1 = 3, BNE NOT TAKEN (3 == 3), falls through
 //
 001C0C13  // I176 PC= 704: ADDI x24, x24, 1          x24++  [loop body]
-FF9C1EE3  // I177 PC= 708: BNE x24, x25, -8          back to I176 if x24 != x25
+FF9C1CE3  // I177 PC= 708: BNE x24, x25, -4          back to I176 if x24 != x25
 
 00000013  // I178 PC= 712: NOP                        end marker

@@ -1,22 +1,83 @@
-// BTB Test Program — Loop counting x1 from 0 to 5
+// ================================================================
+// BinaryFile_btb — Nested loop BTB performance test
+// Outer loop: x1 counts 0→5 (5 iterations)
+// Inner loop: x2 counts 0→4 (4 iterations per outer)
+// Total branches: 20 inner BNE + 5 outer BNE = 25
+// Outputs 100 on success
+// ================================================================
 //
-// PC= 0: 00000013  NOP
-// PC= 4: 00000093  ADDI x1, x0, 0       → x1 = 0 (counter)
-// PC= 8: 00500113  ADDI x2, x0, 5       → x2 = 5 (limit)
-// PC=12: 00108093  ADDI x1, x1, 1       → x1++ [LOOP BODY]
-// PC=16: FE209EE3  BNE x1, x2, -4       → if x1≠x2 goto PC=12
-// PC=20: 06300193  ADDI x3, x0, 99      → x3 = 99 (after loop)
-// PC=24: 00000013  NOP
+// PC=  0: 00000013  NOP
+// PC=  4: 00000093  ADDI x1, x0, 0        → x1=0 (outer counter)
+// PC=  8: 00500293  ADDI x5, x0, 5        → x5=5 (outer limit)
+// PC= 12: 00400313  ADDI x6, x0, 4        → x6=4 (inner limit)
+// PC= 16: 00000193  ADDI x3, x0, 0        → x3=0 (total sum)
 //
-// BTB trace:
-//   Iter1: BTB miss → static predict not-taken → taken → MISPREDICTION, flush 2
-//          BTB allocates entry at PC=16, init=weakTaken
-//   Iter2: BTB hit, weakTaken→predict taken → correct! No flush.
-//          FSM: weakTaken → strongTaken
-//   Iter3: BTB hit, strongTaken→predict taken → correct!
-//          FSM: stays strongTaken
-//   Iter4: BTB hit, strongTaken→predict taken → correct!
-//   Iter5: BTB hit, strongTaken→predict taken → NOT taken (5==5) → MISPREDICTION, flush 2
-//          FSM: strongTaken → weakTaken
+// [OUTER LOOP START]
+// PC= 20: 00000113  ADDI x2, x0, 0        → x2=0 (reset inner counter)
 //
-// Performance: BTB=23 cycles, Static=27 cycles (saves 4 cycles)
+// [INNER LOOP START]
+// PC= 24: 00110113  ADDI x2, x2, 1        → x2++
+// PC= 28: 00118193  ADDI x3, x3, 1        → x3++ (total sum)
+// PC= 32: FE611CE3  BNE x2, x6, -8        → back to PC=24 if x2≠4
+//
+// PC= 36: 00108093  ADDI x1, x1, 1        → x1++ (outer)
+// PC= 40: FE5096E3  BNE x1, x5, -20       → back to PC=20 if x1≠5
+//
+// PC= 44: 06400513  ADDI x10, x0, 100     → SUCCESS marker
+// PC= 48: 00000013  NOP
+// PC= 52: FE000EE3  BEQ x0, x0, -4        → infinite loop (hold result)
+//
+// ================================================================
+// EXECUTION TRACE
+// ================================================================
+//
+// Inner loop per outer iteration: x2 = 1,2,3,4
+//   iter 1 (x2=1): BNE taken  (1≠4)
+//   iter 2 (x2=2): BNE taken  (2≠4)
+//   iter 3 (x2=3): BNE taken  (3≠4)
+//   iter 4 (x2=4): BNE not taken (4==4) → exit inner
+//
+// Outer iterations: x1 = 1,2,3,4,5
+//   After inner completes, x1++
+//   BNE taken for x1=1,2,3,4; not taken for x1=5
+//
+// Final result: x3 = 5×4 = 20 (total increments), x10 = 100
+//
+// ================================================================
+// STATIC PREDICTION ANALYSIS (predict not-taken)
+// ================================================================
+// Inner BNE: 20 executions, 15 taken (mispredicted), 5 not-taken (correct)
+// Outer BNE: 5 executions, 4 taken (mispredicted), 1 not-taken (correct)
+// Total: 25 branches, 19 mispredicted, 6 correct
+// Accuracy: 6/25 = 24%
+// Wasted cycles: 19 × 2 = 38
+//
+// ================================================================
+// BTB PREDICTION ANALYSIS
+// ================================================================
+//
+// INNER BNE (PC=32, set index=0):
+//   Outer 1:
+//     x2=1: BTB miss → NT, actually T → MISPREDICT. Alloc weakTaken.
+//     x2=2: hit weakTaken → T, actually T → CORRECT. →strongTaken
+//     x2=3: hit strongTaken → T, actually T → CORRECT.
+//     x2=4: hit strongTaken → T, actually NT → MISPREDICT. →weakTaken
+//   Outer 2-5 (each):
+//     x2=1: hit weakTaken → T, actually T → CORRECT. →strongTaken
+//     x2=2: hit strongTaken → T, actually T → CORRECT.
+//     x2=3: hit strongTaken → T, actually T → CORRECT.
+//     x2=4: hit strongTaken → T, actually NT → MISPREDICT. →weakTaken
+//   Inner total: (2+4×3)=14 correct, (2+4×1)=6 mispredict
+//
+// OUTER BNE (PC=40, set index=5):
+//     x1=1: BTB miss → MISPREDICT. Alloc weakTaken.
+//     x1=2: hit weakTaken → T, T → CORRECT. →strongTaken
+//     x1=3: hit strongTaken → T, T → CORRECT.
+//     x1=4: hit strongTaken → T, T → CORRECT.
+//     x1=5: hit strongTaken → T, NT → MISPREDICT. →weakTaken
+//   Outer total: 3 correct, 2 mispredict
+//
+// BTB Grand Total: 17 correct, 8 mispredict
+// Accuracy: 17/25 = 68%
+// Wasted cycles: 8 × 2 = 16
+// Saved vs static: 38 - 16 = 22 cycles

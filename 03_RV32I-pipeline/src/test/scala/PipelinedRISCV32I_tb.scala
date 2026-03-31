@@ -157,7 +157,8 @@ class PipelinedRISCV32ITest extends AnyFlatSpec with ChiselScalatestTester {
 
       // --- BEQ taken +12 ---
       check(0, "I129 BEQ x1,x3 TAKEN")
-      nop(2) // flush bubbles
+      check(0, "Flushing")
+      check(0, "FLushing")
       check(2, "I132 ADDI x5=2 (BEQ target)")
 
       // --- BNE taken +12 ---
@@ -246,7 +247,7 @@ class PipelinedRISCV32ITest extends AnyFlatSpec with ChiselScalatestTester {
     }
   }
 
-  "BTBPrediction" should "correctly predict loop branches" in {
+/*  "BTBPrediction" should "correctly predict loop branches" in {
     test(new PipelinedRV32I("src/test/programs/BinaryFile_btb", useBTB = true))
       .withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
 
@@ -309,5 +310,244 @@ class PipelinedRISCV32ITest extends AnyFlatSpec with ChiselScalatestTester {
         println("  Cycle count: 23 (vs 27 with static = 15% improvement)")
         println("=" * 60)
       }
+  }*/
+
+  "Test_Branching" should "execute loops and flush pipeline correctly" in {
+    test(new PipelinedRV32I("src/test/programs/Binary_file_branch"))
+      .withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+
+        dut.clock.setTimeout(0)
+
+        var found = false
+        var foundCycle = 0
+
+        // Run for up to 500 cycles to find the success marker (result=100)
+        for (cycle <- 1 to 500 if !found) {
+          dut.clock.step(1)
+          if (dut.io.result.peek().litValue == 100) {
+            found = true
+            foundCycle = cycle
+          }
+        }
+
+        // Assert success
+        assert(found, "Processor never output value 100! (Loop stuck or flush error)")
+
+        // Read performance counters
+        val branches    = dut.io.total_branches.peek().litValue.toDouble
+        val mispredicts = dut.io.total_mispredicts.peek().litValue.toDouble
+        val correct     = branches - mispredicts
+        val accuracy    = if (branches > 0) (correct / branches) * 100.0 else 0.0
+
+        println("=" * 55)
+        println("       BRANCH TEST — PERFORMANCE REPORT")
+        println("=" * 55)
+        println(f"  Result 100 found at cycle:   $foundCycle")
+        println(f"  Total Branches Executed:     ${branches.toInt}")
+        println(f"  Correct Predictions:         ${correct.toInt}")
+        println(f"  Mispredictions:              ${mispredicts.toInt}")
+        println(f"  Prediction Accuracy:         $accuracy%.1f%%")
+        println()
+        println("  Branch types tested:")
+        println("    BEQ  (taken + not-taken)")
+        println("    BNE  (taken)")
+        println("    BLT  (taken)")
+        println("    BGE  (taken)")
+        println("    BLTU (taken)")
+        println("    BGEU (taken)")
+        println("    JAL  (unconditional)")
+        println("    JALR (unconditional)")
+        println("    Backward BNE loop (10 iterations)")
+        println("    BEQ verification (sum == 55)")
+        println()
+        println("  Flush verification:")
+        println("    9 flushed ADDI x10,99 instructions (would corrupt x10)")
+        println("    1 flushed ADDI x10,0 instruction (fail marker)")
+        println("    Result=100 proves all 10 flushes worked correctly")
+        println("=" * 55)
+        println("  Test_Branching: PASSED")
+        println("=" * 55)
+      }
+  }
+
+  // ===================================================================
+  // TEST 2: BTB Performance — Static Prediction (baseline)
+  //         Nested loop: 5 outer × 4 inner = 25 branch executions
+  // ===================================================================
+
+  "Test_BTB_Static" should "run nested loop with static prediction" in {
+    test(new PipelinedRV32I("src/test/programs/BinaryFile_btb", useBTB = false))
+      .withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+
+        dut.clock.setTimeout(0)
+
+        var found = false
+        var foundCycle = 0
+
+        for (cycle <- 1 to 500 if !found) {
+          dut.clock.step(1)
+          if (dut.io.result.peek().litValue == 100) {
+            found = true
+            foundCycle = cycle
+          }
+        }
+
+        assert(found, "Processor never output value 100 with static prediction!")
+
+        val branches    = dut.io.total_branches.peek().litValue.toDouble
+        val mispredicts = dut.io.total_mispredicts.peek().litValue.toDouble
+        val correct     = branches - mispredicts
+        val accuracy    = if (branches > 0) (correct / branches) * 100.0 else 0.0
+
+        println("=" * 55)
+        println("       STATIC PREDICTION — NESTED LOOP BASELINE")
+        println("=" * 55)
+        println(f"  Result 100 found at cycle:   $foundCycle")
+        println(f"  Total Branches Executed:     ${branches.toInt}")
+        println(f"  Correct Predictions:         ${correct.toInt}")
+        println(f"  Mispredictions:              ${mispredicts.toInt}")
+        println(f"  Prediction Accuracy:         $accuracy%.1f%%")
+        println(f"  Wasted flush cycles:         ${mispredicts.toInt * 2}")
+        println("=" * 55)
+        println("  Test_BTB_Static: PASSED")
+        println("=" * 55)
+      }
+  }
+
+  // ===================================================================
+  // TEST 3: BTB Performance — Dynamic BTB Prediction
+  //         Same nested loop, with BTB enabled
+  // ===================================================================
+
+  "Test_BTB_Dynamic" should "improve prediction accuracy with BTB" in {
+    test(new PipelinedRV32I("src/test/programs/BinaryFile_btb", useBTB = true))
+      .withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+
+        dut.clock.setTimeout(0)
+
+        var found = false
+        var foundCycle = 0
+
+        for (cycle <- 1 to 500 if !found) {
+          dut.clock.step(1)
+          if (dut.io.result.peek().litValue == 100) {
+            found = true
+            foundCycle = cycle
+          }
+        }
+
+        assert(found, "Processor never output value 100 with BTB prediction!")
+
+        val branches    = dut.io.total_branches.peek().litValue.toDouble
+        val mispredicts = dut.io.total_mispredicts.peek().litValue.toDouble
+        val correct     = branches - mispredicts
+        val accuracy    = if (branches > 0) (correct / branches) * 100.0 else 0.0
+
+        println("=" * 55)
+        println("       BTB PREDICTION — NESTED LOOP RESULTS")
+        println("=" * 55)
+        println(f"  Result 100 found at cycle:   $foundCycle")
+        println(f"  Total Branches Executed:     ${branches.toInt}")
+        println(f"  Correct Predictions:         ${correct.toInt}")
+        println(f"  Mispredictions:              ${mispredicts.toInt}")
+        println(f"  Prediction Accuracy:         $accuracy%.1f%%")
+        println(f"  Wasted flush cycles:         ${mispredicts.toInt * 2}")
+        println("=" * 55)
+        println("  Test_BTB_Dynamic: PASSED")
+        println("=" * 55)
+      }
+  }
+
+  // ===================================================================
+  // TEST 4: BTB Performance Comparison — Side-by-side evaluation
+  //         Runs both modes and prints comparison table
+  // ===================================================================
+
+  "Test_BTB_Comparison" should "demonstrate BTB improvement over static" in {
+    // --- Run Static ---
+    var staticCycles = 0
+    var staticBranches = 0.0
+    var staticMispredicts = 0.0
+
+    test(new PipelinedRV32I("src/test/programs/BinaryFile_btb", useBTB = false))
+      .withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+        dut.clock.setTimeout(0)
+        var found = false
+        for (cycle <- 1 to 500 if !found) {
+          dut.clock.step(1)
+          if (dut.io.result.peek().litValue == 100) { found = true; staticCycles = cycle }
+        }
+        assert(found, "Static: never found result 100!")
+        staticBranches    = dut.io.total_branches.peek().litValue.toDouble
+        staticMispredicts = dut.io.total_mispredicts.peek().litValue.toDouble
+      }
+
+    // --- Run BTB ---
+    var btbCycles = 0
+    var btbBranches = 0.0
+    var btbMispredicts = 0.0
+
+    test(new PipelinedRV32I("src/test/programs/BinaryFile_btb", useBTB = true))
+      .withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+        dut.clock.setTimeout(0)
+        var found = false
+        for (cycle <- 1 to 500 if !found) {
+          dut.clock.step(1)
+          if (dut.io.result.peek().litValue == 100) { found = true; btbCycles = cycle }
+        }
+        assert(found, "BTB: never found result 100!")
+        btbBranches    = dut.io.total_branches.peek().litValue.toDouble
+        btbMispredicts = dut.io.total_mispredicts.peek().litValue.toDouble
+      }
+
+    // --- Print Comparison ---
+    val staticCorrect  = staticBranches - staticMispredicts
+    val btbCorrect     = btbBranches - btbMispredicts
+    val staticAccuracy = if (staticBranches > 0) (staticCorrect / staticBranches) * 100.0 else 0.0
+    val btbAccuracy    = if (btbBranches > 0) (btbCorrect / btbBranches) * 100.0 else 0.0
+    val cyclesSaved    = staticCycles - btbCycles
+    val improvement    = if (staticCycles > 0) cyclesSaved * 100.0 / staticCycles else 0.0
+
+    println()
+    println("=" * 60)
+    println("          BTB PERFORMANCE EVALUATION")
+    println("          Nested Loop: 5 outer × 4 inner")
+    println("=" * 60)
+    println()
+    println(f"  Metric                    Static      BTB")
+    println(f"  ─────────────────────────────────────────────")
+    println(f"  Cycles to result=100      $staticCycles          $btbCycles")
+    println(f"  Total Branches            ${staticBranches.toInt}          ${btbBranches.toInt}")
+    println(f"  Correct Predictions       ${staticCorrect.toInt}           ${btbCorrect.toInt}")
+    println(f"  Mispredictions            ${staticMispredicts.toInt}          ${btbMispredicts.toInt}")
+    println(f"  Prediction Accuracy       $staticAccuracy%.1f%%       $btbAccuracy%.1f%%")
+    println(f"  Wasted Flush Cycles       ${staticMispredicts.toInt * 2}          ${btbMispredicts.toInt * 2}")
+    println(f"  ─────────────────────────────────────────────")
+    println(f"  Cycles Saved by BTB:      $cyclesSaved")
+    println(f"  Performance Improvement:  $improvement%.1f%%")
+    println()
+    println("  BTB Configuration:")
+    println("    Structure:  2-way set-associative, 8 sets")
+    println("    Predictor:  2-bit saturating counter")
+    println("    Replacement: LRU (Least Recently Used)")
+    println("    Indexing:   PC[4:2] (3 bits)")
+    println("    Tag:        PC[31:5] (27 bits)")
+    println()
+    println("  Analysis:")
+    println("    Static prediction mispredicts every taken branch.")
+    println("    BTB learns loop patterns after first iteration,")
+    println("    correctly predicting taken branches in subsequent")
+    println("    iterations. Only first encounter (BTB miss) and")
+    println("    loop exit (predict taken, actually not taken)")
+    println("    cause mispredictions.")
+    println("=" * 60)
+
+    // Assert BTB is actually better
+    assert(btbCycles < staticCycles, s"BTB ($btbCycles) should be faster than static ($staticCycles)!")
+    assert(btbAccuracy > staticAccuracy, s"BTB accuracy ($btbAccuracy%) should be higher than static ($staticAccuracy%)!")
+
+    println("  Test_BTB_Comparison: PASSED")
+    println("  (BTB is faster and more accurate than static prediction)")
+    println("=" * 60)
   }
 }

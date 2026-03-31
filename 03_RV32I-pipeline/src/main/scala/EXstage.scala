@@ -35,6 +35,10 @@ class EX extends Module {
     val btbUpdatePC     = Output(UInt(32.W))
     val btbUpdateTarget = Output(UInt(32.W))
     val btbMispredicted = Output(Bool())
+
+    // Performance counters
+    val totalBranches    = Output(UInt(32.W))
+    val totalMispredicts = Output(UInt(32.W))
   })
 
   // ===========================================================
@@ -64,7 +68,7 @@ class EX extends Module {
   // Instruction type flags
   // ===========================================================
   val isBranch = (io.uop===BEQ || io.uop===BNE || io.uop===BLT ||
-                  io.uop===BGE || io.uop===BLTU || io.uop===BGEU)
+    io.uop===BGE || io.uop===BLTU || io.uop===BGEU)
   val isJAL    = io.uop === JAL
   val isJALR   = io.uop === JALR
 
@@ -156,4 +160,20 @@ class EX extends Module {
   // Exception passthrough
   // ===========================================================
   io.exception := io.XcptInvalid
+
+  // ===========================================================
+  // Performance counters (hardware registers)
+  // ===========================================================
+  val branchCount     = RegInit(0.U(32.W))
+  val mispredictCount = RegInit(0.U(32.W))
+
+  when(isBranch) {
+    branchCount := branchCount + 1.U
+  }
+  when(branchMispredicted) {
+    mispredictCount := mispredictCount + 1.U
+  }
+
+  io.totalBranches    := branchCount
+  io.totalMispredicts := mispredictCount
 }

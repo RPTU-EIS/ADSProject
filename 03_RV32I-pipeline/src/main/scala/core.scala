@@ -10,6 +10,8 @@ class PipelinedRV32Icore(BinaryFile: String, useBTB: Boolean = false) extends Mo
   val io = IO(new Bundle {
     val check_res = Output(UInt(32.W))
     val exception = Output(Bool())
+    val total_branches    = Output(UInt(32.W))
+    val total_mispredicts = Output(UInt(32.W))
   })
 
   // =========================================================================
@@ -168,4 +170,8 @@ class PipelinedRV32Icore(BinaryFile: String, useBTB: Boolean = false) extends Mo
 
   io.check_res := wbBarrier.io.outCheckRes
   io.exception := wbBarrier.io.outXcptInvalid
+
+  // Performance counters from EX stage to top-level I/O
+  io.total_branches    := exStage.io.totalBranches
+  io.total_mispredicts := exStage.io.totalMispredicts
 }
