@@ -36,6 +36,25 @@ class FourBitAdderTester extends AnyFlatSpec with ChiselScalatestTester {
       /*
        * TODO: Insert your test cases
        */  
+      for (a <- 0 until 16) {
+        for (b <- 0 until 16) {
+          // 1. Input: Poke values into the hardware
+          dut.io.a.poke(a.U)
+          dut.io.b.poke(b.U)
+
+          val sum = a + b
+
+          if (sum <= 15) {
+          // Scenario 1: Normal addition
+            dut.io.s.expect(sum.U)
+            dut.io.co.expect(false.B)
+          } else {
+          // Scenario 2: Overflow occurs
+            dut.io.s.expect((sum - 16).U) // The "wrapped" 4-bit value
+            dut.io.co.expect(true.B)      // The carry-out is active
+          }
+        }
+      }
         
       
     } 

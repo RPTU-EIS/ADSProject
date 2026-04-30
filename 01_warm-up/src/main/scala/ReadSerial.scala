@@ -8,49 +8,96 @@ package readserial
 
 import chisel3._
 import chisel3.util._
+import chisel3.experimental.ChiselEnum
 
 
 /** controller class */
 class Controller extends Module{
   
+  // Define states using ChiselEnum
+  object State extends ChiselEnum {
+    val idle, receive, svalid = Value
+  }
+  import State._
+
   val io = IO(new Bundle {
     /* 
      * TODO: Define IO ports of a the component as stated in the documentation
      */
+    val reset_n = Input(Bool())
+    val rxd = Input(Bool())
+    val cnt_s = Input(UInt(3.W))
+
+    val cnt_en = Output(Bool())
+    val valid = Output(Bool())
     })
 
   // internal variables
   /* 
    * TODO: Define internal variables (registers and/or wires), if needed
    */
-
+  val state = RegInit(idle)
+  
+  // Default outputs - ensure all outputs are initialized
+  io.cnt_en := false.B
+  io.valid := false.B
+  
   // state machine
   /* 
    * TODO: Describe functionality if the controller as a state machine
    */
-
+  switch(state) {
+    is(idle) {
+      when(!io.reset_n) {
+        state := idle
+      } .elsewhen (!io.rxd) { // Start bit detected
+        state := receive
+      }
+    }
+    is(receive) {
+      io.cnt_en := true.B // Keep counter enabled while receiving bits
+      when(io.cnt_s === 7.U) { // After receiving 8 bits (0-7)
+        state := svalid
+      }
+    }
+    is(svalid) {
+      io.valid := true.B   // Indicate that data is valid
+      when (!io.rxd) { // Start bit detected
+        state := receive
+      } .otherwise { // Wait for next transmission
+        state := idle
+      }
+    }
+  }
 }
 
 
 /** counter class */
-class Counter extends Module{
+class Counter extends Module {
   
   val io = IO(new Bundle {
-    /* 
-     * TODO: Define IO ports of a the component as stated in the documentation
-     */
+    val reset_n = Input(Bool())
+    val cnt_en = Input(Bool())
+
+    val cnt_s = Output(UInt(3.W))
     })
 
   // internal variables
   /* 
    * TODO: Define internal variables (registers and/or wires), if needed
    */
-
+  val count = RegInit(0.U(3.W))
   // state machine
   /* 
    * TODO: Describe functionality if the counter as a state machine
    */
+  when(!io.reset_n | !io.cnt_en) {
+    count := 0.U
+  } .elsewhen (io.cnt_en) {
+    count := count + 1.U
+  }
 
+  io.cnt_s := count
 
 }
 
@@ -61,17 +108,27 @@ class ShiftRegister extends Module{
     /* 
      * TODO: Define IO ports of a the component as stated in the documentation
      */
+    val rxd = Input(Bool())
+    val cnt_en = Input(Bool())
+
+    val data = Output(UInt(8.W))
     })
 
   // internal variables
   /* 
    * TODO: Define internal variables (registers and/or wires), if needed
    */
+  val shiftReg = RegInit(0.U(8.W))
 
   // functionality
   /* 
    * TODO: Describe functionality if the shift register
    */
+  when(io.cnt_en) {
+    shiftReg := Cat(shiftReg(6, 0), io.rxd) // Shift left and input new bit
+  }
+
+  io.data := shiftReg
 }
 
 /** 
@@ -91,6 +148,11 @@ class ReadSerial extends Module{
     /* 
      * TODO: Define IO ports of a the component as stated in the documentation
      */
+    val reset_n = Input(Bool())
+    val rxd = Input(Bool())
+
+    val valid = Output(Bool())
+    val data = Output(UInt(8.W))
     })
 
 
@@ -98,15 +160,29 @@ class ReadSerial extends Module{
   /* 
    * TODO: Instanciate the modules that you need
    */
+  val controller = Module(new Controller())
+  val counter = Module(new Counter())
+  val shiftRegister = Module(new ShiftRegister())
 
   // connections between modules
   /* 
    * TODO: connect the signals between the modules
    */
+  controller.io.reset_n := io.reset_n
+  controller.io.rxd := io.rxd
+  controller.io.cnt_s := counter.io.cnt_s
+
+  counter.io.reset_n := io.reset_n
+  counter.io.cnt_en := controller.io.cnt_en
+
+  shiftRegister.io.rxd := io.rxd
+  shiftRegister.io.cnt_en := controller.io.cnt_en
 
   // global I/O 
   /* 
    * TODO: Describe output behaviour based on the input values and the internal signals
-   */
+   */  
+  io.valid := controller.io.valid
+  io.data := shiftRegister.io.data
 
 }

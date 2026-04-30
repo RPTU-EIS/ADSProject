@@ -24,12 +24,17 @@ class HalfAdder extends Module{
     /* 
      * TODO: Define IO ports of a half adder as presented in the lecture
      */
+     val a = Input(Bool())
+     val b = Input(Bool())
+     val s = Output(Bool())
+     val co = Output(Bool())
     })
 
   /* 
    * TODO: Describe output behaviour based on the input values
    */
-
+  io.s := io.a ^ io.b
+  io.co := io.a & io.b
 }
 
 /** 
@@ -49,18 +54,30 @@ class FullAdder extends Module{
     /* 
      * TODO: Define IO ports of a half adder as presented in the lecture
      */
+    val a = Input(Bool())
+    val b = Input(Bool())
+    val ci = Input(Bool())
+    val s = Output(Bool())
+    val co = Output(Bool())
     })
-
 
   /* 
    * TODO: Instanciate the two half adders you want to use based on your HalfAdder class
    */
-
+  val ha1 = Module(new HalfAdder())
+  val ha2 = Module(new HalfAdder())
 
   /* 
    * TODO: Describe output behaviour based on the input values and the internal signals
    */
+  ha1.io.a := io.a
+  ha1.io.b := io.b
+  
+  ha2.io.a := ha1.io.s
+  ha2.io.b := io.ci
 
+  io.s := ha2.io.s
+  io.co := ha1.io.co | ha2.io.co
 }
 
 /** 
@@ -79,14 +96,37 @@ class FourBitAdder extends Module{
     /* 
      * TODO: Define IO ports of a 4-bit ripple-carry-adder as presented in the lecture
      */
+    val a = Input(UInt(4.W))
+    val b = Input(UInt(4.W))
+    val co = Output(Bool())
+    val s = Output(UInt(4.W))
     })
 
   /* 
    * TODO: Instanciate the full adders and one half adderbased on the previously defined classes
    */
-
-
+  val ha = Module(new HalfAdder())
+  val fa1 = Module(new FullAdder())
+  val fa2 = Module(new FullAdder())
+  val fa3 = Module(new FullAdder())
   /* 
    * TODO: Describe output behaviour based on the input values and the internal 
    */
+  ha.io.a := io.a(0)
+  ha.io.b := io.b(0)
+
+  fa1.io.a := io.a(1)
+  fa1.io.b := io.b(1)
+  fa1.io.ci := ha.io.co
+
+  fa2.io.a := io.a(2)
+  fa2.io.b := io.b(2)
+  fa2.io.ci := fa1.io.co
+
+  fa3.io.a := io.a(3)
+  fa3.io.b := io.b(3)
+  fa3.io.ci := fa2.io.co
+
+  io.s := Cat(fa3.io.s, fa2.io.s, fa1.io.s, ha.io.s) // entire signal must be driven at once
+  io.co := fa3.io.co
 }
