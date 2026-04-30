@@ -37,9 +37,9 @@
   <h3 align="center">
   ADS I Class Project
   <br />
-  Group #XXX
+  Thesis Preparation (Chisel Introduction)
   <br />
-  Winter Semester 2025/2026
+  Sommer Semester 2026
   </h3>
 
   <p align="center">
