@@ -18,7 +18,9 @@ class Controller extends Module{
   object State extends ChiselEnum {
     val idle, receive, svalid = Value
   }
-  import State._
+  
+  // Import states for easier usage (import everything, so we can use state names directly instead of State.idle, State.receive, ...)
+  import State._ 
 
   val io = IO(new Bundle {
     /* 
@@ -33,9 +35,6 @@ class Controller extends Module{
     })
 
   // internal variables
-  /* 
-   * TODO: Define internal variables (registers and/or wires), if needed
-   */
   val state = RegInit(idle)
   
   // Default outputs - ensure all outputs are initialized
@@ -43,14 +42,9 @@ class Controller extends Module{
   io.valid := false.B
   
   // state machine
-  /* 
-   * TODO: Describe functionality if the controller as a state machine
-   */
   switch(state) {
     is(idle) {
-      when(!io.reset_n) {
-        state := idle
-      } .elsewhen (!io.rxd) { // Start bit detected
+      when (!io.rxd) { // Start bit detected
         state := receive
       }
     }
@@ -69,6 +63,10 @@ class Controller extends Module{
       }
     }
   }
+
+  when(!io.reset_n) {
+    state := idle
+  }
 }
 
 
@@ -83,14 +81,9 @@ class Counter extends Module {
     })
 
   // internal variables
-  /* 
-   * TODO: Define internal variables (registers and/or wires), if needed
-   */
   val count = RegInit(0.U(3.W))
+
   // state machine
-  /* 
-   * TODO: Describe functionality if the counter as a state machine
-   */
   when(!io.reset_n | !io.cnt_en) {
     count := 0.U
   } .elsewhen (io.cnt_en) {
@@ -105,9 +98,6 @@ class Counter extends Module {
 class ShiftRegister extends Module{
   
   val io = IO(new Bundle {
-    /* 
-     * TODO: Define IO ports of a the component as stated in the documentation
-     */
     val rxd = Input(Bool())
     val cnt_en = Input(Bool())
 
@@ -115,15 +105,9 @@ class ShiftRegister extends Module{
     })
 
   // internal variables
-  /* 
-   * TODO: Define internal variables (registers and/or wires), if needed
-   */
   val shiftReg = RegInit(0.U(8.W))
 
   // functionality
-  /* 
-   * TODO: Describe functionality if the shift register
-   */
   when(io.cnt_en) {
     shiftReg := Cat(shiftReg(6, 0), io.rxd) // Shift left and input new bit
   }
@@ -145,9 +129,6 @@ class ShiftRegister extends Module{
 class ReadSerial extends Module{
   
   val io = IO(new Bundle {
-    /* 
-     * TODO: Define IO ports of a the component as stated in the documentation
-     */
     val reset_n = Input(Bool())
     val rxd = Input(Bool())
 
@@ -157,17 +138,11 @@ class ReadSerial extends Module{
 
 
   // instanciation of modules
-  /* 
-   * TODO: Instanciate the modules that you need
-   */
   val controller = Module(new Controller())
   val counter = Module(new Counter())
   val shiftRegister = Module(new ShiftRegister())
 
   // connections between modules
-  /* 
-   * TODO: connect the signals between the modules
-   */
   controller.io.reset_n := io.reset_n
   controller.io.rxd := io.rxd
   controller.io.cnt_s := counter.io.cnt_s
@@ -179,9 +154,6 @@ class ReadSerial extends Module{
   shiftRegister.io.cnt_en := controller.io.cnt_en
 
   // global I/O 
-  /* 
-   * TODO: Describe output behaviour based on the input values and the internal signals
-   */  
   io.valid := controller.io.valid
   io.data := shiftRegister.io.data
 
