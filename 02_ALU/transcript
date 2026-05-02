@@ -1,0 +1,29 @@
+# vsim -c -do "run -all; quit" tb_ALU 
+# Start time: 16:21:17 on May 02,2026
+# ** Note: (vsim-3812) Design is being optimized...
+# //  ModelSim SE-64 10.4a Mar 24 2015 Linux 5.15.0-174-generic
+# //
+# //  Copyright 1991-2015 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  THIS WORK CONTAINS TRADE SECRET AND PROPRIETARY INFORMATION
+# //  WHICH IS THE PROPERTY OF MENTOR GRAPHICS CORPORATION OR ITS
+# //  LICENSORS AND IS SUBJECT TO LICENSE TERMS.
+# //  THIS DOCUMENT CONTAINS TRADE SECRETS AND COMMERCIAL OR FINANCIAL
+# //  INFORMATION THAT ARE PRIVILEGED, CONFIDENTIAL, AND EXEMPT FROM
+# //  DISCLOSURE UNDER THE FREEDOM OF INFORMATION ACT, 5 U.S.C. SECTION 552.
+# //  FURTHERMORE, THIS INFORMATION IS PROHIBITED FROM DISCLOSURE UNDER
+# //  THE TRADE SECRETS ACT, 18 U.S.C. SECTION 1905.
+# //
+# Loading work.tb_ALU(fast)
+# run -all
+# ADD Test : 10 + 15 =         25 (Expected: 25)
+# SUB Test : 20 - 5 =         15 (Expected: 15)
+# AND Test : f0f0f0f0 & 00ff00ff = 00f000f0 (Expected: 00f000f0)
+# SRA Test : f0000000 >>> 4 = ff000000 (Expected: ff000000)
+# SLT Test : -1 < 1  =          1 (Expected: 1)
+# Simulation Complete.
+# ** Note: $finish    : ./generated-src/tb_ALU.v(95)
+#    Time: 80 ns  Iteration: 0  Instance: /tb_ALU
+# End time: 16:21:18 on May 02,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0

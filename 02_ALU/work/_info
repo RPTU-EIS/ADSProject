@@ -1,0 +1,60 @@
+m255
+K4
+z2
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 d/import/lab/users/butt/Desktop/ADS/ADSProject/02_ALU
+T_opt
+!s110 1777731678
+V1eL`02XG0`Ih^fVl78jTK1
+04 6 4 work tb_ALU fast 0
+=1-801844ed21e4-69f6085d-bba92-d1441
+o-quiet -auto_acc_if_foreign -work work
+n@_opt
+OL;O;10.4a;61
+vALU
+Z1 !s110 1777731667
+!i10b 1
+!s100 bTV^O91WTIAh<DKRkFCTA3
+I6=RAF>1>ChoNcgI`:Ac5Q1
+Z2 VDg1SIo80bB@j0V0VzS_@n1
+R0
+w1777723538
+8./generated-src/ALU.v
+F./generated-src/ALU.v
+L0 1
+Z3 OL;L;10.4a;61
+r1
+!s85 0
+31
+Z4 !s108 1777731667.000000
+Z5 !s107 ./generated-src/tb_ALU.v|./generated-src/ALU.v|
+Z6 !s90 ./generated-src/ALU.v|./generated-src/tb_ALU.v|
+!i113 0
+Z7 o-L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
+n@a@l@u
+vtb_ALU
+R1
+!i10b 1
+!s100 lIG8]9RXi3E8NLB`h03:a0
+I3AcfR12[_`ZK<fXgjc63f1
+R2
+R0
+w1777725472
+8./generated-src/tb_ALU.v
+F./generated-src/tb_ALU.v
+L0 3
+R3
+r1
+!s85 0
+31
+R4
+R5
+R6
+!i113 0
+R7
+ntb_@a@l@u
