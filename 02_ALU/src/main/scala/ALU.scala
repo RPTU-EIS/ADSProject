@@ -27,7 +27,7 @@ class ALU extends Module {
     val aluResult = Output(UInt(32.W))
   })
 
-  //ToDo: implement ALU functionality according to the task specification
+  //ToDo: implement ALU functionality according to the task specification 
   io.aluResult := 0.U // Default value to avoid latches
 
   switch(io.operation) {
