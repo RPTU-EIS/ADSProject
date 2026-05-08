@@ -38,5 +38,44 @@ import uopc._
 // -----------------------------------------
 // ID-Barrier
 // -----------------------------------------
+class IDbarrier extends Module {
+  val io = IO(new Bundle {
+    val inUOP = Input(UInt(7.W))
+    val inRD = Input(UInt(5.W))
+    val inOperandA = Input(UInt(32.W))
+    val inOperandB = Input(UInt(32.W))
+    val inXcptInvalid = Input(UInt(1.W))
 
+    val outUOP = Output(UInt(7.W))
+    val outRD = Output(UInt(5.W))
+    val outOperandA = Output(UInt(32.W))
+    val outOperandB = Output(UInt(32.W))
+    val outXcptInvalid = Output(UInt(1.W))
+  })
+
+  val uopReg = RegInit(0.U(7.W)) // Assuming 0 is NOP
+  val rd = RegInit(0.U(5.W))
+  val operandA = RegInit(0.U(32.W))
+  val operandB = RegInit(0.U(32.W))
+  val xcptInvalid = RegInit(0.U(1.W))
+
+  uopReg := io.inUOP
+  operandA := io.inOperandA
+  operandB := io.inOperandB
+  rd := io.inRD
+  xcptInvalid := io.inXcptInvalid
+
+  io.outUOP := uopReg
+  io.outOperandA := operandA
+  io.outOperandB := operandB
+  io.outRD := rd
+  io.outXcptInvalid := xcptInvalid
+  
+//RegNext means: "Create a register, feed this input into it, initialize it to this default value, and connect it to this output"
+//   io.outUOP         := RegNext(io.inUOP, 0.U)
+//   io.outRD          := RegNext(io.inRD, 0.U)
+//   io.outOperandA    := RegNext(io.inOperandA, 0.U)
+//   io.outOperandB    := RegNext(io.inOperandB, 0.U)
+//   io.outXcptInvalid := RegNext(io.inXcptInvalid, 0.U)
+}
 //ToDo: Add your implementation according to the specification above here 
