@@ -52,7 +52,7 @@ class ID extends Module {
     val regFileResp_A = Input(new regFileReadResp) // Read response for rs1
 
     val regFileReq_B = Output(new regFileReadReq) // Read request for rs2
-    val regFileResp_B = Input(new regFileReadResp) // Read response for rs
+    val regFileResp_B = Input(new regFileReadResp) // Read response for rs2
     
     val uop = Output(UInt(7.W))
     val rd_idx = Output(UInt(5.W))

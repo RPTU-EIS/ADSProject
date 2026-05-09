@@ -78,18 +78,48 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
   val wbStage = Module(new WB())
   val wbBarrier = Module(new WBBarrier())
 
+  val memStage = Module(new MEM())
+  val memBarrier = Module(new MEMBarrier())
+
   // Connect IF stage to IF barrier
-  ifStage.io.inInstr := ifStage.io.instr
+  ifBarrier.io.inInstr := ifStage.io.instr
 
   // Connect IF barrier to ID stage
-  idStage.io.instr := ifBarrier.io.outInstr
+  idStage.io.inst := ifBarrier.io.outInstr
 
   // Connect ID stage to ID barrier
   idBarrier.io.inUOP := idStage.io.uop
   idBarrier.io.inRD := idStage.io.rd_idx
   idBarrier.io.inOperandA := idStage.io.operandA
   idBarrier.io.inOperandB := idStage.io.operandB
-  idBarrier.io.inXcptInvalid := idStage.io.xcptInvalid
+  idBarrier.io.inXcptInvalid := idStage.io.XcptInvalid
 
-  // Connect ID Stage to Register File
+  // Connect ID barrier to EX stage
+  exStage.io.uop := idBarrier.io.outUOP
+  exStage.io.rd := idBarrier.io.outRD
+  exStage.io.operandA := idBarrier.io.outOperandA
+  exStage.io.operandB := idBarrier.io.outOperandB
+  exStage.io.xcptInvalid := idBarrier.io.outXcptInvalid
+
+  // Connect EX stage to EX barrier
+  exBarrier.io.inAluResult := exStage.io.aluResult
+  exBarrier.io.inRD := exStage.io.outRD
+  exBarrier.io.inXcptInvalid := exStage.io.xcptInvalid
+
+  // Connect EX barrier to MEM Barrier 
+  memBarrier.io.inAluResult := exBarrier.io.outAluResult
+  memBarrier.io.inRD := exBarrier.io.outRD
+  memBarrier.io.inXcptInvalid := exBarrier.io.outXcptInvalid
+
+  // Connect MEM barrier to WB Stage
+  wbStage.io.aluResult := memBarrier.io.outAluResult
+  wbStage.io.rd := memBarrier.io.outRD
+
+  // Connect WB stage & MEM barrier to WB barrier
+  wbBarrier.io.inCheckRes := wbStage.io.check_res
+  wbBarrier.io.inXcptInvalid := memBarrier.io.outXcptInvalid
+
+  // Connect WB barrier to output
+  io.check_res := wbBarrier.io.outCheckRes
+  io.exception := wbBarrier.io.outXcptInvalid
 }
