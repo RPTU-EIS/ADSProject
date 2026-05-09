@@ -38,7 +38,7 @@ import uopc._
 // -----------------------------------------
 // ID-Barrier
 // -----------------------------------------
-class IDbarrier extends Module {
+class IDBarrier extends Module {
   val io = IO(new Bundle {
     val inUOP = Input(UInt(7.W))
     val inRD = Input(UInt(5.W))

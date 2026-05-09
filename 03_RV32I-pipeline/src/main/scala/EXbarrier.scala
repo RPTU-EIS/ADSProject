@@ -33,7 +33,7 @@ import chisel3._
 // -----------------------------------------
 // EX-Barrier
 // -----------------------------------------
-class EXbarrier() extends Module {
+class EXBarrier extends Module {
   val io = IO(new Bundle {
   val inAluResult = Input(UInt(32.W))
   val inRD = Input(UInt(5.W))

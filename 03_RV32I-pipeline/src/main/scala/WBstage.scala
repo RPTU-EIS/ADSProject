@@ -39,7 +39,7 @@ import chisel3._
 // -----------------------------------------
 // Writeback Stage
 // -----------------------------------------
-class WB extends Module() {
+class WB extends Module {
   val io = IO(new Bundle {
     val aluResult = Input(UInt(32.W))
     val rd = Input(UInt(5.W))

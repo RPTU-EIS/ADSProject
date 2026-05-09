@@ -64,5 +64,32 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
   })
 
 //ToDo: Add your implementation according to the specification above here 
+  val ifStage = Module(new IF(BinaryFile))
+  val ifBarrier = Module(new IFBarrier())
 
+  val idStage = Module(new ID())
+  val idBarrier = Module(new IDBarrier())
+  
+  val regFile = Module(new regFile())
+
+  val exStage = Module(new EX())
+  val exBarrier = Module(new EXBarrier())
+
+  val wbStage = Module(new WB())
+  val wbBarrier = Module(new WBBarrier())
+
+  // Connect IF stage to IF barrier
+  ifStage.io.inInstr := ifStage.io.instr
+
+  // Connect IF barrier to ID stage
+  idStage.io.instr := ifBarrier.io.outInstr
+
+  // Connect ID stage to ID barrier
+  idBarrier.io.inUOP := idStage.io.uop
+  idBarrier.io.inRD := idStage.io.rd_idx
+  idBarrier.io.inOperandA := idStage.io.operandA
+  idBarrier.io.inOperandB := idStage.io.operandB
+  idBarrier.io.inXcptInvalid := idStage.io.xcptInvalid
+
+  // Connect ID Stage to Register File
 }

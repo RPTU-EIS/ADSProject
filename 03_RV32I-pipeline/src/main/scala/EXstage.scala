@@ -39,7 +39,7 @@ import uopc._
 // -----------------------------------------
 // Execute Stage
 // -----------------------------------------
-class EX() extends Module {
+class EX extends Module {
   val io = IO(new Bundle {
     val uop = Input(UInt(7.W))
     val rd = Input(UInt(5.W))

@@ -44,7 +44,7 @@ import uopc._
 // -----------------------------------------
 // Decode Stage
 // -----------------------------------------
-class ID () extends Module {
+class ID extends Module {
   val io = IO(new Bundle {
     val inst = Input(UInt(32.W))
 
