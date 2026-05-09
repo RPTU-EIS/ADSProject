@@ -39,5 +39,48 @@ import uopc._
 // -----------------------------------------
 // Execute Stage
 // -----------------------------------------
+class EX() extends Module {
+  val io = IO(new Bundle {
+    val uop = Input(UInt(7.W))
+    val rd = Input(UInt(5.W))
+    val operandA = Input(UInt(32.W))
+    val operandB = Input(UInt(32.W))
+    val xcptInvalid = Input(UInt(1.W)) 
 
+    val aluResult = Output(UInt(32.W))
+    val exception = Output(UInt(1.W))
+  })
+
+val alu = Module(new ALU())
+
+alu.io.operandA := io.operandA
+alu.io.operandB := io.operandB
+
+io.aluResult := alu.io.aluResult
+
+io.exception := io.xcptInvalid
+
+switch(io.uop) {
+  is(uopc.ADD) { alu.io.operation := ALUOp.ADD }
+  is(uopc.SUB) { alu.io.operation := ALUOp.SUB }
+  is(uopc.XOR) { alu.io.operation := ALUOp.XOR }
+  is(uopc.OR)  { alu.io.operation := ALUOp.OR  }
+  is(uopc.AND) { alu.io.operation := ALUOp.AND }
+  is(uopc.SLL) { alu.io.operation := ALUOp.SLL }
+  is(uopc.SRL) { alu.io.operation := ALUOp.SRL }
+  is(uopc.SRA) { alu.io.operation := ALUOp.SRA }
+  is(uopc.SLT) { alu.io.operation := ALUOp.SLT }
+  is(uopc.SLTU) { alu.io.operation := ALUOp.SLTU }
+
+  is(uopc.ADDI) { alu.io.operation := ALUOp.ADD }
+  is(uopc.XORI) { alu.io.operation := ALUOp.XOR }
+  is(uopc.ORI)  { alu.io.operation := ALUOp.OR  }
+  is(uopc.ANDI) { alu.io.operation := ALUOp.AND }
+  is(uopc.SLLI) { alu.io.operation := ALUOp.SLL }
+  is(uopc.SRLI) { alu.io.operation := ALUOp.SRL }
+  is(uopc.SRAI) { alu.io.operation := ALUOp.SRA }
+  is(uopc.SLTI) { alu.io.operation := ALUOp.SLT }
+  is(uopc.SLTIU) { alu.io.operation := ALUOp.SLTU }
+}
+}
 //ToDo: Add your implementation according to the specification above here 
