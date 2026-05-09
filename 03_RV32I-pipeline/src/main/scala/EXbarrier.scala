@@ -37,16 +37,16 @@ class EXbarrier() extends Module {
   val io = IO(new Bundle {
   val inAluResult = Input(UInt(32.W))
   val inRD = Input(UInt(5.W))
-  val inXcptInvalid = Input(UInt(1.W))
+  val inXcptInvalid = Input(Bool())
 
   val outAluResult = Output(UInt(32.W))
   val outRD = Output(UInt(5.W))
-  val outXcptInvalid = Output(UInt(1.W))
+  val outXcptInvalid = Output(Bool())
   })
   
   val aluResult = RegInit(0.U(32.W))
   val rd = RegInit(0.U(5.W))
-  val xcptInvalid = RegInit(0.U(1.W))
+  val xcptInvalid = RegInit(false.B)
     
   aluResult := io.inAluResult
   rd := io.inRD

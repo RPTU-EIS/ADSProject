@@ -45,11 +45,11 @@ class EX() extends Module {
     val rd = Input(UInt(5.W))
     val operandA = Input(UInt(32.W))
     val operandB = Input(UInt(32.W))
-    val xcptInvalid = Input(UInt(1.W)) 
+    val xcptInvalid = Input(Bool())
   
     val outRD = Output(UInt(5.W))        // ADD THIS
     val aluResult = Output(UInt(32.W))
-    val exception = Output(UInt(1.W))
+    val exception = Output(Bool())
   })
 
 val alu = Module(new ALU())

@@ -59,6 +59,8 @@ import uopc._
 class PipelinedRV32Icore (BinaryFile: String) extends Module {
   val io = IO(new Bundle {
     //ToDo: Add I/O ports
+    val check_res = Output(UInt(32.W)) // Output for verification and debugging
+    val exception = Output(Bool()) // Exception flag for invalid instructions
   })
 
 //ToDo: Add your implementation according to the specification above here 
