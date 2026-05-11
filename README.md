@@ -19,9 +19,9 @@
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]-->
 
- ![CI Pipeline: 01 Warm-Up](https://github.com/MKhizerButt/ADSProject/actions/workflows/01_warm-up.yml/badge.svg?event=push)
- ![CI Pipeline: 02 ALU](https://github.com/MKhizerButt/ADSProject/actions/workflows/02_ALU.yml/badge.svg?event=push)
- ![CI Pipeline: 03 RE32I Pipeline](https://github.com/MKhizerButt/ADSProject/actions/workflows/03_RV32I-pipeline.yml/badge.svg?event=push)
+ ![CI Pipeline: 01 Warm-Up](https://github.com/MKhizerButt/ADSProject/actions/workflows/01_warm-up.yml/badge.svg?branch=train)
+ ![CI Pipeline: 02 ALU](https://github.com/MKhizerButt/ADSProject/actions/workflows/02_ALU.yml/badge.svg?branch=train)
+ ![CI Pipeline: 03 RE32I Pipeline](https://github.com/MKhizerButt/ADSProject/actions/workflows/03_RV32I-pipeline.yml/badge.svg?branch=train)
 <!--
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
