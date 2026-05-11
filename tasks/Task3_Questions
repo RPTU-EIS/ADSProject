@@ -1,0 +1,35 @@
+ 1. How many ports does the register file need in a pipelined processor? 3 (2Read + 1 Write)
+
+2. What test cases (i.e., combination of instructions) will lead to a problem in this pipelined processor that would not be an issue in a multi-cycle processor? (when accessing the same register, reading from a preceeding write instruction on the same register)
+
+3. What are typical corner cases to be tested in this pipelined processor? (On reg x0, max values for registers, immediate values, shift arithmetic (greater than 5 bits), shifts both edges)
+
+Your answers are excellent! You have a very solid grasp of both the hardware structure and the quirks of pipelining.
+
+Here is a quick review of your answers with just a little bit of extra formal terminology you can use in your report or exam:
+1. How many ports does the register file need?
+
+Your Answer: 3 (2Read + 1 Write)
+Verdict: Perfect. Because instructions overlap in a pipeline, the Decode stage might be trying to read rs1 and rs2 at the exact same physical clock cycle that the WriteBack stage is trying to write a previous instruction's rd. Therefore, the hardware must physically support 3 independent memory accesses at once.
+2. What test cases lead to a problem in a pipeline but not multi-cycle?
+
+Your Answer: when accessing the same register, reading from a preceeding write instruction on the same register.
+Verdict: Correct!
+The formal name for this is a Read-After-Write (RAW) Data Hazard. In a multi-cycle processor, instruction 1 fully finishes writing before instruction 2 even starts. In your pipeline, if you do ADD x1, x2, x3 and then immediately do SUB x4, x1, x5, the SUB instruction will read the old, stale value of x1 because the ADD instruction is still stuck in the Execute/Memory stages! (This perfectly sets up your next assignment).
+3. What are typical corner cases to be tested?
+
+Your Answer: On reg x0, max values for registers, immediate values, shift arithmetic (greater than 5 bits), shifts both edges.
+Verdict: Fantastic list.
+You nailed all the classic hardware bugs:
+
+    x0 Immutability: Ensuring the hardware blocks writes to address 0.
+
+    Sign Extension (Immediates): Testing negative numbers to ensure the 12-bit immediate properly extends out to 32 bits with 1s, not 0s.
+
+    Shift amounts > 5 bits: In RV32I, the shift amount can only be 5 bits (0-31). If you pass a larger number, the hardware should safely mask it (shamt & 0x1F) rather than breaking.
+
+    Arithmetic vs Logical Shifts: Ensuring SRA keeps the sign bit for negative numbers, while SRL overwrites it with zero.
+
+You are 100% ready to move on to Task 4! (Which, conveniently, is all about building a Forwarding Unit to fix that exact RAW data hazard you identified in Question 2).
+
+Whenever you are ready, let me know what you need help with for Assignment 04!
