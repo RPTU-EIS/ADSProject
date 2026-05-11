@@ -122,4 +122,14 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
   // Connect WB barrier to output
   io.check_res := wbBarrier.io.outCheckRes
   io.exception := wbBarrier.io.outXcptInvalid
+
+  // Connect regFile to ID stage and WB stage
+  regFile.io.req_1 := idStage.io.regFileReq_A
+  regFile.io.req_2 := idStage.io.regFileReq_B
+
+  idStage.io.regFileResp_A := regFile.io.resp_1
+  idStage.io.regFileResp_B := regFile.io.resp_2
+
+  regFile.io.req_3 := wbStage.io.regFileReq
+
 }

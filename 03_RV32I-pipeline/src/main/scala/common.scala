@@ -27,6 +27,9 @@ import chisel3.experimental.ChiselEnum
 // Global Definitions and Data Types
 // -----------------------------------------
 object uopc extends ChiselEnum {
+  // No operation (default case) (kept first to maybe achieve 000 index)
+  val NOP   = Value
+  
   // R-type instructions
   val ADD   = Value
   val SUB   = Value
@@ -50,7 +53,5 @@ object uopc extends ChiselEnum {
   val SLTI  = Value
   val SLTIU = Value
   
-  // No operation (default case)
-  val NOP   = Value
 }
 //ToDo: Add your implementation according to the specification above here 

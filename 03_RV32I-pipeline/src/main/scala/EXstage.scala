@@ -63,27 +63,27 @@ io.exception := io.xcptInvalid
 
 alu.io.operation := ALUOp.ADD // Default operation to avoid latches
 
-switch(io.uop) {
-  is(uopc.ADD.asUInt) { alu.io.operation := ALUOp.ADD }
-  is(uopc.SUB.asUInt) { alu.io.operation := ALUOp.SUB }
-  is(uopc.XOR.asUInt) { alu.io.operation := ALUOp.XOR }
-  is(uopc.OR.asUInt)  { alu.io.operation := ALUOp.OR  }
-  is(uopc.AND.asUInt) { alu.io.operation := ALUOp.AND }
-  is(uopc.SLL.asUInt) { alu.io.operation := ALUOp.SLL }
-  is(uopc.SRL.asUInt) { alu.io.operation := ALUOp.SRL }
-  is(uopc.SRA.asUInt) { alu.io.operation := ALUOp.SRA }
-  is(uopc.SLT.asUInt) { alu.io.operation := ALUOp.SLT }
-  is(uopc.SLTU.asUInt) { alu.io.operation := ALUOp.SLTU }
+switch(uopc(io.uop(4, 0))) { // Use lower 5 bits of uop for instruction decoding as per current uopc encoding 
+  is(uopc.ADD) { alu.io.operation := ALUOp.ADD }
+  is(uopc.SUB) { alu.io.operation := ALUOp.SUB }
+  is(uopc.XOR) { alu.io.operation := ALUOp.XOR }
+  is(uopc.OR)  { alu.io.operation := ALUOp.OR  }
+  is(uopc.AND) { alu.io.operation := ALUOp.AND }
+  is(uopc.SLL) { alu.io.operation := ALUOp.SLL }
+  is(uopc.SRL) { alu.io.operation := ALUOp.SRL }
+  is(uopc.SRA) { alu.io.operation := ALUOp.SRA }
+  is(uopc.SLT) { alu.io.operation := ALUOp.SLT }
+  is(uopc.SLTU) { alu.io.operation := ALUOp.SLTU }
 
-  is(uopc.ADDI.asUInt) { alu.io.operation := ALUOp.ADD }
-  is(uopc.XORI.asUInt) { alu.io.operation := ALUOp.XOR }
-  is(uopc.ORI.asUInt)  { alu.io.operation := ALUOp.OR  }
-  is(uopc.ANDI.asUInt) { alu.io.operation := ALUOp.AND }
-  is(uopc.SLLI.asUInt) { alu.io.operation := ALUOp.SLL }
-  is(uopc.SRLI.asUInt) { alu.io.operation := ALUOp.SRL }
-  is(uopc.SRAI.asUInt) { alu.io.operation := ALUOp.SRA }
-  is(uopc.SLTI.asUInt) { alu.io.operation := ALUOp.SLT }
-  is(uopc.SLTIU.asUInt) { alu.io.operation := ALUOp.SLTU }
+  is(uopc.ADDI) { alu.io.operation := ALUOp.ADD }
+  is(uopc.XORI) { alu.io.operation := ALUOp.XOR }
+  is(uopc.ORI)  { alu.io.operation := ALUOp.OR  }
+  is(uopc.ANDI) { alu.io.operation := ALUOp.AND }
+  is(uopc.SLLI) { alu.io.operation := ALUOp.SLL }
+  is(uopc.SRLI) { alu.io.operation := ALUOp.SRL }
+  is(uopc.SRAI) { alu.io.operation := ALUOp.SRA }
+  is(uopc.SLTI) { alu.io.operation := ALUOp.SLT }
+  is(uopc.SLTIU) { alu.io.operation := ALUOp.SLTU }
 }
 }
 //ToDo: Add your implementation according to the specification above here 

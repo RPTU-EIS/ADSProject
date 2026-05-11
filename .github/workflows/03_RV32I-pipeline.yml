@@ -7,9 +7,9 @@ name: 03_RV32I-pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "train" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "train" ]
 
 permissions:
   contents: read
