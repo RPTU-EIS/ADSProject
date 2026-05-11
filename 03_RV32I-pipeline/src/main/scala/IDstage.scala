@@ -48,11 +48,11 @@ class ID extends Module {
   val io = IO(new Bundle {
     val inst = Input(UInt(32.W))
 
-    val regFileReq_A = Output(new regFileReadReq) // Read request for rs1
-    val regFileResp_A = Input(new regFileReadResp) // Read response for rs1
+    val regFileReq_A = Output(new RegFileReadReq) // Read request for rs1
+    val regFileResp_A = Input(new RegFileReadResp) // Read response for rs1
 
-    val regFileReq_B = Output(new regFileReadReq) // Read request for rs2
-    val regFileResp_B = Input(new regFileReadResp) // Read response for rs2
+    val regFileReq_B = Output(new RegFileReadReq) // Read request for rs2
+    val regFileResp_B = Input(new RegFileReadResp) // Read response for rs2
     
     val uop = Output(UInt(7.W))
     val rd_idx = Output(UInt(5.W))

@@ -70,7 +70,7 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
   val idStage = Module(new ID())
   val idBarrier = Module(new IDBarrier())
   
-  val regFile = Module(new regFile())
+  val regFile = Module(new RegFile())
 
   val exStage = Module(new EX())
   val exBarrier = Module(new EXBarrier())

@@ -105,6 +105,45 @@ class PipelinedRISCV32ITest extends AnyFlatSpec with ChiselScalatestTester {
       dut.io.result.expect(1.U)     // SLTU x13, x5, x4
       dut.io.exception.expect(false.B)
       dut.clock.step(1)           
+      // ----------------------------------------------------
+      // EXTENDED TESTS: I-Type Instructions & Corner Cases
+      // ----------------------------------------------------
+      
+      // SEQUENCE 1: I-Type Logical Ops
+      dut.io.result.expect("hffffffff".U) // ADDI x14, x0, -1 (0xFFFFFFFF)
+      dut.clock.step(4)                   // 3 NOPs + 1 Execution cycle
+      dut.io.result.expect("hffffff00".U) // XORI x15, x14, 255 (0xFFFFFF00)
+      dut.clock.step(4)
+      dut.io.result.expect("hffffff0f".U) // ORI x16, x15, 15 (0xFFFFFF0F)
+      dut.clock.step(4)
+      dut.io.result.expect(15.U)          // ANDI x17, x16, 15 (0x0000000F)
+      dut.clock.step(4)
+
+      // SEQUENCE 2: I-Type Shifts
+      dut.io.result.expect("hfffffff0".U) // SLLI x18, x14, 4 (0xFFFFFFF0)
+      dut.clock.step(4)
+      dut.io.result.expect("h0fffffff".U) // SRLI x19, x14, 4 (Logical Right Shift)
+      dut.clock.step(4)
+      dut.io.result.expect("hffffffff".U) // SRAI x20, x14, 4 (Arithmetic Right Shift)
+      dut.clock.step(4)
+
+      // SEQUENCE 3: Set Less Than Immediate (Signed vs Unsigned)
+      dut.io.result.expect(5.U)           // ADDI x21, x0, 5
+      dut.clock.step(4)
+      dut.io.result.expect(0.U)           // SLTI x22, x21, -10 (5 < -10 is false)
+      dut.clock.step(4)
+      dut.io.result.expect(1.U)           // SLTIU x23, x21, -10 (5 < 4294967286 is true)
+      dut.clock.step(4)
+
+      // SEQUENCE 4: x0 Immutability Corner Case
+      // The ALU will compute 5 + 10 = 15, so the WB output wire will read 15. But RegFile will not allow x0 to be updated, 
+      // so the next instruction that tries to read x0 should still get 0.
+      dut.io.result.expect(15.U)          // ADDI x0, x21, 10
+      dut.clock.step(4)
+      
+      // However, x0 must NOT be updated inside the Register File! 
+      // If x0 is properly hardwired to 0, this next addition will be: 0 + 5 = 5.
+      dut.io.result.expect(5.U)           // ADD x24, x0, x21
     }
   }
 }

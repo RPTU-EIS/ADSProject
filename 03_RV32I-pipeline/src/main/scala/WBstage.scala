@@ -44,7 +44,7 @@ class WB extends Module {
     val aluResult = Input(UInt(32.W))
     val rd = Input(UInt(5.W))
 
-    val regFileReq = Output(new regFileWriteReq) // Write request to register file
+    val regFileReq = Output(new RegFileWriteReq) // Write request to register file
     val check_res = Output(UInt(32.W)) // Output for verification and debugging
   })
   

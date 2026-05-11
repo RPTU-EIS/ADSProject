@@ -35,31 +35,31 @@ Functionality:
 // Register File
 // -----------------------------------------
 
-class regFileReadReq extends Bundle {
+class RegFileReadReq extends Bundle { // Chisel convention for bundle naming: UpperCamelCase
     val addr = UInt(5.W)
 }
 
-class regFileReadResp extends Bundle {
+class RegFileReadResp extends Bundle {
     val data = UInt(32.W)
 }
 
-class regFileWriteReq extends Bundle {
+class RegFileWriteReq extends Bundle {
     //ToDo: implement bundle for write request
     val addr = UInt(5.W)
     val data = UInt(32.W)
     val wr_en = Bool()
 }
 
-class regFile extends Module {
+class RegFile extends Module {
   val io = IO(new Bundle {
     //ToDo: Add I/O ports 
-    val req_1 = Input(new regFileReadReq)
-    val resp_1 = Output(new regFileReadResp)
+    val req_1 = Input(new RegFileReadReq)
+    val resp_1 = Output(new RegFileReadResp)
 
-    val req_2 = Input(new regFileReadReq)
-    val resp_2 = Output(new regFileReadResp)
+    val req_2 = Input(new RegFileReadReq)
+    val resp_2 = Output(new RegFileReadResp)
 
-    val req_3 = Input(new regFileWriteReq) //Entire write request bundle taken as input
+    val req_3 = Input(new RegFileWriteReq) //Entire write request bundle taken as input
 })
 
 //ToDo: Add your implementation according to the specification above here 
