@@ -81,6 +81,8 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
   val memStage = Module(new MEM())
   val memBarrier = Module(new MEMBarrier())
 
+  val fUnit = Module(new ForwardingUnit())
+
   // Connect IF stage to IF barrier
   ifBarrier.io.inInstr := ifStage.io.instr
 
@@ -126,10 +128,20 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
   // Connect regFile to ID stage and WB stage
   regFile.io.req_1 := idStage.io.regFileReq_A
   regFile.io.req_2 := idStage.io.regFileReq_B
-
-  idStage.io.regFileResp_A := regFile.io.resp_1
-  idStage.io.regFileResp_B := regFile.io.resp_2
-
   regFile.io.req_3 := wbStage.io.regFileReq
+  
+  //Mux((fUnit.io.regSelect_Rs === 1.U), exBarrier.io.outRD, Mux((fUnit.io.regSelect_Rs === 2.U), memBarrier.io.outRD, idStage.io.regFileReq_A))
+  
+  // Connect MUX to the inputs (32 Bits) of the ID Stage instead as this Stage deals with the RegisterFile
+  idStage.io.regFileResp_A := Mux((fUnit.io.regSelect_Rs === 1.U), exBarrier.io.outAluResult, Mux((fUnit.io.regSelect_Rs === 2.U), memBarrier.io.outAluResult, regFile.io.resp_1)) // regFile.io.resp_1
+  idStage.io.regFileResp_B := Mux((fUnit.io.regSelect_Rt === 1.U), exBarrier.io.outAluResult, Mux((fUnit.io.regSelect_Rt === 2.U), memBarrier.io.outAluResult, regFile.io.resp_2)) // regFile.io.resp_2
+
+
+  // Connecting the fUnit to the EX barier, MEM barier and ID barier
+  fUnit.io.exBarRd := exBarrier.io.outRD
+  fUnit.io.memBarRd := memBarrier.io.outRD
+  fUnit.io.idBarRegFileReq_A := idStage.io.regFileReq_A
+  fUnit.io.idBarRegFileReq_B := idStage.io.regFileReq_B
+  fUnit.io.wbStageWrEn := wbStage.io.regFileReq.wr_en
 
 }
