@@ -42,12 +42,16 @@ class IDBarrier extends Module {
   val io = IO(new Bundle {
     val inUOP = Input(UInt(7.W))
     val inRD = Input(UInt(5.W))
+    val inrs1 = Input(UInt(5.W))
+    val inrs2 = Input(UInt(5.W))
     val inOperandA = Input(UInt(32.W))
     val inOperandB = Input(UInt(32.W))
     val inXcptInvalid = Input(Bool())
 
     val outUOP = Output(UInt(7.W))
     val outRD = Output(UInt(5.W))
+    val outrs1 = Output(UInt(5.W))
+    val outrs2 = Output(UInt(5.W))
     val outOperandA = Output(UInt(32.W))
     val outOperandB = Output(UInt(32.W))
     val outXcptInvalid = Output(Bool())
@@ -55,6 +59,8 @@ class IDBarrier extends Module {
 
   val uopReg = RegInit(0.U(7.W)) // Assuming 0 is NOP
   val rd = RegInit(0.U(5.W))
+  val rs1 = RegInit(0.U(5.W))
+  val rs2 = RegInit(0.U(5.W))
   val operandA = RegInit(0.U(32.W))
   val operandB = RegInit(0.U(32.W))
   val xcptInvalid = RegInit(false.B)
@@ -63,12 +69,16 @@ class IDBarrier extends Module {
   operandA := io.inOperandA
   operandB := io.inOperandB
   rd := io.inRD
+  rs1 := io.inrs1
+  rs2 := io.inrs2
   xcptInvalid := io.inXcptInvalid
 
   io.outUOP := uopReg
   io.outOperandA := operandA
   io.outOperandB := operandB
   io.outRD := rd
+  io.outrs1 := rs1
+  io.outrs2 := rs2
   io.outXcptInvalid := xcptInvalid
   
 //RegNext means: "Create a register, feed this input into it, initialize it to this default value, and connect it to this output"

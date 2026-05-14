@@ -33,7 +33,6 @@ class ForwardingUnit extends Module{
     io.regSelect_Rs := 2.U
   }
 
-
   when(io.idBarRegFileReq_B === io.exBarRd && io.idBarRegFileReq_B =/= 0.U) {
     io.regSelect_Rt := 1.U
   }

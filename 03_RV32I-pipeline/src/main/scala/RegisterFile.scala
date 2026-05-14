@@ -66,8 +66,13 @@ class RegFile extends Module {
     val registers = RegInit(VecInit(Seq.fill(32)(0.U(32.W)))) // 32 registers initialized to 0
 
     // Read ports
-    io.resp_1.data := Mux(io.req_1.addr === 0.U, 0.U, registers(io.req_1.addr)) // Read data for first read port
-    io.resp_2.data := Mux(io.req_2.addr === 0.U, 0.U, registers(io.req_2.addr)) // Read data for second read port
+    io.resp_1.data := Mux(io.req_1.addr === 0.U, 0.U, 
+                      Mux(io.req_3.wr_en && io.req_3.addr === io.req_1.addr, io.req_3.data, 
+                      registers(io.req_1.addr))) // Read data for first read port
+    
+    io.resp_2.data := Mux(io.req_2.addr === 0.U, 0.U, 
+                      Mux(io.req_3.wr_en && io.req_3.addr === io.req_2.addr, io.req_3.data, 
+                      registers(io.req_2.addr))) // Read data for second read port
 
     // Write port
     when(io.req_3.wr_en && io.req_3.addr =/= 0.U) { // Check if write enable is asserted and address other than x0 is being written to

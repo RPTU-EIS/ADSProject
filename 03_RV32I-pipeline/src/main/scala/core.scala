@@ -89,9 +89,33 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
   // Connect IF barrier to ID stage
   idStage.io.inst := ifBarrier.io.outInstr
 
+  // Connect regFile to ID stage and WB stage
+  regFile.io.req_1 := idStage.io.regFileReq_A
+  regFile.io.req_2 := idStage.io.regFileReq_B
+  regFile.io.req_3 := wbStage.io.regFileReq
+  
+  // 1. Create wires that default to being exact clones of the RegFile outputs
+  val fwdRespA = WireDefault(regFile.io.resp_1)
+  val fwdRespB = WireDefault(regFile.io.resp_2)
+
+  // 2. Overwrite ONLY the .data field if the Forwarding Unit detects a hazard
+  fwdRespA.data := Mux((fUnit.io.regSelect_Rs === 1.U), exStage.io.aluResult, 
+                   Mux((fUnit.io.regSelect_Rs === 2.U), exBarrier.io.outAluResult, 
+                   regFile.io.resp_1.data))
+
+  fwdRespB.data := Mux((fUnit.io.regSelect_Rt === 1.U), exStage.io.aluResult, 
+                   Mux((fUnit.io.regSelect_Rt === 2.U), exBarrier.io.outAluResult, 
+                   regFile.io.resp_2.data))
+
+  // 3. Connect the wires into the ID stage
+  idStage.io.regFileResp_A := fwdRespA
+  idStage.io.regFileResp_B := fwdRespB
+
   // Connect ID stage to ID barrier
   idBarrier.io.inUOP := idStage.io.uop
   idBarrier.io.inRD := idStage.io.rd_idx
+  idBarrier.io.inrs1 := idStage.io.regFileReq_A.addr
+  idBarrier.io.inrs2 := idStage.io.regFileReq_B.addr
   idBarrier.io.inOperandA := idStage.io.operandA
   idBarrier.io.inOperandB := idStage.io.operandB
   idBarrier.io.inXcptInvalid := idStage.io.XcptInvalid
@@ -125,23 +149,16 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
   io.check_res := wbBarrier.io.outCheckRes
   io.exception := wbBarrier.io.outXcptInvalid
 
-  // Connect regFile to ID stage and WB stage
-  regFile.io.req_1 := idStage.io.regFileReq_A
-  regFile.io.req_2 := idStage.io.regFileReq_B
-  regFile.io.req_3 := wbStage.io.regFileReq
-  
-  //Mux((fUnit.io.regSelect_Rs === 1.U), exBarrier.io.outRD, Mux((fUnit.io.regSelect_Rs === 2.U), memBarrier.io.outRD, idStage.io.regFileReq_A))
-  
-  // Connect MUX to the inputs (32 Bits) of the ID Stage instead as this Stage deals with the RegisterFile
-  idStage.io.regFileResp_A := Mux((fUnit.io.regSelect_Rs === 1.U), exBarrier.io.outAluResult, Mux((fUnit.io.regSelect_Rs === 2.U), memBarrier.io.outAluResult, regFile.io.resp_1)) // regFile.io.resp_1
-  idStage.io.regFileResp_B := Mux((fUnit.io.regSelect_Rt === 1.U), exBarrier.io.outAluResult, Mux((fUnit.io.regSelect_Rt === 2.U), memBarrier.io.outAluResult, regFile.io.resp_2)) // regFile.io.resp_2
-
-
   // Connecting the fUnit to the EX barier, MEM barier and ID barier
-  fUnit.io.exBarRd := exBarrier.io.outRD
-  fUnit.io.memBarRd := memBarrier.io.outRD
-  fUnit.io.idBarRegFileReq_A := idStage.io.regFileReq_A
-  fUnit.io.idBarRegFileReq_B := idStage.io.regFileReq_B
+
+  // 1. Check the RD of the instruction currently in EX (coming out of ID Barrier)
+  fUnit.io.exBarRd := idBarrier.io.outRD
+  
+  // 2. Check the RD of the instruction currently in MEM (coming out of EX Barrier)
+  fUnit.io.memBarRd := exBarrier.io.outRD
+  
+  fUnit.io.idBarRegFileReq_A := idStage.io.regFileReq_A.addr
+  fUnit.io.idBarRegFileReq_B := idStage.io.regFileReq_B.addr
   fUnit.io.wbStageWrEn := wbStage.io.regFileReq.wr_en
 
 }
