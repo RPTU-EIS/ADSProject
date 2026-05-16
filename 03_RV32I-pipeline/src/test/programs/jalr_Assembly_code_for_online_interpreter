@@ -42,8 +42,15 @@ ADD x24, x0, x21 # Prove x0 is still 0. (0 + 5 = 5)
 ADDI x1, x0, 0
 ADDI x2, x0, 0
 ADDI x3, x0, 0
-ADDI x1, x1, -12 # ADDI x1, x1, 4
+ADDI x1, x1, 1 # ADDI x1, x1, 4
 ADDI x2, x2, 2
 ADDI x3, x3, 3
-JALR x30, 192(x1)  # JAL x0, -12 #Originally using x0, now storing original next pc in x30 to verify correct JAL behavior
+JAL x30, 32 # JAL x0, -12 #Originally using x0, now storing original next pc in x30 to verify correct JAL behavior
 ADDI x29, x0, 11 # Verify that x29 is not overwritten by JALR instruction
+ADDI x1, x0, 0
+ADDI x2, x0, 0
+ADDI x3, x0, 0
+ADDI x1, x0, 1
+ADDI x2, x0, 2
+ADDI x3, x0, 3
+JALR x30, 179(x1)  # JAL x0, -12 #Originally using x0, now storing original next pc in x30 to verify correct JAL behavior
