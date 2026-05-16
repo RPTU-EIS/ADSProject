@@ -39,7 +39,7 @@
   <br />
   Thesis Preparation (Chisel Introduction)
   <br />
-  Sommer Semester 2026
+  Summer Semester 2026
   </h3>
 
   <p align="center">
