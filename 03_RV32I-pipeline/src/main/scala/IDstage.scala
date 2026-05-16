@@ -80,11 +80,13 @@ class ID extends Module {
 
   io.regFileReq_A.addr := rs1 // Set read address for rs1
   io.regFileReq_B.addr := rs2 // Set read address for rs2
-  io.operandA := Mux(opcode === "b1101111".U, io.pc, io.regFileResp_A.data) // Output operandA from regFile response
-  io.operandB := Mux(opcode === "b1101111".U, 4.U(32.W), Mux(opcode === "b0010011".U, immI, io.regFileResp_B.data)) // Output operandB: immediate for I-type, regFile response for R-type
+  io.operandA := Mux((opcode === "b1101111".U || opcode === "b1100111".U), io.pc, io.regFileResp_A.data) // Output operandA from regFile response
+  io.operandB := Mux((opcode === "b1101111".U || opcode === "b1100111".U), 4.U(32.W), 
+                 Mux(opcode === "b0010011".U, immI, io.regFileResp_B.data)) // Output operandB: immediate for I-type, regFile response for R-type, 4.U for J-type to calculate return address
 
   io.pcSel := false.B // Default to not taking branch/jump, will be set in EX stage if needed
-  io.targetPC := io.pc + immJ // Calculate target PC for JAL instruction, will be used in IF stage for PC update
+  io.targetPC := Mux(opcode === "b1101111".U, io.pc + immJ, // Calculate target PC for JAL instruction, will be used in IF stage for PC update
+                 Mux(opcode === "b1100111".U, ((io.regFileResp_A.data + immI).asUInt & "hfffffffe".U(32.W)), 0.U(32.W))) // Calculate target PC for JALR instruction, will be used in IF stage for PC update
 
   when(opcode === "b0110011".U) { // R-type instructions
     switch(funct3) {
@@ -203,6 +205,7 @@ class ID extends Module {
       is("b000".U) { // JALR
         io.uop := JALR.asUInt
         io.XcptInvalid := false.B // Valid instruction
+        io.pcSel := true.B // Set PC selection signal for JALR instruction
       }
     }
   } .elsewhen(opcode === "b1101111".U) { // JAL-type instructions
