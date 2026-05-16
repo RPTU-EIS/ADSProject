@@ -43,6 +43,10 @@ class IF (BinaryFile: String) extends Module {
   val io = IO(new Bundle {
     // ToDo: Add I/O ports
     val instr = Output(UInt(32.W)) // Output for the fetched instruction to the IF Barrier
+    val outPC = Output(UInt(32.W)) // Output for the current program counter 
+
+    val target_pc = Input(UInt(32.W)) // Input for target PC from EX stage
+    val pcSel = Input(Bool()) // Input for PC selection signal from ID stage (for branch/jump)
   })
 
 //ToDo: Add your implementation according to the specification above here 
@@ -53,10 +57,15 @@ class IF (BinaryFile: String) extends Module {
   loadMemoryFromFile(iMem, BinaryFile) // Load instruction memory from binary file at compile time
   
   io.instr := iMem(pc_reg >> 2) // Fetch instruction at current PC (word-aligned, so shift right by 2)
-  
+  io.outPC := pc_reg
+
   // Fetch instruction: extract bits 13 down to 2 to get a 12-bit word-aligned index
   //io.instr := iMem(pc_reg(13, 2))
 
-  pc_reg := pc_reg + 4.U // Increment PC by 4 for next instruction (word-aligned)
+  when(io.pcSel) { // If PC selection signal is set (for branch/jump), update PC with offset
+    pc_reg := io.target_pc
+  } .otherwise { // Otherwise, increment PC to fetch next sequential instruction
+    pc_reg := pc_reg + 4.U
+  }
 
 }

@@ -70,7 +70,7 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
   val idStage = Module(new ID())
   val idBarrier = Module(new IDBarrier())
   
-  val regFile = Module(new RegFile())
+  val regFile = Module(new RegFile()) // Shared global resource: used by both ID stage (for reading) and WB stage (for writing)
 
   val exStage = Module(new EX())
   val exBarrier = Module(new EXBarrier())
@@ -83,11 +83,17 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
 
   val fUnit = Module(new ForwardingUnit())
 
+  ifStage.io.target_pc := idStage.io.targetPC // Pass target PC from ID stage to IF stage for PC update
+  ifStage.io.pcSel := idStage.io.pcSel // Pass PC selection signal from ID stage to IF stage for PC update
+
   // Connect IF stage to IF barrier
   ifBarrier.io.inInstr := ifStage.io.instr
+  ifBarrier.io.inPC := ifStage.io.outPC
+  ifBarrier.io.flush := idStage.io.pcSel // Flush the IF barrier when a branch/jump is taken to prevent incorrect instruction execution 
 
   // Connect IF barrier to ID stage
   idStage.io.inst := ifBarrier.io.outInstr
+  idStage.io.pc := ifBarrier.io.outPC
 
   // Connect regFile to ID stage and WB stage
   regFile.io.req_1 := idStage.io.regFileReq_A
@@ -149,14 +155,9 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
   io.check_res := wbBarrier.io.outCheckRes
   io.exception := wbBarrier.io.outXcptInvalid
 
-  // Connecting the fUnit to the EX barier, MEM barier and ID barier
-
-  // 1. Check the RD of the instruction currently in EX (coming out of ID Barrier)
-  fUnit.io.exBarRd := idBarrier.io.outRD
-  
-  // 2. Check the RD of the instruction currently in MEM (coming out of EX Barrier)
-  fUnit.io.memBarRd := exBarrier.io.outRD
-  
+  // Connecting the fUnit to relevant signals for hazard detection
+  fUnit.io.exBarRd := idBarrier.io.outRD // // 1. Check the RD of the instruction currently in EX (coming out of ID Barrier)
+  fUnit.io.memBarRd := exBarrier.io.outRD   // 2. Check the RD of the instruction currently in MEM (coming out of EX Barrier)
   fUnit.io.idBarRegFileReq_A := idStage.io.regFileReq_A.addr
   fUnit.io.idBarRegFileReq_B := idStage.io.regFileReq_B.addr
   fUnit.io.wbStageWrEn := wbStage.io.regFileReq.wr_en

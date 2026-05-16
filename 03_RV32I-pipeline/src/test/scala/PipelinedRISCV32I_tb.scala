@@ -144,6 +144,52 @@ class PipelinedRISCV32ITest extends AnyFlatSpec with ChiselScalatestTester {
       // However, x0 must NOT be updated inside the Register File! 
       // If x0 is properly hardwired to 0, this next addition will be: 0 + 5 = 5.
       dut.io.result.expect(5.U)           // ADD x24, x0, x21
+      dut.clock.step(1)
+  
+      // Setting up Registers for JAL Test
+      dut.io.result.expect(0.U)           // ADDI x1, x0, 0
+      dut.clock.step(1)
+
+      dut.io.result.expect(0.U)           // ADDI x2, x0, 0
+      dut.clock.step(1)
+
+      dut.io.result.expect(0.U)           // ADDI x3, x0, 0
+      dut.clock.step(1)
+
+      dut.io.result.expect(1.U)           // ADDI x1, x1, 1
+      dut.clock.step(1)
+
+      dut.io.result.expect(2.U)           // ADDI x2, x2, 2
+      dut.clock.step(1)
+
+      dut.io.result.expect(3.U)           // ADDI x3, x3, 3
+      dut.clock.step(1)
+
+      // JAL Test: Jump backwards by 3 instructions (-12 bytes)
+      dut.clock.step(1) 
+      dut.clock.step(1)
+
+      dut.io.result.expect(2.U)           // ADDI x1, x1, 1
+      dut.clock.step(1)
+
+      dut.io.result.expect(4.U)           // ADDI x2, x2, 2
+      dut.clock.step(1)
+
+      dut.io.result.expect(6.U)           // ADDI x3, x3, 3
+      dut.clock.step(1)
+
+      dut.clock.step(1)
+      dut.clock.step(1)
+
+      dut.io.result.expect(3.U)           // ADDI x1, x1, 1
+      dut.clock.step(1)
+
+      dut.io.result.expect(6.U)           // ADDI x2, x2, 2
+      dut.clock.step(1)
+
+      dut.io.result.expect(9.U)           // ADDI x3, x3, 3
+      dut.clock.step(1)
+
     }
   }
 }

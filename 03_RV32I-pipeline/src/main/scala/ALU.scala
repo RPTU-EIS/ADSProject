@@ -8,7 +8,7 @@ import chisel3.experimental.ChiselEnum
 
 //ToDo: define AluOp Enum
 object ALUOp extends ChiselEnum {
-  val ADD, SUB, AND, OR, XOR, SLL, SRL, SRA, SLT, SLTU, PASSB = Value
+  val ADD, SUB, AND, OR, XOR, SLL, SRL, SRA, SLT, SLTU, PASSB, JAL = Value
 }
 
 class ALU extends Module {
@@ -58,6 +58,9 @@ class ALU extends Module {
     }
     is(PASSB) {
       io.aluResult := io.operandB 
+    }
+    is(JAL) {
+      io.aluResult := io.operandA + io.operandB // operandA is the PC, return PC+4 for JAL
     }
   }
 }

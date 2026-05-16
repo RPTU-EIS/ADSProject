@@ -84,6 +84,8 @@ switch(uopc(io.uop(4, 0))) { // Use lower 5 bits of uop for instruction decoding
   is(uopc.SRAI) { alu.io.operation := ALUOp.SRA }
   is(uopc.SLTI) { alu.io.operation := ALUOp.SLT }
   is(uopc.SLTIU) { alu.io.operation := ALUOp.SLTU }
+
+  is(uopc.JAL) { alu.io.operation := ALUOp.JAL }
 }
 }
 //ToDo: Add your implementation according to the specification above here 

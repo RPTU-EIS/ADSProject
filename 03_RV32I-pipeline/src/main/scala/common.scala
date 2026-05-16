@@ -52,6 +52,18 @@ object uopc extends ChiselEnum {
   val SRAI  = Value
   val SLTI  = Value
   val SLTIU = Value
+
+  // B-type instruction
+  val BEQ   = Value
+  val BNE   = Value
+  val BLT   = Value
+  val BGE   = Value
+  val BLTU  = Value
+  val BGEU  = Value
+
+  // J-type instruction
+  val JAL   = Value
+  val JALR  = Value
   
 }
 //ToDo: Add your implementation according to the specification above here 
