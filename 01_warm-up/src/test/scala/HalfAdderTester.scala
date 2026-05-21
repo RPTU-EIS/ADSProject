@@ -28,6 +28,20 @@ class HalfAdderTester extends AnyFlatSpec with ChiselScalatestTester {
            *...
            *TODO: Insert your test cases
            */
+          for(a <- 0 to 1){
+            for(b <- 0 to 1){
+
+              val result = a + b
+              val sResult = result % 2
+              val cResult = result / 2
+
+              dut.io.aInput.poke(a.B)    
+              dut.io.bInput.poke(b.B)        
+              dut.clock.step(1)            
+              dut.io.sOutput.expect(sResult.B)
+              dut.io.cOutput.expect(cResult.B)
+           }
+         }
 
         }
     } 
