@@ -24,11 +24,17 @@ class HalfAdder extends Module{
     /* 
      * TODO: Define IO ports of a half adder as presented in the lecture
      */
+    val a = Input(UInt(1.W))
+    val b = Input(UInt(1.W))
+    val sum = Output(UInt(1.W))
+    val carry = Output(UInt(1.W))
     })
 
   /* 
    * TODO: Describe output behaviour based on the input values
    */
+  io.sum := io.a^io.b          //XOR gate
+  io.carry := io.a & io.b      //AND gate
 
 }
 
@@ -49,17 +55,31 @@ class FullAdder extends Module{
     /* 
      * TODO: Define IO ports of a half adder as presented in the lecture
      */
+    val a = Input(UInt(1.W))
+    val b = Input(UInt(1.W))
+    val cin = Input(UInt(1.W))
+    val sum = Output(UInt(1.W))
+    val cout = Output(UInt(1.W))
     })
 
 
   /* 
    * TODO: Instanciate the two half adders you want to use based on your HalfAdder class
    */
-
-
+  val ha1 = Module(new HalfAdder())
+  val ha2 = Module(new HalfAdder())
   /* 
    * TODO: Describe output behaviour based on the input values and the internal signals
    */
+  ha1.io.a := io.a
+  ha1.io.b := io.b
+
+  ha2.io.a := ha1.io.sum
+  ha2.io.b := io.cin
+
+  io.sum := ha2.io.sum
+
+  io.cout := ha1.io.carry | ha2.io.carry
 
 }
 
@@ -79,14 +99,43 @@ class FourBitAdder extends Module{
     /* 
      * TODO: Define IO ports of a 4-bit ripple-carry-adder as presented in the lecture
      */
+    val a = Input(UInt(4.W))
+    val b = Input(UInt(4.W))
+    val sum = Output(UInt(4.W))
+    val cout = Output(UInt(1.W))
+
     })
 
   /* 
    * TODO: Instanciate the full adders and one half adderbased on the previously defined classes
    */
+  val ha = Module(new HalfAdder())
 
+  val fa1 = Module(new FullAdder())
+  val fa2 = Module(new FullAdder())
+  val fa3 = Module(new FullAdder())
 
   /* 
    * TODO: Describe output behaviour based on the input values and the internal 
    */
+
+  ha.io.a := io.a(0)
+  ha.io.b := io.b(0)
+
+  fa1.io.a := io.a(1)
+  fa1.io.b := io.b(1)
+  fa1.io.cin := ha.io.carry
+
+  fa2.io.a := io.a(2)
+  fa2.io.b := io.b(2)
+  fa2.io.cin := fa1.io.cout
+
+  fa3.io.a := io.a(3)
+  fa3.io.b := io.b(3)
+  fa3.io.cin := fa2.io.cout
+
+  // Concatenate from MSB to LSB
+  io.sum := Cat(fa3.io.sum, fa2.io.sum, fa1.io.sum, ha.io.sum)
+  io.cout := fa3.io.cout
+
 }

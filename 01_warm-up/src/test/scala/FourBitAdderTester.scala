@@ -11,20 +11,20 @@ import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
 
 
-/** 
+/**
   4-bit adder tester
   *
-  * Truth tables are not very efficient for testing more complex components, 
-  * as they grow exponentially with the number of input bits. Therefore, we 
-  * have to think of a more clever way to test the 4-bit adder. To test the 
-  * Basic Adder design in our Chisel Introduction, we used loops to generate 
-  * a sequence of increasing input values testing the design. To generate 
-  * test cases for the 4-bit adder, you should also start by using two nested 
-  * loops. To determine the borders of the loop counter, think about the lowest 
-  * and the highest unsignes integer that you can represent with four bit. To 
-  * test the result produced by your design, think about what happens to the 
-  * result in case of an overflow and at which point this can happen. 
-  * Hint: It might be helpful to check the expected output behaviour for two 
+  * Truth tables are not very efficient for testing more complex components,
+  * as they grow exponentially with the number of input bits. Therefore, we
+  * have to think of a more clever way to test the 4-bit adder. To test the
+  * Basic Adder design in our Chisel Introduction, we used loops to generate
+  * a sequence of increasing input values testing the design. To generate
+  * test cases for the 4-bit adder, you should also start by using two nested
+  * loops. To determine the borders of the loop counter, think about the lowest
+  * and the highest unsignes integer that you can represent with four bit. To
+  * test the result produced by your design, think about what happens to the
+  * result in case of an overflow and at which point this can happen.
+  * Hint: It might be helpful to check the expected output behaviour for two
   * different scenarios with the help of a condition.
   */
 class FourBitAdderTester extends AnyFlatSpec with ChiselScalatestTester {
@@ -32,13 +32,36 @@ class FourBitAdderTester extends AnyFlatSpec with ChiselScalatestTester {
   "4-bit Adder" should "work" in {
     test(new FourBitAdder).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
 
-        
+
       /*
        * TODO: Insert your test cases
-       */  
-        
-      
-    } 
+       */
+      for(a <- 0 to 15){
+        for(b <- 0 to 15){
+          dut.io.a.poke(a.U)
+          dut.io.b.poke(b.U)
+
+          val sum = a + b
+
+          if(sum >15){
+            //OverFlow
+            val expectedSum = sum & 0xF   //same as sum%16
+            val expectedCout = 1.U
+            dut.io.sum.expect(expectedSum.U)
+            dut.io.cout.expect(expectedCout)
+          } else{
+            //No overflow
+            val expectedSum = sum
+            val expectedCout = 0.U
+            dut.io.sum.expect(expectedSum.U)
+            dut.io.cout.expect(expectedCout)
+          }
+
+        }
+      }
+
+
+    }
   }
 }
 
