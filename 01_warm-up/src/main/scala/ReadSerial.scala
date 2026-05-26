@@ -17,48 +17,40 @@ class Controller extends Module{
     /* 
      * TODO: Define IO ports of a the component as stated in the documentation
      */
-    val rxd = Input(Bool())
-    val reset = Input(Bool())
-    val cnt_s = Input(Bool())
-    val cnt_en = Output(Bool())
-    val valid = Output(Bool())
+    val reset_n = Input(UInt(1.W))
+    val rxd = Input(UInt(1.W))
+    val cnt_s = Input(UInt(4.W))
+    val cnt_en = Output(UInt(1.W))
+    val valid = Output(UInt(1.W))
     })
 
   // internal variables
   /* 
    * TODO: Define internal variables (registers and/or wires), if needed
    */
-  val idle = 0.U
-  val receive = 1.U
-  val state = RegInit(idle)
+  val active = RegInit(0.U(1.W))
 
   // state machine
   /* 
    * TODO: Describe functionality if the controller as a state machine
    */
-  io.cnt_en := false.B
-  io.valid := false.B
 
-  switch(state){
-    is(idle){
-      when(!io.rxd && !io.reset){
-        state := receive
-      }
+  io.cnt_en := active
+  io.valid := 0.U
+
+  when(active === 1.U) {
+    when(io.cnt_s === 8.U) {
+      io.valid := 1.U
+      active := 0.U
     }
-    is(receive){
-      io.cnt_en := true.B
-
-      when(io.cnt_s){
-        io.valid := true.B
-        state := idle
-      }
+  }.otherwise {
+    when(io.rxd === 0.U) {
+      active := 1.U
     }
   }
 
-  when(io.reset){
-    state := idle
-    io.cnt_en := false.B
-    io.valid := false.B
+  when(io.reset_n === 1.U) {
+    active := 0.U
   }
 
 }
@@ -71,33 +63,31 @@ class Counter extends Module{
     /* 
      * TODO: Define IO ports of a the component as stated in the documentation
      */
-    val cnt_en = Input(Bool())
-    val reset = Input(Bool())
-    val cnt_s = Output(Bool())
+    val reset_n = Input(UInt(1.W))
+    val cnt_en = Input(UInt(1.W))
+    val cnt_s = Output(UInt(4.W))
   })
 
   // internal variables
   /* 
    * TODO: Define internal variables (registers and/or wires), if needed
    */
-  val count = RegInit(0.U(4.W))
-  io.cnt_s := false.B
+  val reg = RegInit(0.U(4.W))
   // state machine
   /* 
    * TODO: Describe functionality if the counter as a state machine
    */
-  when(io.reset){
-    count:= 0.U
-    io.cnt_s := false.B
-  } .elsewhen(io.cnt_en){
-    when(count === 8.U){
-      count := 0.U
-    } .otherwise{
-      count := count + 1.U
-    }
-
-    io.cnt_s := (count === 8.U)
+  when(io.cnt_en === 1.U) {
+    reg := reg + 1.U
+  }.otherwise {
+    reg := 0.U
   }
+
+  when(io.reset_n === 1.U) {
+    reg := 0.U
+  }
+
+  io.cnt_s := reg
 
 }
 
@@ -108,7 +98,7 @@ class ShiftRegister extends Module{
     /* 
      * TODO: Define IO ports of a the component as stated in the documentation
      */
-    val rxd = Input(Bool())
+    val rxd = Input(UInt(1.W))
     val data = Output(UInt(8.W))
     })
 
@@ -116,14 +106,16 @@ class ShiftRegister extends Module{
   /* 
    * TODO: Define internal variables (registers and/or wires), if needed
    */
-  val shiftReg = RegInit(0.U(8.W))
+  val reg = RegInit(0.U(8.W))
 
   // functionality
   /* 
    * TODO: Describe functionality if the shift register
    */
-  shiftReg := Cat(shiftReg(6,0), io.rxd.asUInt)  //slicing and adding a new bit at LSB
-  io.data := shiftReg
+
+    reg := Cat(reg(6, 0), io.rxd)
+
+  io.data := reg
 }
 
 /** 
@@ -143,10 +135,10 @@ class ReadSerial extends Module{
     /* 
      * TODO: Define IO ports of a the component as stated in the documentation
      */
-    val rxd = Input(Bool())
-    val reset = Input(Bool())
+    val reset_n = Input(UInt(1.W))
+    val rxd = Input(UInt(1.W))
+    val valid = Output(UInt(1.W))
     val data = Output(UInt(8.W))
-    val valid = Output(Bool())
     })
 
 
@@ -156,25 +148,25 @@ class ReadSerial extends Module{
    */
   val controller = Module(new Controller())
   val counter = Module(new Counter())
-  val shiftReg = Module(new ShiftRegister())
+  val shiftRegister = Module(new ShiftRegister())
   // connections between modules
   /* 
    * TODO: connect the signals between the modules
    */
+  controller.io.reset_n := io.reset_n
   controller.io.rxd := io.rxd
-  controller.io.reset := io.reset
   controller.io.cnt_s := counter.io.cnt_s
 
+  counter.io.reset_n := io.reset_n
   counter.io.cnt_en := controller.io.cnt_en
-  counter.io.reset := io.reset
 
-  shiftReg.io.rxd := io.rxd
+  shiftRegister.io.rxd := io.rxd
 
   // global I/O 
   /* 
    * TODO: Describe output behaviour based on the input values and the internal signals
    */
   io.valid := controller.io.valid
-  io.data := shiftReg.io.data
+  io.data := shiftRegister.io.data
 
 }

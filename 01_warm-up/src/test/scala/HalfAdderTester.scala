@@ -22,8 +22,8 @@ class HalfAdderTester extends AnyFlatSpec with ChiselScalatestTester {
 
       for(a <- 0 to 1) {
         for(b <- 0 to 1){
-          val expectedSum = (a ^ b) & 1  //XOR
-          val expectedCarry = (a & b) & 1 //AND
+          val expectedSum = (a ^ b)   //XOR
+          val expectedCarry = (a & b)  //AND
 
           dut.io.a.poke(a.U)
           dut.io.b.poke(b.U)

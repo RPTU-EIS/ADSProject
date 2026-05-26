@@ -79,7 +79,7 @@ class FullAdder extends Module{
 
   io.sum := ha2.io.sum
 
-  io.cout := ha1.io.carry | ha2.io.carry
+  io.cout := ha1.io.carry | ha2.io.carry   //OR Gate
 
 }
 

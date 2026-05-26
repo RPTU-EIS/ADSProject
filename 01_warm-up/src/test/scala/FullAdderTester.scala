@@ -23,12 +23,15 @@ class FullAdderTester extends AnyFlatSpec with ChiselScalatestTester {
       for(a <- 0 to 1){
         for(b <- 0 to 1){
           for(cin <- 0 to 1){
+
+            val expectedSum = ( a ^ b ^ cin)
+            val expectedCout = ((a & b) | (a & cin) | (b & cin))
+
             dut.io.a.poke(a.U)
             dut.io.b.poke(b.U)
             dut.io.cin.poke(cin.U)
 
-            val expectedSum = ( a ^ b ^ cin) & 1
-            val expectedCout = ((a & b) | (a & cin) | (b & cin)) &1
+            dut.clock.step(1)
 
             dut.io.sum.expect(expectedSum.U)
             dut.io.cout.expect(expectedCout.U)

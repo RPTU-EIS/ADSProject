@@ -16,6 +16,21 @@ import org.scalatest.flatspec.AnyFlatSpec
   */
 class ReadSerialTester extends AnyFlatSpec with ChiselScalatestTester {
 
+  def sendBit(dut: ReadSerial, bit: UInt): Unit = {
+    dut.io.rxd.poke(bit)
+    dut.clock.step(1)
+  }
+
+  def sendByte(dut: ReadSerial, byte: Int): Unit = {
+    sendBit(dut, 0.U)
+
+    for (i <- 7 to 0 by -1) {
+      val b = (byte >> i) & 1
+      sendBit(dut, b.U)
+    }
+    dut.io.rxd.poke(1.U)
+  }
+
   "ReadSerial" should "work" in {
     test(new ReadSerial).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
 
@@ -26,93 +41,59 @@ class ReadSerialTester extends AnyFlatSpec with ChiselScalatestTester {
          *...
          *TODO: Add your testcases here
          */
-
-      //function to send a byte
-      def sendByte(byte: Int): Unit = {
-        dut.io.rxd.poke(0.B)
-        dut.clock.step()
-
-        for(i <- 7 to 1 by -1){
-          val bit = ((byte >> i) & 1).B
-          dut.io.rxd.poke(bit)
-          dut.clock.step()
-        }
-      }
-
-      //Function to wait in Ideal State
-      def waitforIdle(cycles: Int = 2): Unit = {
-        dut.io.rxd.poke(1.B)
-        for(_ <- 0 to cycles ){
-          dut.clock.step()
-        }
-      }
-
-      //Verify the result
-      def expectedByte(expectedByte: Int): Unit = {
-        dut.io.valid.expect(true.B)
-        dut.io.data.expect(expectedByte.U)
-        dut.clock.step()
-        dut.io.valid.expect(false.B)
-      }
-
       //Initialize
-      dut.io.reset.poke(true.B)
-      dut.io.rxd.poke(1.B)       //Idle State
-      dut.clock.step()
-      dut.io.reset.poke(false.B)  //release reset
-      dut.clock.step()
+      dut.io.rxd.poke(1.U)
+      dut.io.reset_n.poke(1.U)
+      dut.clock.step(1)
+      dut.io.reset_n.poke(0.U)
 
-      //check valid is still low
-      dut.io.valid.expect(false.B)
+      dut.clock.step(2)
 
+      // Test byte 0x00 (all 0s)
+      sendByte(dut, 0x0)
+      dut.io.valid.expect(1.U)
+      dut.io.data.expect(0x0.U)
+      dut.clock.step(1)
+      dut.io.valid.expect(0.U)
 
-      //Test 1: Single byte transmission
-      sendByte(0xAB)  //10101011 in binary
-      expectedByte(0xAB)
+      dut.clock.step(2)
 
-      //Test 2: continuous transmission with no idle
-      sendByte(0x34) //0110100 in binary
-      expectedByte(0x34)
+      // Test 0xFF (all ones)
+      sendByte(dut, 0xff)
+      dut.io.valid.expect(1.U)
+      dut.io.data.expect(0xff.U)
 
-      //Idle period
-      waitforIdle(5)
-      sendByte(0x12)
-      sendByte(0x12)
+      // Test transmission of 00110100
+      dut.clock.step(2)
+      dut.io.valid.expect(0.U)
+      sendByte(dut, 0x34)
+      dut.io.valid.expect(1.U)
+      dut.io.data.expect(0x34.U)
 
-      //Reset during Transmission
-      dut.io.rxd.poke(0.B)    //start bit
-      dut.clock.step()
+      dut.clock.step(2)
 
-      dut.io.rxd.poke(0.B)    //1st bit
-      dut.clock.step()
-      dut.io.rxd.poke(1.B)    //2nd bit
-      dut.clock.step()
-      dut.io.rxd.poke(1.B)    //3rd bit
-      dut.clock.step()
+      //Test reset
+      sendBit(dut, 0.U)
+      sendBit(dut, 1.U)
+      sendBit(dut, 0.U)
+      sendBit(dut, 1.U)
+      dut.io.reset_n.poke(1.U)    //set reset
+      dut.io.rxd.poke(1.U)
+      dut.clock.step(1)
+      dut.io.reset_n.poke(0.U)
+      dut.clock.step(1)
 
-      dut.io.reset.poke(true.B)     //reset
-      dut.clock.step()
-      dut.io.reset.poke(false.B)     //reset
-      dut.clock.step()
+      //Test after reset
+      dut.io.valid.expect(0.U)
+      dut.clock.step(1)
+      sendByte(dut, 0x0f)
+      dut.io.valid.expect(1.U)
+      dut.io.data.expect(0x0f.U)
 
-      dut.io.valid.expect(false.B)
+      dut.clock.step(2)
 
-      //Transmission after reset
-      waitforIdle(1)
-      sendByte(0x55)
-      expectedByte(0x55)
-
-      //send all 0s
-      waitforIdle(1)
-      sendByte(0x00)
-      expectedByte(0x00)
-
-      //send all 1s
-      waitforIdle(1)
-      sendByte(0xFF)
-      expectedByte(0xFF)
     }
-
   }
+
 }
 
