@@ -1,97 +1,36 @@
 // ADS I Class Project
 // Chisel Introduction
-//
-// Chair of Electronic Design Automation, RPTU in Kaiserslautern
-// File created on 18/10/2022 by Tobias Jauch (@tojauch)
 
-package adder
+package adder // This tester belongs to the adder package.
 
-import chisel3._
-import chiseltest._
-import org.scalatest.flatspec.AnyFlatSpec
+import chisel3._ // Import Chisel data types such as UInt.
+import chiseltest._ // Import ChiselTest functions such as poke and expect.
+import org.scalatest.flatspec.AnyFlatSpec // Import the ScalaTest style used by this project.
 
+// This tester checks all possible input combinations of the FullAdder.
+class FullAdderTester extends AnyFlatSpec with ChiselScalatestTester { // Define the test class.
 
-/** 
-  * Full adder tester
-  * Use the truth table from the exercise sheet to test all possible input combinations and the corresponding results exhaustively
-  */
-class FullAdderTester extends AnyFlatSpec with ChiselScalatestTester {
+  "FullAdder" should "work" in { // Name the behavior that is being tested.
+    test(new FullAdder).withAnnotations(Seq(WriteVcdAnnotation)) { dut => // Create the device under test.
 
-  "FullAdder" should "work" in {
-    test(new FullAdder).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+      val truthTable = Seq( // Define the full truth table: a, b, ci, expected s, expected co.
+        (0, 0, 0, 0, 0), // 0 + 0 + 0 = sum 0, carry 0.
+        (0, 0, 1, 1, 0), // 0 + 0 + 1 = sum 1, carry 0.
+        (0, 1, 0, 1, 0), // 0 + 1 + 0 = sum 1, carry 0.
+        (0, 1, 1, 0, 1), // 0 + 1 + 1 = sum 0, carry 1.
+        (1, 0, 0, 1, 0), // 1 + 0 + 0 = sum 1, carry 0.
+        (1, 0, 1, 0, 1), // 1 + 0 + 1 = sum 0, carry 1.
+        (1, 1, 0, 0, 1), // 1 + 1 + 0 = sum 0, carry 1.
+        (1, 1, 1, 1, 1)  // 1 + 1 + 1 = sum 1, carry 1.
+      ) // End of truth table.
 
-          /*dut.io.a.poke(...)
-           *dut.io.b.poke(...)
-           *dut.io.ci.poke(...)
-           *dut.io.s.expect(...)
-           *dut.io.co.expect(...)
-           *...
-           *TODO: Insert your test cases
-           */
-// Test case 1: a=0, b=0, ci=0 → s=0, co=0
-      dut.io.a.poke(0.B)
-      dut.io.b.poke(0.B)
-      dut.io.ci.poke(0.B)
-      dut.io.s.expect(0.B)
-      dut.io.co.expect(0.B)
-      dut.clock.step()
-
-      // Test case 2: a=0, b=0, ci=1 → s=1, co=0
-      dut.io.a.poke(0.B)
-      dut.io.b.poke(0.B)
-      dut.io.ci.poke(1.B)
-      dut.io.s.expect(1.B)
-      dut.io.co.expect(0.B)
-      dut.clock.step()
-
-      // Test case 3: a=0, b=1, ci=0 → s=1, co=0
-      dut.io.a.poke(0.B)
-      dut.io.b.poke(1.B)
-      dut.io.ci.poke(0.B)
-      dut.io.s.expect(1.B)
-      dut.io.co.expect(0.B)
-      dut.clock.step()
-
-      // Test case 4: a=0, b=1, ci=1 → s=0, co=1
-      dut.io.a.poke(0.B)
-      dut.io.b.poke(1.B)
-      dut.io.ci.poke(1.B)
-      dut.io.s.expect(0.B)
-      dut.io.co.expect(1.B)
-      dut.clock.step()
-
-      // Test case 5: a=1, b=0, ci=0 → s=1, co=0
-      dut.io.a.poke(1.B)
-      dut.io.b.poke(0.B)
-      dut.io.ci.poke(0.B)
-      dut.io.s.expect(1.B)
-      dut.io.co.expect(0.B)
-      dut.clock.step()
-
-      // Test case 6: a=1, b=0, ci=1 → s=0, co=1
-      dut.io.a.poke(1.B)
-      dut.io.b.poke(0.B)
-      dut.io.ci.poke(1.B)
-      dut.io.s.expect(0.B)
-      dut.io.co.expect(1.B)
-      dut.clock.step()
-
-      // Test case 7: a=1, b=1, ci=0 → s=0, co=1
-      dut.io.a.poke(1.B)
-      dut.io.b.poke(1.B)
-      dut.io.ci.poke(0.B)
-      dut.io.s.expect(0.B)
-      dut.io.co.expect(1.B)
-      dut.clock.step()
-
-      // Test case 8: a=1, b=1, ci=1 → s=1, co=1
-      dut.io.a.poke(1.B)
-      dut.io.b.poke(1.B)
-      dut.io.ci.poke(1.B)
-      dut.io.s.expect(1.B)
-      dut.io.co.expect(1.B)
-      dut.clock.step()
-        }
-    } 
-}
-
+      for ((a, b, ci, s, co) <- truthTable) { // Iterate over every row of the truth table.
+        dut.io.a.poke(a.U) // Apply input a.
+        dut.io.b.poke(b.U) // Apply input b.
+        dut.io.ci.poke(ci.U) // Apply carry-in.
+        dut.io.s.expect(s.U) // Check expected sum.
+        dut.io.co.expect(co.U) // Check expected carry-out.
+      } // End of loop.
+    } // End of test body.
+  } // End of test case.
+} // End of FullAdderTester.
