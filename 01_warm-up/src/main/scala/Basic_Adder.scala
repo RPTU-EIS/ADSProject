@@ -19,10 +19,6 @@ class BasicAdder extends Module{
     val c  = Output(UInt(8.W))
     })
 
-  val Reg = RegInit(0.U(8.W))
-
-  Reg := io.a + io.b
-
-  io.c := Reg
+  io.c := io.a + io.b
 
 }
