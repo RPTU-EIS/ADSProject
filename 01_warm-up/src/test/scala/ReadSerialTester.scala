@@ -26,7 +26,76 @@ class ReadSerialTester extends AnyFlatSpec with ChiselScalatestTester {
          *...
          *TODO: Add your testcases here
          */
+
+
+      dut.io.rxd.poke(true.B)
+
+      // Apply reset
+      dut.reset.poke(true.B)
+      dut.clock.step(2)
+
+      // Release reset
+      dut.reset.poke(false.B)
+      dut.clock.step(2)
+
+      // ==========================================
+      // TRANSMIT BYTE : 10110011
+      // MSB FIRST
+      // ==========================================
+
+      // Start bit
+      dut.io.rxd.poke(false.B)
+      dut.clock.step(1)
+
+      // Bit 7
+      dut.io.rxd.poke(true.B)
+      dut.clock.step(1)
+
+      // Bit 6
+      dut.io.rxd.poke(false.B)
+      dut.clock.step(1)
+
+      // Bit 5
+      dut.io.rxd.poke(true.B)
+      dut.clock.step(1)
+
+      // Bit 4
+      dut.io.rxd.poke(true.B)
+      dut.clock.step(1)
+
+      // Bit 3
+      dut.io.rxd.poke(false.B)
+      dut.clock.step(1)
+
+      // Bit 2
+      dut.io.rxd.poke(false.B)
+      dut.clock.step(1)
+
+      // Bit 1
+      dut.io.rxd.poke(true.B)
+      dut.clock.step(1)
+
+      // Bit 0
+      dut.io.rxd.poke(true.B)
+      dut.clock.step(1)
+
+     
+
+
+      // ==========================================
+      // CHECK OUTPUTS
+      // ==========================================
+      
+      dut.io.valid.expect(true.B)
+
+      dut.io.data.expect("b10110011".U)
+
+      // Return to idle
+
+      dut.clock.step(1)
+      dut.io.valid.expect(false.B)
         }
     } 
 }
-
+      // Idle bus = 1
+     

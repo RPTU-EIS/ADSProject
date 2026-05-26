@@ -36,6 +36,25 @@ class FourBitAdderTester extends AnyFlatSpec with ChiselScalatestTester {
       /*
        * TODO: Insert your test cases
        */  
+       // Loop through all combinations (0 to 15)
+      for (a <- 0 to 15) {
+        for (b <- 0 to 15) {
+          dut.io.a.poke(a.U)
+          dut.io.b.poke(b.U)
+
+          val sum = a + b
+          if (sum < 16) {
+            // No overflow
+            dut.io.s.expect((sum ).U)
+            dut.io.co.expect(0.B)
+          } else {
+            // Overflow — result wraps around
+            dut.io.s.expect((sum - 16).U)
+            dut.io.co.expect(1.B)
+          }
+          dut.clock.step()
+        }
+      }
         
       
     } 

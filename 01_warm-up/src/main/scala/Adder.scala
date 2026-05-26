@@ -23,23 +23,30 @@ class HalfAdder extends Module{
   val io = IO(new Bundle {
     /* 
      * TODO: Define IO ports of a half adder as presented in the lecture
+     * 
      */
+        val a  = Input(Bool())   // 1-bit input a
+        val b  = Input(Bool())   // 1-bit input b
+        val s  = Output(Bool())  // 1-bit sum output
+        val co = Output(Bool())  // 1-bit carry output
     })
 
   /* 
    * TODO: Describe output behaviour based on the input values
    */
 
+       io.s  := io.a ^ io.b  // XOR for sum
+       io.co := io.a & io.b  // AND for carry
 }
 
-/** 
-  * Full Adder Class 
-  * 
-  * Your task is to implement a basic full adder. The component's behaviour should 
-  * match the characteristics presented in the lecture. In addition, you are only allowed 
-  * to use two half adders (use the class that you already implemented) and basic logic 
-  * operators (AND, OR, ...).
-  * Each signal should only be one bit wide (inputs and outputs).
+  /** 
+    * Full Adder Class 
+    * 
+    * Your task is to implement a basic full adder. The component's behaviour should 
+    * match the characteristics presented in the lecture. In addition, you are only allowed 
+    * to use two half adders (use the class that you already implemented) and basic logic 
+    * operators (AND, OR, ...).
+    * Each signal should only be one bit wide (inputs and outputs).
   * There should be no delay between input and output signals, we want to have
   * a combinational behaviour of the component.
   */
@@ -49,17 +56,39 @@ class FullAdder extends Module{
     /* 
      * TODO: Define IO ports of a half adder as presented in the lecture
      */
+        val a  = Input(Bool())   // 1-bit input a
+        val b  = Input(Bool())   // 1-bit input b
+        val ci = Input(Bool())   // 1-bit carry input
+        val s  = Output(Bool())  // 1-bit sum output
+        val co = Output(Bool())  // 1-bit carry output
     })
 
 
   /* 
    * TODO: Instanciate the two half adders you want to use based on your HalfAdder class
    */
+      val ha1 = Module(new HalfAdder())
+      val ha2 = Module(new HalfAdder())
 
+
+      // connect Half Adder 1: a+b
+      ha1.io.a := io.a
+      ha1.io.b := io.b
+
+     // connect half adder 2: sum of ha1 + carry in
+      ha2.io.a := ha1.io.s
+      ha2.io.b := io.ci
 
   /* 
+
    * TODO: Describe output behaviour based on the input values and the internal signals
+
    */
+
+      // connect outputs
+      io.s := ha2.io.s
+      io.co := ha1.io.co | ha2.io.co  // carry out is OR of both half adders' carry outputs
+
 
 }
 
@@ -79,14 +108,45 @@ class FourBitAdder extends Module{
     /* 
      * TODO: Define IO ports of a 4-bit ripple-carry-adder as presented in the lecture
      */
+        val a = Input(UInt(4.W))   // 4-bit input a
+        val b  = Input(UInt(4.W))   // 4-bit input b
+        val s  = Output(UInt(4.W))  // 4-bit sum output
+        val co = Output(Bool())     // 1-bit carry output
+
     })
 
   /* 
    * TODO: Instanciate the full adders and one half adderbased on the previously defined classes
    */
+      val ha = Module(new HalfAdder())
+      val fa1 = Module(new FullAdder())
+      val fa2 = Module(new FullAdder())
+      val fa3 = Module(new FullAdder())
 
+      // connect half adder for least significant bit
+      ha.io.a := io.a(0)
+      ha.io.b := io.b(0)
+
+      // connect full adder 1
+      fa1.io.a := io.a(1)
+      fa1.io.b := io.b(1)
+      fa1.io.ci := ha.io.co
+
+      // connect full adder 2
+      fa2.io.a := io.a(2)
+      fa2.io.b := io.b(2)
+      fa2.io.ci := fa1.io.co
+
+      // connect full adder 3
+      fa3.io.a := io.a(3)
+      fa3.io.b := io.b(3)
+      fa3.io.ci := fa2.io.co
 
   /* 
    * TODO: Describe output behaviour based on the input values and the internal 
    */
+
+      // connect outputs
+      io.s := Cat(fa3.io.s, fa2.io.s, fa1.io.s, ha.io.s)  // concatenate sum bits
+      io.co := fa3.io.co  // carry out is the carry from the most significant full adder
 }
