@@ -33,8 +33,8 @@ class HalfAdder extends Module{
 
 }
 
-/** 
-  * Full Adder Class 
+/**
+  * Full Adder Class
   * 
   * Your task is to implement a basic full adder. The component's behaviour should 
   * match the characteristics presented in the lecture. In addition, you are only allowed 
@@ -47,21 +47,26 @@ class HalfAdder extends Module{
 class FullAdder extends Module{
 
   val io = IO(new Bundle {
-    /*
-     * TODO: Define IO ports of a half adder as presented in the lecture
-     */
-    })
+    val a  = Input(UInt(1.W))
+    val b  = Input(UInt(1.W))
+    val ci = Input(UInt(1.W))
 
+    val s  = Output(UInt(1.W))
+    val co = Output(UInt(1.W))
+  })
 
-  /* 
-   * TODO: Instanciate the two half adders you want to use based on your HalfAdder class
-   */
+  // We implement the full adder using two half adders
+  val ha1 = Module(new HalfAdder)
+  val ha2 = Module(new HalfAdder)
 
+  ha1.io.a := io.a
+  ha1.io.b := io.b
 
-  /*
-   * TODO: Describe output behaviour based on the input values and the internal signals
-   */
+  ha2.io.a := ha1.io.s
+  ha2.io.b := io.ci
 
+  io.s  := ha2.io.s
+  io.co := ha1.io.co | ha2.io.co
 }
 
 /** 
