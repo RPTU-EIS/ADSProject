@@ -21,14 +21,15 @@ import chisel3.util._
 class HalfAdder extends Module{
   
   val io = IO(new Bundle {
-    /* 
-     * TODO: Define IO ports of a half adder as presented in the lecture
-     */
-    })
+    val a  = Input(UInt(1.W))
+    val b  = Input(UInt(1.W))
 
-  /* 
-   * TODO: Describe output behaviour based on the input values
-   */
+    val co  = Output(UInt(1.W))
+    val s  = Output(UInt(1.W))
+  })
+
+  io.s  := io.a ^ io.b  // XOR
+  io.co := io.a & io.b  // AND
 
 }
 
@@ -46,7 +47,7 @@ class HalfAdder extends Module{
 class FullAdder extends Module{
 
   val io = IO(new Bundle {
-    /* 
+    /*
      * TODO: Define IO ports of a half adder as presented in the lecture
      */
     })
@@ -57,7 +58,7 @@ class FullAdder extends Module{
    */
 
 
-  /* 
+  /*
    * TODO: Describe output behaviour based on the input values and the internal signals
    */
 
@@ -76,17 +77,17 @@ class FullAdder extends Module{
 class FourBitAdder extends Module{
 
   val io = IO(new Bundle {
-    /* 
+    /*
      * TODO: Define IO ports of a 4-bit ripple-carry-adder as presented in the lecture
      */
     })
 
-  /* 
+  /*
    * TODO: Instanciate the full adders and one half adderbased on the previously defined classes
    */
 
 
-  /* 
-   * TODO: Describe output behaviour based on the input values and the internal 
+  /*
+   * TODO: Describe output behaviour based on the input values and the internal
    */
 }
