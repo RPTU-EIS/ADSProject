@@ -58,20 +58,16 @@ class Counter extends Module{
 class ShiftRegister extends Module{
   
   val io = IO(new Bundle {
-    /* 
-     * TODO: Define IO ports of a the component as stated in the documentation
-     */
-    })
+    val rxd  = Input(UInt(1.W))
+    val data  = Output(UInt(8.W))
+  })
 
   // internal variables
-  /* 
-   * TODO: Define internal variables (registers and/or wires), if needed
-   */
+  val reg = RegInit(0.U(8.W))
 
   // functionality
-  /* 
-   * TODO: Describe functionality if the shift register
-   */
+  reg := io.rxd << 1
+  io.data := reg
 }
 
 /** 
