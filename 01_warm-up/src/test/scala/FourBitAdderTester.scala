@@ -35,11 +35,14 @@ class FourBitAdderTester extends AnyFlatSpec with ChiselScalatestTester {
         for(b <- 0 to 3){
 
             val sum = a + b
-            val c_o = (a == 1) & (b == 1)
+            val sum5 = sum & 0x1F
+            val sum4 = sum4 & 0xF
+            val c_o = (sum5 >> 4) & 1
+
             dut.io.a.poke(a.U)
             dut.io.b.poke(b.U)
-            dut.io.s.expect(sum.U)
-            dut.io.c_o.expect()
+            dut.io.s.expect(sum4.U)
+            dut.io.c_o.expect(c_o.U)
           }
         }
       }
