@@ -81,6 +81,6 @@ class FourBitAdder extends Module {
   fa3.io.b := io.b(3)
   fa3.io.c_i := fa2.io.c_o
 
-  io.s := Cat(ha0.io.s, fa1.io.s, fa2.io.s, fa3.io.s)
+  io.s := Cat(fa3.io.s, fa2.io.s, fa1.io.s, ha0.io.s)
   io.c_o := fa3.io.c_o
 }
