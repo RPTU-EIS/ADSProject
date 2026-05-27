@@ -14,20 +14,63 @@ import chisel3.util._
 class Controller extends Module{
   
   val io = IO(new Bundle {
-    /* 
-     * TODO: Define IO ports of a the component as stated in the documentation
-     */
+    val rst     = Input(UInt(1.W))
+    val rxd     = Input(UInt(1.W))
+    val co      = Input(UInt(1.W))
+    val cnt_en  = Output(UInt(1.W))
+    val valid   = Output(UInt(1.W))
     })
 
   // internal variables
-  /* 
-   * TODO: Define internal variables (registers and/or wires), if needed
-   */
+  val ps = RegInit(0.U(2.W))
+  val ns = RegInit(0.U(2.W))
+
+  io.cnt_en := 0.U
+  io.valid  := 0.U
 
   // state machine
-  /* 
-   * TODO: Describe functionality if the controller as a state machine
-   */
+  switch(ps){
+    // IDLE
+    is(0.U){
+      when(io.rst === 1.U){
+        ns := 0.U
+      }.
+      otherwise{
+        when(io.rxd === 1.U){
+          ns := 1.U
+        }.
+        elsewhen(io.rxd === 0.U){
+          ns := 0.U
+        }
+      }
+    }
+    // TRANSMIT
+    is(1.U){
+      when(io.rst === 1.U){
+        ns := 0.U
+      }.
+      otherwise{
+        when(io.co === 0.U){
+          io.cnt_en := 1.U
+        }.
+        elsewhen(io.co == 1.U){
+          ns := 2.U
+        }
+      }
+    }
+    // DONE
+    is(2.U){
+      when(io.rst === 1.U){
+        ns := 0.U
+      }.
+      otherwise{
+        io.valid := 1.U
+        ns := 0.U
+      }
+    }
+  }
+
+  ps := ns
 
 }
 
@@ -36,9 +79,9 @@ class Controller extends Module{
 class Counter extends Module{
   
   val io = IO(new Bundle {
-    /* 
-     * TODO: Define IO ports of a the component as stated in the documentation
-     */
+    val rst    = Input(UInt(1.W))
+    val cnt_en = Input(UInt(1.W))
+    val cnt_s  = Output(UInt(1.W))
     })
 
   // internal variables
@@ -88,25 +131,25 @@ class ShiftRegister extends Module{
 class ReadSerial extends Module{
   
   val io = IO(new Bundle {
-    /* 
-     * TODO: Define IO ports of a the component as stated in the documentation
-     */
+      val reset_n   = Input(UInt(1.W))
+      val rxd       = Input(UInt(1.W))
+      val valid     = Output(UInt(1.W))
+      val data      = Output(UInt(8.W))
     })
 
 
   // instanciation of modules
-  /* 
-   * TODO: Instanciate the modules that you need
-   */
+  val CU = Module(new Controller())
 
   // connections between modules
-  /* 
-   * TODO: connect the signals between the modules
-   */
+  CU.rxd := io.rxd
+  CU.rst := io.reset_n
 
   // global I/O 
   /* 
    * TODO: Describe output behaviour based on the input values and the internal signals
    */
+
+  io.valid := CU.valid
 
 }
