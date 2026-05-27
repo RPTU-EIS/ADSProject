@@ -19,16 +19,19 @@ class FullAdderTester extends AnyFlatSpec with ChiselScalatestTester {
 
   "FullAdder" should "work" in {
     test(new FullAdder).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-
-          /*dut.io.a.poke(...)
-           *dut.io.b.poke(...)
-           *dut.io.ci.poke(...)
-           *dut.io.s.expect(...)
-           *dut.io.co.expect(...)
-           *...
-           *TODO: Insert your test cases
-           */
-
+          for(a <- 0 to 1){
+            for(b <- 0 to 1){
+              for(c <- 0 to 1){
+                val sum = a ^ b ^ c
+                val c_out = (a & b) | (a & c) | (b & c)
+                dut.io.a.poke(a.U)
+                dut.io.b.poke(b.U)
+                dut.io.c_i.poke(c.U)
+                dut.io.s.expect(sum.U)
+                dut.io.c_o.expect(c_out.U)
+              }
+            }
+          }
         }
     } 
 }
