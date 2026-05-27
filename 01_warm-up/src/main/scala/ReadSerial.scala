@@ -79,7 +79,7 @@ class Controller extends Module{
 class Counter extends Module{
   val io = IO(new Bundle {
     val cnt_en  = Input(UInt(1.W))
-    val reset_n = Input(UInt(1.W))
+    val rst = Input(UInt(1.W))
     val cnt_s   = Output(UInt(1.W))
   })
   // internal variables
@@ -87,7 +87,7 @@ class Counter extends Module{
   val loop   = Wire(UInt(4.W))
   // state machine
   loop := Mux(cntReg === 8.U, 0.U, cntReg + 1.U)
-  when(io.reset_n === 0.U){
+  when(io.rst === 0.U){
     cntReg := 0.U
   } .elsewhen(io.cnt_en === 1.U){
     cntReg := loop
