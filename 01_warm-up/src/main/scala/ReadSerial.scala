@@ -19,11 +19,12 @@ class Controller extends Module{
     val cnt_s   = Input(UInt(1.W))
     val cnt_en  = Output(UInt(1.W))
     val valid   = Output(UInt(1.W))
+    val ps_t    = Output(UInt(2.W))
     })
 
   // internal variables
   val ps = RegInit(0.U(2.W))
-  val ns = RegInit(0.U(2.W))
+  val ns = WireDefault(ps)
 
   io.cnt_en := 0.U
   io.valid  := 0.U
@@ -52,9 +53,11 @@ class Controller extends Module{
       otherwise{
         when(io.cnt_s === 0.U){
           io.cnt_en := 1.U
+          ns := 1.U
         }.
         elsewhen(io.cnt_s === 1.U){
           ns := 2.U
+          io.valid := io.cnt_s      // Mealy implementation of Valid
         }
       }
     }
@@ -64,13 +67,14 @@ class Controller extends Module{
         ns := 0.U
       }.
       otherwise{
-        io.valid := 1.U
+        // io.valid := 1.U
         ns := 0.U
       }
     }
   }
 
   ps := ns
+  io.ps_t := ps
 
 }
 
@@ -82,9 +86,25 @@ class Counter extends Module{
     val rst    = Input(UInt(1.W))
     val cnt_en = Input(UInt(1.W))
     val cnt_s  = Output(UInt(1.W))
+    val count_t= Output(UInt(3.W))
     })
 
   // internal variables
+  val count = RegInit(0.U(3.W))
+
+  io.cnt_s := 0.U
+  // state machine
+  when(io.rst === 1.U){
+    count := 0.U
+  }.elsewhen(io.cnt_en === 1.U){
+    count := count + 1.U
+  }
+
+  when(count === 7.U){
+    io.cnt_s := 1.U
+  }
+
+  io.count_t := count
 }
 
 /** shift register class */
@@ -121,6 +141,9 @@ class ReadSerial extends Module{
       val rxd       = Input(UInt(1.W))
       val valid     = Output(UInt(1.W))
       val data      = Output(UInt(8.W))
+      val debug_ps  = Output(UInt(2.W))
+      val debug_cnt_s = Output(UInt(1.W))
+      val debug_count = Output(UInt(3.W))
     })
 
 
@@ -132,10 +155,12 @@ class ReadSerial extends Module{
   // connections between modules
   CU.io.rxd := io.rxd
   CU.io.rst := io.reset_n
+  CU.io.cnt_s := CNT.io.cnt_s
 
   CNT.io.rst    := io.reset_n
   CNT.io.cnt_en := CU.io.cnt_en
-  CNT.io.cnt_s  := CU.io.cnt_s
+
+  
 
   SR.io.rxd := io.rxd
 
@@ -143,5 +168,8 @@ class ReadSerial extends Module{
 
   io.valid := CU.io.valid
   io.data  := SR.io.data
+  io.debug_ps := CU.io.ps_t
+  io.debug_cnt_s := CU.io.cnt_s
+  io.debug_count := CNT.io.count_t
 
 }
