@@ -57,20 +57,19 @@ class FourBitAdder extends Module {
     val c_o = Output(UInt(1.W))
   })
 
-  val fa0 = Module(new FullAdder())
+  val ha0 = Module(new HalfAdder())
   val fa1 = Module(new FullAdder())
   val fa2 = Module(new FullAdder())
   val fa3 = Module(new FullAdder())
 
   // bit 0
-  fa0.io.a := io.a(0)
-  fa0.io.b := io.b(0)
-  fa0.io.c_i := 0.U
+  ha0.io.a := io.a(0)
+  ha0.io.b := io.b(0)
 
   // bit 1
   fa1.io.a := io.a(1)
   fa1.io.b := io.b(1)
-  fa1.io.c_i := fa0.io.c_o
+  fa1.io.c_i := ha0.io.c_o
 
   // bit 2
   fa2.io.a := io.a(2)
@@ -82,7 +81,7 @@ class FourBitAdder extends Module {
   fa3.io.b := io.b(3)
   fa3.io.c_i := fa2.io.c_o
 
-  io.s(0) := fa0.io.s
+  io.s(0) := ha0.io.s
   io.s(1) := fa1.io.s
   io.s(2) := fa2.io.s
   io.s(3) := fa3.io.s
