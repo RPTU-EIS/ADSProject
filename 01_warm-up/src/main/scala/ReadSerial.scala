@@ -94,7 +94,7 @@ class Counter extends Module{
   } .otherwise{
     cntReg := cntReg
   }
-  io.cnt_s := (cntReg === 8.U).asUInt
+  io.cnt_s := (cntReg ===  8.U).asUInt
 }
 
 /** shift register class */
