@@ -109,7 +109,7 @@ class ShiftRegister extends Module{
   val reg = RegInit(0.U(8.W))
 
   // functionality
-  reg := io.rxd << 1
+  reg := Cat(reg(6, 0), io.rxd)
   io.data := reg
 }
 
