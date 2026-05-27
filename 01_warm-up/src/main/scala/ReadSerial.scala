@@ -85,16 +85,19 @@ class Counter extends Module{
     })
 
   // internal variables
-  /* 
-   * TODO: Define internal variables (registers and/or wires), if needed
-   */
+  val count = RegInit(0.U(3.W))
 
+  io.cnt_s := 0.U
   // state machine
-  /* 
-   * TODO: Describe functionality if the counter as a state machine
-   */
+  when(io.rst === 1.U){
+    count := 0.U
+  }.elsewhen(io.cnt_en === 1.U){
+    count := count + 1.U
+  }
 
-
+  when(count === 7.U){
+    io.cnt_s := 1.U
+  }
 }
 
 /** shift register class */
@@ -136,16 +139,17 @@ class ReadSerial extends Module{
 
   // instanciation of modules
   val CU = Module(new Controller())
+  val SR = Module(new ShiftRegister())
 
   // connections between modules
   CU.rxd := io.rxd
   CU.rst := io.reset_n
 
+  SR.rxd := io.rxd
+
   // global I/O 
-  /* 
-   * TODO: Describe output behaviour based on the input values and the internal signals
-   */
 
   io.valid := CU.valid
+  io.data  := SR.data
 
 }
