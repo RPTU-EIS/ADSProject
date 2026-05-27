@@ -8,7 +8,7 @@ import chisel3.util._
  */
 class HalfAdder extends Module {
 
-    val io = IO(new Bundle {
+  val io = IO(new Bundle {
     val a  = Input(UInt(1.W))
     val b  = Input(UInt(1.W))
     val s  = Output(UInt(1.W))
@@ -24,7 +24,7 @@ class HalfAdder extends Module {
  */
 class FullAdder extends Module {
 
-    val io = IO(new Bundle {
+  val io = IO(new Bundle {
     val a   = Input(UInt(1.W))
     val b   = Input(UInt(1.W))
     val c_i = Input(UInt(1.W))
@@ -81,10 +81,6 @@ class FourBitAdder extends Module {
   fa3.io.b := io.b(3)
   fa3.io.c_i := fa2.io.c_o
 
-  io.s(0) := ha0.io.s
-  io.s(1) := fa1.io.s
-  io.s(2) := fa2.io.s
-  io.s(3) := fa3.io.s
-
+  io.s := Cat(ha0.io.s, fa1.io.s, fa2.io.s, fa3.io.s)
   io.c_o := fa3.io.c_o
 }
