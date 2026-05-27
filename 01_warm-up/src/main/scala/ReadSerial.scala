@@ -16,7 +16,7 @@ class Controller extends Module{
   val io = IO(new Bundle {
     val rst     = Input(UInt(1.W))
     val rxd     = Input(UInt(1.W))
-    val co      = Input(UInt(1.W))
+    val cnt_s   = Input(UInt(1.W))
     val cnt_en  = Output(UInt(1.W))
     val valid   = Output(UInt(1.W))
     })
@@ -50,10 +50,10 @@ class Controller extends Module{
         ns := 0.U
       }.
       otherwise{
-        when(io.co === 0.U){
+        when(io.cnt_s === 0.U){
           io.cnt_en := 1.U
         }.
-        elsewhen(io.co == 1.U){
+        elsewhen(io.cnt_s === 1.U){
           ns := 2.U
         }
       }
@@ -85,19 +85,6 @@ class Counter extends Module{
     })
 
   // internal variables
-  val count = RegInit(0.U(3.W))
-
-  io.cnt_s := 0.U
-  // state machine
-  when(io.rst === 1.U){
-    count := 0.U
-  }.elsewhen(io.cnt_en === 1.U){
-    count := count + 1.U
-  }
-
-  when(count === 7.U){
-    io.cnt_s := 1.U
-  }
 }
 
 /** shift register class */
@@ -140,16 +127,21 @@ class ReadSerial extends Module{
   // instanciation of modules
   val CU = Module(new Controller())
   val SR = Module(new ShiftRegister())
+  val CNT = Module(new Counter())
 
   // connections between modules
-  CU.rxd := io.rxd
-  CU.rst := io.reset_n
+  CU.io.rxd := io.rxd
+  CU.io.rst := io.reset_n
 
-  SR.rxd := io.rxd
+  CNT.io.rst    := io.reset_n
+  CNT.io.cnt_en := CU.io.cnt_en
+  CNT.io.cnt_s  := CU.io.cnt_s
+
+  SR.io.rxd := io.rxd
 
   // global I/O 
 
-  io.valid := CU.valid
-  io.data  := SR.data
+  io.valid := CU.io.valid
+  io.data  := SR.io.data
 
 }
