@@ -56,7 +56,9 @@ class ReadSerialTester extends AnyFlatSpec with ChiselScalatestTester {
       dut.clock.step(1)
       dut.io.valid.expect(0.U)
 
-      dut.clock.step(2)
+      dut.clock.step(1)
+      sendBit(dut, 1.U)
+      dut.io.valid.expect(0.U)
 
       // Test 0xFF (all ones)
       sendByte(dut, 0xff)
@@ -77,6 +79,7 @@ class ReadSerialTester extends AnyFlatSpec with ChiselScalatestTester {
       sendBit(dut, 1.U)
       sendBit(dut, 0.U)
       sendBit(dut, 1.U)
+      dut.io.valid.expect(0.U)
       dut.io.reset_n.poke(1.U)    //set reset
       dut.io.rxd.poke(1.U)
       dut.clock.step(1)
