@@ -19,12 +19,16 @@ class ReadSerialTester extends AnyFlatSpec with ChiselScalatestTester {
 "ReadSerial" should "work" in {
   test(new ReadSerial).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
 
-    val seq = "10010101"
-    
-    dut.io.rxd.poke(0.U)
+    val seq = "11100101011100110101011010100111001"
+
+    dut.io.reset_n.poke(1.U)
+    dut.clock.step(1)
+    dut.io.reset_n.poke(0.U)
+    dut.io.rxd.poke(1.U)
     dut.clock.step(1)
 
-    for (i <- 0 until 8) {
+
+    for (i <- 0 until seq.length) {
     
       val bit = seq(i).asDigit
       dut.io.rxd.poke(bit.U)
@@ -41,7 +45,7 @@ class ReadSerialTester extends AnyFlatSpec with ChiselScalatestTester {
       )
     }
 
-    dut.io.data.expect(BigInt(seq, 2).U)
+    dut.io.data.expect("b01010111".U)
     dut.io.valid.expect(1.U)
   }
 }

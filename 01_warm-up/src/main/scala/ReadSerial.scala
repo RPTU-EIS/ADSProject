@@ -25,9 +25,10 @@ class Controller extends Module {
   // internal variables
   val ps = RegInit(0.U(2.W))
   val ns = WireDefault(ps)
+  val valid = RegInit(0.U(1.W))
 
   io.cnt_en := 0.U
-  io.valid := 0.U
+  io.valid := valid
 
   // state machine
 
@@ -38,11 +39,13 @@ class Controller extends Module {
       switch(ps) {
         // IDLE
         is(0.U) {
+          valid := 0.U
           when(io.rxd === 1.U) {
             ns := 0.U
           }.
           elsewhen(io.rxd === 0.U) {
             ns := 1.U
+            io.cnt_en := 1
           }
         }
         // TRANSMIT
@@ -52,15 +55,15 @@ class Controller extends Module {
             ns := 1.U
           }.
           elsewhen(io.cnt_s === 1.U) {
-            ns := 2.U
-            //io.valid := io.cnt_s // Mealy implementation of Valid
+            ns := 0.U
+            valid := 1.U // Mealy implementation of Valid
           }
         }
         // DONE
-        is(2.U) {
-          io.valid := 1.U
-          ns := 0.U
-        }
+//        is(2.U) {
+//          io.valid := 1.U
+//          ns := 0.U
+//        }
       }
     }
 
@@ -84,9 +87,9 @@ class Counter extends Module {
 
   io.cnt_s := 0.U
   // state machine
-  when(io.rst === 1.U) {
+  when(io.rst === 1.U || io.cnt_s === 1.U) {
     count := 0.U
-  }.elsewhen(io.cnt_en === 1.U && count < 7.U) {
+  }.elsewhen(io.cnt_en === 1.U) {
     count := count + 1.U
   }
 
