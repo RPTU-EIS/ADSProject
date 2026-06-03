@@ -1,35 +1,37 @@
 // ADS I Class Project
 // Chisel Introduction
-//
-// Chair of Electronic Design Automation, RPTU in Kaiserslautern
-// File created on 18/10/2022 by Tobias Jauch (@tojauch)
 
-package adder
+package adder // This tester belongs to the adder package.
 
-import chisel3._
-import chiseltest._
-import org.scalatest.flatspec.AnyFlatSpec
+import chisel3._ // Import Chisel data types such as UInt.
+import chiseltest._ // Import ChiselTest functions such as poke and expect.
+import org.scalatest.flatspec.AnyFlatSpec // Import the ScalaTest style used by this project.
 
+// This tester checks all possible input combinations of the HalfAdder.
+class HalfAdderTester extends AnyFlatSpec with ChiselScalatestTester { // Define the test class.
 
-/** 
-  * Half adder tester
-  * Use the truth table from the exercise sheet to test all possible input combinations and the corresponding results exhaustively
-  */
-class HalfAdderTester extends AnyFlatSpec with ChiselScalatestTester {
+  "HalfAdder" should "work" in { // Name the behavior that is being tested.
+    test(new HalfAdder).withAnnotations(Seq(WriteVcdAnnotation)) { dut => // Create the device under test.
 
-  "HalfAdder" should "work" in {
-    test(new HalfAdder).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+      dut.io.a.poke(0.U) // Apply input a = 0.
+      dut.io.b.poke(0.U) // Apply input b = 0.
+      dut.io.s.expect(0.U) // Expected sum is 0.
+      dut.io.co.expect(0.U) // Expected carry-out is 0.
 
-          /*dut.io.a.poke(...)
-           *dut.io.b.poke(...)
-           *dut.io.ci.poke(...)
-           *dut.io.s.expect(...)
-           *dut.io.co.expect(...)
-           *...
-           *TODO: Insert your test cases
-           */
+      dut.io.a.poke(0.U) // Apply input a = 0.
+      dut.io.b.poke(1.U) // Apply input b = 1.
+      dut.io.s.expect(1.U) // Expected sum is 1.
+      dut.io.co.expect(0.U) // Expected carry-out is 0.
 
-        }
-    } 
-}
+      dut.io.a.poke(1.U) // Apply input a = 1.
+      dut.io.b.poke(0.U) // Apply input b = 0.
+      dut.io.s.expect(1.U) // Expected sum is 1.
+      dut.io.co.expect(0.U) // Expected carry-out is 0.
 
+      dut.io.a.poke(1.U) // Apply input a = 1.
+      dut.io.b.poke(1.U) // Apply input b = 1.
+      dut.io.s.expect(0.U) // Expected sum is 0 because 1 + 1 produces a carry.
+      dut.io.co.expect(1.U) // Expected carry-out is 1.
+    } // End of test body.
+  } // End of test case.
+} // End of HalfAdderTester.
