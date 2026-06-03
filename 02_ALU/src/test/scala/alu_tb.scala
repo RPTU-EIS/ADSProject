@@ -14,19 +14,39 @@ import Assignment02._
 class ALUAddTest extends AnyFlatSpec with ChiselScalatestTester {
   "ALU_Add_Tester" should "test ADD operation" in {
     test(new ALU).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-      val A = 20
-      val B = 40
-      val result = A + B
+      val A1 = 20
+      val B1 = 40
+      val result1 = A1 + B1
       dut.clock.setTimeout(0)
 
-      dut.io.operandA.poke(A.U)
-      dut.io.operandB.poke(B.U)
+      dut.io.operandA.poke(A1.U)
+      dut.io.operandB.poke(B1.U)
       dut.io.operation.poke(ALUOp.ADD)
-      dut.io.aluResult.expect(result.U)
+      dut.io.aluResult.expect(result1.U)
       dut.clock.step(1)
 
-      //ToDo: add more test cases for ADD operation
+      print(s"\nRegular addition:\n")
+      println(s"A = $A1")
+      println(s"B = $B1")
+      println(s"ALU result = ${dut.io.aluResult.peek().litValue}")
 
+      //ToDo: add more test cases for ADD operation
+      //TESTING WRAPAROUND
+
+      val A2 = BigInt("FFFFFFFF",16)
+      val B2 = 2
+      val result2 = 1
+
+      dut.io.operandA.poke(A2.U)
+      dut.io.operandB.poke(B2.U)
+      dut.io.operation.poke(ALUOp.ADD)
+      dut.io.aluResult.expect(result2.U)
+      dut.clock.step(1)
+
+      print(s"\nWraparound in addition:\n")
+      println(s"A = $A2")
+      println(s"B = $B2")
+      println(s"ALU result = ${dut.io.aluResult.peek().litValue}")
     }
   }
 }
