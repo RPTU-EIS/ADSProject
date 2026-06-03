@@ -16,6 +16,7 @@ import chisel3.experimental.ChiselEnum
 object ALUOp extends ChiselEnum {
   val ADD = Value(0.U)
   val SUB = Value(1.U)
+  val AND = Value(2.U)
 }
 
 class ALU extends Module {

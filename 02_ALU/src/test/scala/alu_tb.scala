@@ -14,12 +14,15 @@ import Assignment02._
 class ALUAddTest extends AnyFlatSpec with ChiselScalatestTester {
   "ALU_Add_Tester" should "test ADD operation" in {
     test(new ALU).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+      val A = 20
+      val B = 40
+      val result = A + B
       dut.clock.setTimeout(0)
 
-      dut.io.operandA.poke(10.U)
-      dut.io.operandB.poke(10.U)
+      dut.io.operandA.poke(A.U)
+      dut.io.operandB.poke(B.U)
       dut.io.operation.poke(ALUOp.ADD)
-      dut.io.aluResult.expect(20.U)
+      dut.io.aluResult.expect(result.U)
       dut.clock.step(1)
 
       //ToDo: add more test cases for ADD operation
@@ -29,14 +32,20 @@ class ALUAddTest extends AnyFlatSpec with ChiselScalatestTester {
 }
 
 class ALUSubTest extends AnyFlatSpec with ChiselScalatestTester {
+
+  def wrap32(x: Int): BigInt = x.toLong & 0xFFFFFFFFL
+
   "ALU_Sub_Tester" should "test Sub operation" in {
     test(new ALU).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+      val A = 20
+      val B = 40
+      val result = A - B
       dut.clock.setTimeout(0)
 
-      dut.io.operandA.poke(20.U)
-      dut.io.operandB.poke(10.U)
+      dut.io.operandA.poke(A.U)
+      dut.io.operandB.poke(B.U)
       dut.io.operation.poke(ALUOp.SUB)
-      dut.io.aluResult.expect(10.U)
+      dut.io.aluResult.expect(result.U)
       dut.clock.step(1)
 
       //ToDo: add more test cases for SUB operation
