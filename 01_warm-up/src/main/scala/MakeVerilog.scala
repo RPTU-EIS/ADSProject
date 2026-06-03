@@ -19,6 +19,6 @@ object Verilog_Gen extends App {
   emitVerilog(new BasicAdder(), Array("--target-dir", "generated-src"))
   emitVerilog(new HalfAdder(), Array("--target-dir", "generated-src"))
   emitVerilog(new FullAdder(), Array("--target-dir", "generated-src"))
-  //emitVerilog(new FourBitAdder(), Array("--target-dir", "generated-src"))
-  //emitVerilog(new ReadSerialAdder(), Array("--target-dir", "generated-src"))
+  emitVerilog(new FourBitAdder(), Array("--target-dir", "generated-src"))
+  emitVerilog(new ReadSerial(), Array("--target-dir", "generated-src"))
 }
