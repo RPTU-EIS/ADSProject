@@ -134,6 +134,73 @@ class ALUSllTest extends AnyFlatSpec with ChiselScalatestTester {
   }
 }
 
+class ALUSrlTest extends AnyFlatSpec with ChiselScalatestTester {
+  "ALU_SRL_Tester" should "test SRL operation" in {
+    test(new ALU).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+      val A = 16
+      val B = 2
+      val result = A >> (B & 0x0000001F)
+      dut.clock.setTimeout(0)
+
+      dut.io.operandA.poke(A.U)
+      dut.io.operandB.poke(B.U)
+      dut.io.operation.poke(ALUOp.SRL)
+      dut.io.aluResult.expect(result.U)
+      dut.clock.step(1)
+
+      //ToDo: add more test cases for ADD operation
+
+    }
+  }
+}
+
+class ALUSraTest extends AnyFlatSpec with ChiselScalatestTester {
+
+  def toUInt32(x: Int): BigInt = x.toLong & 0xFFFFFFFFL
+
+  "ALU_SRA_Tester" should "test SRA operation" in {
+    test(new ALU).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+      val A = -16
+      val B = 2
+      val result = A >> (B & 0x0000001F)
+      dut.clock.setTimeout(0)
+
+      dut.io.operandA.poke(toUInt32(A).U)
+      dut.io.operandB.poke(toUInt32(B).U)
+      dut.io.operation.poke(ALUOp.SRA)
+      dut.io.aluResult.expect(toUInt32(result).U)
+      dut.clock.step(1)
+
+      //ToDo: add more test cases for ADD operation
+
+    }
+  }
+}
+
+class ALUSltTest extends AnyFlatSpec with ChiselScalatestTester {
+
+  def toUInt32(x: Int): BigInt = x.toLong & 0xFFFFFFFFL
+
+  "ALU_SLT_Tester" should "test SLT operation" in {
+    test(new ALU).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+      val A = -16
+      val B = 2
+      val result = if (A > B) 1 else 0
+      dut.clock.setTimeout(0)
+
+      dut.io.operandA.poke(toUInt32(A).U)
+      dut.io.operandB.poke(toUInt32(B).U)
+      dut.io.operation.poke(ALUOp.SLT)
+      dut.io.aluResult.expect(result.U)
+      dut.clock.step(1)
+
+      //ToDo: add more test cases for ADD operation
+
+    }
+  }
+}
+
+
 // ---------------------------------------------------
 // ToDo: Add test classes for all other ALU operations
 //---------------------------------------------------
