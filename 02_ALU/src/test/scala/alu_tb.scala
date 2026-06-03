@@ -14,19 +14,39 @@ import Assignment02._
 class ALUAddTest extends AnyFlatSpec with ChiselScalatestTester {
   "ALU_Add_Tester" should "test ADD operation" in {
     test(new ALU).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-      val A = 20
-      val B = 40
-      val result = A + B
+      val A1 = 20
+      val B1 = 40
+      val result1 = A1 + B1
       dut.clock.setTimeout(0)
 
-      dut.io.operandA.poke(A.U)
-      dut.io.operandB.poke(B.U)
+      dut.io.operandA.poke(A1.U)
+      dut.io.operandB.poke(B1.U)
       dut.io.operation.poke(ALUOp.ADD)
-      dut.io.aluResult.expect(result.U)
+      dut.io.aluResult.expect(result1.U)
       dut.clock.step(1)
 
-      //ToDo: add more test cases for ADD operation
+      print(s"\nRegular addition:\n")
+      println(s"A = $A1")
+      println(s"B = $B1")
+      println(s"ALU result = ${dut.io.aluResult.peek().litValue}")
 
+      //ToDo: add more test cases for ADD operation
+      //TESTING WRAPAROUND
+
+      val A2 = BigInt("FFFFFFFF",16)
+      val B2 = 2
+      val result2 = 1
+
+      dut.io.operandA.poke(A2.U)
+      dut.io.operandB.poke(B2.U)
+      dut.io.operation.poke(ALUOp.ADD)
+      dut.io.aluResult.expect(result2.U)
+      dut.clock.step(1)
+
+      print(s"\nWraparound in addition:\n")
+      println(s"A = $A2")
+      println(s"B = $B2")
+      println(s"ALU result = ${dut.io.aluResult.peek().litValue}")
     }
   }
 }
@@ -45,7 +65,7 @@ class ALUSubTest extends AnyFlatSpec with ChiselScalatestTester {
       dut.io.operandA.poke(A.U)
       dut.io.operandB.poke(B.U)
       dut.io.operation.poke(ALUOp.SUB)
-      dut.io.aluResult.expect(result.U)
+      dut.io.aluResult.expect(wrap32(result).U)
       dut.clock.step(1)
 
       //ToDo: add more test cases for SUB operation
@@ -53,6 +73,153 @@ class ALUSubTest extends AnyFlatSpec with ChiselScalatestTester {
     }
   }
 }
+
+class ALUAndTest extends AnyFlatSpec with ChiselScalatestTester {
+  "ALU_AND_Tester" should "test AND operation" in {
+    test(new ALU).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+      val A = 45
+      val B = 37
+      val result = A & B
+      dut.clock.setTimeout(0)
+
+      dut.io.operandA.poke(A.U)
+      dut.io.operandB.poke(B.U)
+      dut.io.operation.poke(ALUOp.AND)
+      dut.io.aluResult.expect(result.U)
+      dut.clock.step(1)
+
+      //ToDo: add more test cases for ADD operation
+
+    }
+  }
+}
+
+class ALUOrTest extends AnyFlatSpec with ChiselScalatestTester {
+  "ALU_OR_Tester" should "test OR operation" in {
+    test(new ALU).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+      val A = 45
+      val B = 37
+      val result = A | B
+      dut.clock.setTimeout(0)
+
+      dut.io.operandA.poke(A.U)
+      dut.io.operandB.poke(B.U)
+      dut.io.operation.poke(ALUOp.OR)
+      dut.io.aluResult.expect(result.U)
+      dut.clock.step(1)
+
+      //ToDo: add more test cases for ADD operation
+
+    }
+  }
+}
+
+class ALUXorTest extends AnyFlatSpec with ChiselScalatestTester {
+  "ALU_XOR_Tester" should "test XOR operation" in {
+    test(new ALU).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+      val A = 45
+      val B = 37
+      val result = A ^ B
+      dut.clock.setTimeout(0)
+
+      dut.io.operandA.poke(A.U)
+      dut.io.operandB.poke(B.U)
+      dut.io.operation.poke(ALUOp.XOR)
+      dut.io.aluResult.expect(result.U)
+      dut.clock.step(1)
+
+      //ToDo: add more test cases for ADD operation
+
+    }
+  }
+}
+
+class ALUSllTest extends AnyFlatSpec with ChiselScalatestTester {
+  "ALU_SLL_Tester" should "test SLL operation" in {
+    test(new ALU).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+      val A = 10
+      val B = 16
+      val result = A << (B & 0x0000001F)
+      dut.clock.setTimeout(0)
+
+      dut.io.operandA.poke(A.U)
+      dut.io.operandB.poke(B.U)
+      dut.io.operation.poke(ALUOp.SLL)
+      dut.io.aluResult.expect(result.U)
+      dut.clock.step(1)
+
+      //ToDo: add more test cases for ADD operation
+
+    }
+  }
+}
+
+class ALUSrlTest extends AnyFlatSpec with ChiselScalatestTester {
+  "ALU_SRL_Tester" should "test SRL operation" in {
+    test(new ALU).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+      val A = 16
+      val B = 2
+      val result = A >> (B & 0x0000001F)
+      dut.clock.setTimeout(0)
+
+      dut.io.operandA.poke(A.U)
+      dut.io.operandB.poke(B.U)
+      dut.io.operation.poke(ALUOp.SRL)
+      dut.io.aluResult.expect(result.U)
+      dut.clock.step(1)
+
+      //ToDo: add more test cases for ADD operation
+
+    }
+  }
+}
+
+class ALUSraTest extends AnyFlatSpec with ChiselScalatestTester {
+
+  def toUInt32(x: Int): BigInt = x.toLong & 0xFFFFFFFFL
+
+  "ALU_SRA_Tester" should "test SRA operation" in {
+    test(new ALU).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+      val A = -16
+      val B = 2
+      val result = A >> (B & 0x0000001F)
+      dut.clock.setTimeout(0)
+
+      dut.io.operandA.poke(toUInt32(A).U)
+      dut.io.operandB.poke(toUInt32(B).U)
+      dut.io.operation.poke(ALUOp.SRA)
+      dut.io.aluResult.expect(toUInt32(result).U)
+      dut.clock.step(1)
+
+      //ToDo: add more test cases for ADD operation
+
+    }
+  }
+}
+
+class ALUSltTest extends AnyFlatSpec with ChiselScalatestTester {
+
+  def toUInt32(x: Int): BigInt = x.toLong & 0xFFFFFFFFL
+
+  "ALU_SLT_Tester" should "test SLT operation" in {
+    test(new ALU).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+      val A = -16
+      val B = 2
+      val result = if (A > B) 1 else 0
+      dut.clock.setTimeout(0)
+
+      dut.io.operandA.poke(toUInt32(A).U)
+      dut.io.operandB.poke(toUInt32(B).U)
+      dut.io.operation.poke(ALUOp.SLT)
+      dut.io.aluResult.expect(result.U)
+      dut.clock.step(1)
+
+      //ToDo: add more test cases for ADD operation
+
+    }
+  }
+}
+
 
 // ---------------------------------------------------
 // ToDo: Add test classes for all other ALU operations
