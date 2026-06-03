@@ -28,6 +28,23 @@ class ALUAddTest extends AnyFlatSpec with ChiselScalatestTester {
   }
 }
 
+class ALUSubTest extends AnyFlatSpec with ChiselScalatestTester {
+  "ALU_Sub_Tester" should "test Sub operation" in {
+    test(new ALU).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+      dut.clock.setTimeout(0)
+
+      dut.io.operandA.poke(20.U)
+      dut.io.operandB.poke(10.U)
+      dut.io.operation.poke(ALUOp.SUB)
+      dut.io.aluResult.expect(10.U)
+      dut.clock.step(1)
+
+      //ToDo: add more test cases for SUB operation
+
+    }
+  }
+}
+
 // ---------------------------------------------------
 // ToDo: Add test classes for all other ALU operations
 //---------------------------------------------------
