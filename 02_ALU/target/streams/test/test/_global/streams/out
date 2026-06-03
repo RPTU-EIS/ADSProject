@@ -1,51 +1,61 @@
-[0m[[0m[0mdebug[0m] [0m[0mRunning TaskDef(ALUSraTest, org.scalatest.tools.Framework$$anon$1@6fc75d90, false, [SuiteSelector])[0m
-[0m[[0m[0mdebug[0m] [0m[0mRunning TaskDef(ALUXorTest, org.scalatest.tools.Framework$$anon$1@6fc75d90, false, [SuiteSelector])[0m
-[0m[[0m[0mdebug[0m] [0m[0mRunning TaskDef(ALUAddTest, org.scalatest.tools.Framework$$anon$1@6fc75d90, false, [SuiteSelector])[0m
-[0m[[0m[0mdebug[0m] [0m[0mRunning TaskDef(ALUSltTest, org.scalatest.tools.Framework$$anon$1@6fc75d90, false, [SuiteSelector])[0m
-[0m[[0m[0mdebug[0m] [0m[0mRunning TaskDef(ALUSrlTest, org.scalatest.tools.Framework$$anon$1@6fc75d90, false, [SuiteSelector])[0m
-[0m[[0m[0mdebug[0m] [0m[0mRunning TaskDef(ALUSllTest, org.scalatest.tools.Framework$$anon$1@6fc75d90, false, [SuiteSelector])[0m
-[0m[[0m[0mdebug[0m] [0m[0mRunning TaskDef(ALUSubTest, org.scalatest.tools.Framework$$anon$1@6fc75d90, false, [SuiteSelector])[0m
-[0m[[0m[0mdebug[0m] [0m[0mRunning TaskDef(ALUAndTest, org.scalatest.tools.Framework$$anon$1@6fc75d90, false, [SuiteSelector])[0m
-[0m[[0m[0mdebug[0m] [0m[0mRunning TaskDef(ALUOrTest, org.scalatest.tools.Framework$$anon$1@6fc75d90, false, [SuiteSelector])[0m
+[0m[[0m[0mdebug[0m] [0m[0mRunning TaskDef(ALUXorTest, org.scalatest.tools.Framework$$anon$1@45bc80fe, false, [SuiteSelector])[0m
+[0m[[0m[0mdebug[0m] [0m[0mRunning TaskDef(ALUSltuTest, org.scalatest.tools.Framework$$anon$1@45bc80fe, false, [SuiteSelector])[0m
+[0m[[0m[0mdebug[0m] [0m[0mRunning TaskDef(ALUSrlTest, org.scalatest.tools.Framework$$anon$1@45bc80fe, false, [SuiteSelector])[0m
+[0m[[0m[0mdebug[0m] [0m[0mRunning TaskDef(ALUPassBTest, org.scalatest.tools.Framework$$anon$1@45bc80fe, false, [SuiteSelector])[0m
+[0m[[0m[0mdebug[0m] [0m[0mRunning TaskDef(ALUSraTest, org.scalatest.tools.Framework$$anon$1@45bc80fe, false, [SuiteSelector])[0m
+[0m[[0m[0mdebug[0m] [0m[0mRunning TaskDef(ALUAddTest, org.scalatest.tools.Framework$$anon$1@45bc80fe, false, [SuiteSelector])[0m
+[0m[[0m[0mdebug[0m] [0m[0mRunning TaskDef(ALUSubTest, org.scalatest.tools.Framework$$anon$1@45bc80fe, false, [SuiteSelector])[0m
+[0m[[0m[0mdebug[0m] [0m[0mRunning TaskDef(ALUSllTest, org.scalatest.tools.Framework$$anon$1@45bc80fe, false, [SuiteSelector])[0m
+[0m[[0m[0mdebug[0m] [0m[0mRunning TaskDef(ALUSltTest, org.scalatest.tools.Framework$$anon$1@45bc80fe, false, [SuiteSelector])[0m
+[0m[[0m[0mdebug[0m] [0m[0mRunning TaskDef(ALUAndTest, org.scalatest.tools.Framework$$anon$1@45bc80fe, false, [SuiteSelector])[0m
+[0m[[0m[0mdebug[0m] [0m[0mRunning TaskDef(ALUOrTest, org.scalatest.tools.Framework$$anon$1@45bc80fe, false, [SuiteSelector])[0m
+[0m[[0m[0minfo[0m] [0m[0m[32mALUSltuTest:[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32mALU_SLTU_Tester[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m- should test SLTU operation[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32mALUXorTest:[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32mALU_XOR_Tester[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m- should test XOR operation[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32mALUSrlTest:[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32mALU_SRL_Tester[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m- should test SRL operation[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32mALUPassBTest:[0m[0m
 [0m[[0m[0minfo[0m] [0m[0m[32mALUAddTest:[0m[0m
 [0m[[0m[0minfo[0m] [0m[0m[32mALU_Add_Tester[0m[0m
-[0m[[0m[0minfo[0m] [0m[0m[32mALUSllTest:[0m[0m
-[0m[[0m[0minfo[0m] [0m[0m[32mALU_SLL_Tester[0m[0m
-[0m[[0m[0minfo[0m] [0m[0m[32mALUSrlTest:[0m[0m
-[0m[[0m[0minfo[0m] [0m[0m[32m- should test SLL operation[0m[0m
-[0m[[0m[0minfo[0m] [0m[0m[32mALUXorTest:[0m[0m
-[0m[[0m[0minfo[0m] [0m[0m[32mALU_SRL_Tester[0m[0m
-[0m[[0m[0minfo[0m] [0m[0m[32mALU_XOR_Tester[0m[0m
-[0m[[0m[0minfo[0m] [0m[0m[32m- should test SRL operation[0m[0m
-[0m[[0m[0minfo[0m] [0m[0m[32m- should test XOR operation[0m[0m
 [0m[[0m[0minfo[0m] [0m[0m[32m- should test ADD operation[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32mALU_PASSB_Tester[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m- should test PASSB operation[0m[0m
 [0m[[0m[0minfo[0m] [0m[0m[32mALUOrTest:[0m[0m
 [0m[[0m[0minfo[0m] [0m[0m[32mALU_OR_Tester[0m[0m
 [0m[[0m[0minfo[0m] [0m[0m[32m- should test OR operation[0m[0m
-[0m[[0m[0minfo[0m] [0m[0m[32mALUAndTest:[0m[0m
-[0m[[0m[0minfo[0m] [0m[0m[32mALUSraTest:[0m[0m
-[0m[[0m[0minfo[0m] [0m[0m[32mALU_SRA_Tester[0m[0m
-[0m[[0m[0minfo[0m] [0m[0m[32m- should test SRA operation[0m[0m
-[0m[[0m[0minfo[0m] [0m[0m[32mALU_AND_Tester[0m[0m
-[0m[[0m[0minfo[0m] [0m[0m[32m- should test AND operation[0m[0m
-[0m[[0m[0minfo[0m] [0m[0m[32mALUSltTest:[0m[0m
-[0m[[0m[0minfo[0m] [0m[0m[32mALU_SLT_Tester[0m[0m
-[0m[[0m[0minfo[0m] [0m[0m[32m- should test SLT operation[0m[0m
 [0m[[0m[0minfo[0m] [0m[0m[32mALUSubTest:[0m[0m
 [0m[[0m[0minfo[0m] [0m[0m[32mALU_Sub_Tester[0m[0m
 [0m[[0m[0minfo[0m] [0m[0m[32m- should test Sub operation[0m[0m
-[0m[[0m[0minfo[0m] [0m[0m[36mRun completed in 3 seconds, 868 milliseconds.[0m[0m
-[0m[[0m[0minfo[0m] [0m[0m[36mTotal number of tests run: 9[0m[0m
-[0m[[0m[0minfo[0m] [0m[0m[36mSuites: completed 9, aborted 0[0m[0m
-[0m[[0m[0minfo[0m] [0m[0m[36mTests: succeeded 9, failed 0, canceled 0, ignored 0, pending 0[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32mALUSraTest:[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32mALU_SRA_Tester[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m- should test SRA operation[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32mALUSltTest:[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32mALU_SLT_Tester[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m- should test SLT operation[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32mALUSllTest:[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32mALU_SLL_Tester[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m- should test SLL operation[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32mALUAndTest:[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32mALU_AND_Tester[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m- should test AND operation[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[36mRun completed in 4 seconds, 412 milliseconds.[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[36mTotal number of tests run: 11[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[36mSuites: completed 11, aborted 0[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[36mTests: succeeded 11, failed 0, canceled 0, ignored 0, pending 0[0m[0m
 [0m[[0m[0minfo[0m] [0m[0m[32mAll tests passed.[0m[0m
 [0m[[0m[0mdebug[0m] [0m[0mPassed tests:[0m
 [0m[[0m[0mdebug[0m] [0m[0m	ALUOrTest[0m
 [0m[[0m[0mdebug[0m] [0m[0m	ALUAddTest[0m
 [0m[[0m[0mdebug[0m] [0m[0m	ALUSubTest[0m
 [0m[[0m[0mdebug[0m] [0m[0m	ALUSllTest[0m
+[0m[[0m[0mdebug[0m] [0m[0m	ALUPassBTest[0m
 [0m[[0m[0mdebug[0m] [0m[0m	ALUXorTest[0m
 [0m[[0m[0mdebug[0m] [0m[0m	ALUSltTest[0m
+[0m[[0m[0mdebug[0m] [0m[0m	ALUSltuTest[0m
 [0m[[0m[0mdebug[0m] [0m[0m	ALUSrlTest[0m
 [0m[[0m[0mdebug[0m] [0m[0m	ALUAndTest[0m
 [0m[[0m[0mdebug[0m] [0m[0m	ALUSraTest[0m

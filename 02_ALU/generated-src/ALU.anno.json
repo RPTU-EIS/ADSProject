@@ -14,6 +14,8 @@
       "XOR":4,
       "SRA":7,
       "SLL":5,
+      "SLTU":9,
+      "PASSB":10,
       "AND":2,
       "SLT":8
     }

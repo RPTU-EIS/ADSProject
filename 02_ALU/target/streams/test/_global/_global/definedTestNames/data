@@ -1,1 +1,1 @@
-["ALUOrTest","ALUAddTest","ALUSubTest","ALUSllTest","ALUXorTest","ALUSltTest","ALUSrlTest","ALUAndTest","ALUSraTest"]
+["ALUOrTest","ALUAddTest","ALUSubTest","ALUSllTest","ALUPassBTest","ALUXorTest","ALUSltTest","ALUSltuTest","ALUSrlTest","ALUAndTest","ALUSraTest"]

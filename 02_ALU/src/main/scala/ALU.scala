@@ -14,15 +14,17 @@ import chisel3.experimental.ChiselEnum
 //ToDo: define AluOp Enum
 
 object ALUOp extends ChiselEnum {
-  val ADD = Value(0.U)
-  val SUB = Value(1.U)
-  val AND = Value(2.U)
-  val OR  = Value(3.U)
-  val XOR = Value(4.U)
-  val SLL = Value(5.U)
-  val SRL = Value(6.U)
-  val SRA = Value(7.U)
-  val SLT = Value(8.U)
+  val ADD   = Value(0.U)
+  val SUB   = Value(1.U)
+  val AND   = Value(2.U)
+  val OR    = Value(3.U)
+  val XOR   = Value(4.U)
+  val SLL   = Value(5.U)
+  val SRL   = Value(6.U)
+  val SRA   = Value(7.U)
+  val SLT   = Value(8.U)
+  val SLTU  = Value(9.U)
+  val PASSB = Value(10.U)
 }
 
 class ALU extends Module {
@@ -66,8 +68,13 @@ class ALU extends Module {
     when(io.operandA.asSInt > io.operandB.asSInt){
       io.aluResult := 1.U
     }
+  }.
+  elsewhen(io.operation === ALUOp.SLTU){
+    when(io.operandA.asUInt > io.operandB.asUInt){
+      io.aluResult := 1.U
+    }
+  }.
+  elsewhen(io.operation === ALUOp.PASSB){
+    io.aluResult := io.operandB
   }
-
-  //ToDo: implement ALU functionality according to the task specification
-
 }
