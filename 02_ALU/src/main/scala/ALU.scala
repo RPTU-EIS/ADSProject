@@ -17,6 +17,9 @@ object ALUOp extends ChiselEnum {
   val ADD = Value(0.U)
   val SUB = Value(1.U)
   val AND = Value(2.U)
+  val OR  = Value(3.U)
+  val XOR = Value(4.U)
+  val SLL = Value(5.U)
 }
 
 class ALU extends Module {
@@ -33,8 +36,21 @@ class ALU extends Module {
   when(io.operation === ALUOp.ADD) {
     io.aluResult := io.operandA + io.operandB
   }.
-  elsewhen (io.operation === ALUOp.SUB){
+  elsewhen(io.operation === ALUOp.SUB){
     io.aluResult := io.operandA - io.operandB
+  }.
+  elsewhen(io.operation === ALUOp.AND){
+    io.aluResult := io.operandA & io.operandB
+  }.
+  elsewhen(io.operation === ALUOp.OR){
+    io.aluResult := io.operandA | io.operandB
+  }.
+  elsewhen(io.operation === ALUOp.XOR){
+    io.aluResult := io.operandA ^ io.operandB
+  }.
+  elsewhen(io.operation === ALUOp.SLL){
+    val shift_amount = (io.operandB & 31.U)(4,0)
+    io.aluResult := io.operandA << shift_amount
   }
 
   //ToDo: implement ALU functionality according to the task specification
