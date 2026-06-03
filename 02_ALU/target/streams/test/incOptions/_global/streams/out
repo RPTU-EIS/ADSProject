@@ -1,4 +1,4 @@
-[0m[[0m[0mdebug[0m] [0m[0mCreated transactional ClassFileManager with tempDir = /home/iman/ADSProject/02_ALU/target/scala-2.12/test-classes.bak[0m
+[0m[[0m[0mdebug[0m] [0m[0mCreated transactional ClassFileManager with tempDir = /home/felucio/Documents/ADS_I/ADS_Project/ADS_ProjectGITHUB/ADSProject/02_ALU/target/scala-2.12/test-classes.bak[0m
 [0m[[0m[0mdebug[0m] [0m[0mAbout to delete class files:[0m
 [0m[[0m[0mdebug[0m] [0m[0m	ALUSrlTest.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	ALUAddTest.class[0m
@@ -22,7 +22,13 @@
 [0m[[0m[0mdebug[0m] [0m[0m	ALUSltTest.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	ALUXorTest.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	ALUOrTest.class[0m
+<<<<<<< HEAD
 [0m[[0m[0mdebug[0m] [0m[0m	ALUPassBTest.class[0m
+=======
+[0m[[0m[0mdebug[0m] [0m[0mCreated transactional ClassFileManager with tempDir = /home/felucio/Documents/ADS_I/ADS_Project/ADS_ProjectGITHUB/ADSProject/02_ALU/target/scala-2.12/test-classes.bak[0m
+[0m[[0m[0mdebug[0m] [0m[0mAbout to delete class files:[0m
+[0m[[0m[0mdebug[0m] [0m[0mWe backup class files:[0m
+>>>>>>> 179b0ce730b73c99635eff6d906a2e4e181baf38
 [0m[[0m[0mdebug[0m] [0m[0mRegistering generated classes:[0m
 [0m[[0m[0mdebug[0m] [0m[0m	ALUSrlTest.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	ALUAddTest.class[0m
@@ -34,5 +40,9 @@
 [0m[[0m[0mdebug[0m] [0m[0m	ALUSltTest.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	ALUXorTest.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	ALUOrTest.class[0m
+<<<<<<< HEAD
 [0m[[0m[0mdebug[0m] [0m[0m	ALUPassBTest.class[0m
 [0m[[0m[0mdebug[0m] [0m[0mRemoving the temporary directory used for backing up class files: /home/iman/ADSProject/02_ALU/target/scala-2.12/test-classes.bak[0m
+=======
+[0m[[0m[0mdebug[0m] [0m[0mRemoving the temporary directory used for backing up class files: /home/felucio/Documents/ADS_I/ADS_Project/ADS_ProjectGITHUB/ADSProject/02_ALU/target/scala-2.12/test-classes.bak[0m
+>>>>>>> 179b0ce730b73c99635eff6d906a2e4e181baf38
