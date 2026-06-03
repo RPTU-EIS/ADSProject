@@ -220,6 +220,48 @@ class ALUSltTest extends AnyFlatSpec with ChiselScalatestTester {
   }
 }
 
+class ALUSltuTest extends AnyFlatSpec with ChiselScalatestTester {
+
+  def toUInt32(x: Int): BigInt = x.toLong & 0xFFFFFFFFL
+
+  "ALU_SLTU_Tester" should "test SLTU operation" in {
+    test(new ALU).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+      val A = 16
+      val B = -2
+      val result = if (toUInt32(A) > toUInt32(B)) 1 else 0
+      dut.clock.setTimeout(0)
+
+      dut.io.operandA.poke(toUInt32(A).U)
+      dut.io.operandB.poke(toUInt32(B).U)
+      dut.io.operation.poke(ALUOp.SLTU)
+      dut.io.aluResult.expect(result.U)
+      dut.clock.step(1)
+
+      //ToDo: add more test cases for ADD operation
+
+    }
+  }
+}
+
+class ALUPassBTest extends AnyFlatSpec with ChiselScalatestTester {
+  "ALU_PASSB_Tester" should "test PASSB operation" in {
+    test(new ALU).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+      val A = 16
+      val B = 2
+      val result = B
+      dut.clock.setTimeout(0)
+
+      dut.io.operandA.poke(A.U)
+      dut.io.operandB.poke(B.U)
+      dut.io.operation.poke(ALUOp.PASSB)
+      dut.io.aluResult.expect(result.U)
+      dut.clock.step(1)
+
+      //ToDo: add more test cases for ADD operation
+
+    }
+  }
+}
 
 // ---------------------------------------------------
 // ToDo: Add test classes for all other ALU operations

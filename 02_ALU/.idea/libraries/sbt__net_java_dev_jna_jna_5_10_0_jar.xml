@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="sbt: net.java.dev.jna:jna:5.10.0:jar" type="java-imported" external-system-id="SBT">
+    <properties groupId="net.java.dev.jna" artifactId="jna" version="5.10.0" baseVersion="5.10.0" />
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.cache/coursier/v1/https/repo1.maven.org/maven2/net/java/dev/jna/jna/5.10.0/jna-5.10.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.cache/coursier/v1/https/repo1.maven.org/maven2/net/java/dev/jna/jna/5.10.0/jna-5.10.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
