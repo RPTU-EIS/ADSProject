@@ -1,0 +1,49 @@
+# ─── Scala / sbt ───────────────────────────────
+target/
+project/target/
+project/project/
+.bsp/
+.metals/
+.bloop/
+*.class
+*.log
+
+# ─── IntelliJ ──────────────────────────────────
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# ─── Chisel generated output ───────────────────
+#*.fir
+*.anno.json
+
+# ─── Vivado ────────────────────────────────────
+vivado.log
+vivado.jou
+vivado_*.backup.log
+vivado_*.backup.jou
+*.log
+*.jou
+*.str
+.Xil/
+.cache/
+*.cache/
+*.hw/
+*.ip_user_files/
+*.runs/
+*.sim/
+*.gen/
+*.srcs/sources_1/imports/
+usage_statistics_webtalk.*
+webtalk*.log
+webtalk*.jou
+*.wdb
+*.wcfg
+*.pb
+*.jou.bak
+
+# ─── OS cruft ──────────────────────────────────
+.DS_Store
+Thumbs.db
