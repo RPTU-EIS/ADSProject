@@ -14,67 +14,65 @@ import chisel3.experimental.ChiselEnum
 //ToDo: define AluOp Enum
 
 object ALUOp extends ChiselEnum {
-  val ADD   = Value(0.U)
-  val SUB   = Value(1.U)
-  val AND   = Value(2.U)
-  val OR    = Value(3.U)
-  val XOR   = Value(4.U)
-  val SLL   = Value(5.U)
-  val SRL   = Value(6.U)
-  val SRA   = Value(7.U)
-  val SLT   = Value(8.U)
-  val SLTU  = Value(9.U)
+  val ADD = Value(0.U)
+  val SUB = Value(1.U)
+  val AND = Value(2.U)
+  val OR = Value(3.U)
+  val XOR = Value(4.U)
+  val SLL = Value(5.U)
+  val SRL = Value(6.U)
+  val SRA = Value(7.U)
+  val SLT = Value(8.U)
+  val SLTU = Value(9.U)
   val PASSB = Value(10.U)
 }
 
 class ALU extends Module {
 
   val io = IO(new Bundle {
-    val operandA  = Input(UInt(32.W))
-    val operandB  = Input(UInt(32.W))
+    val operandA = Input(UInt(32.W))
+    val operandB = Input(UInt(32.W))
     val operation = Input(ALUOp())
     val aluResult = Output(UInt(32.W))
   })
 
-  val shift_amount = (io.operandB & 31.U)(4,0)
+  val shift_amount = io.operandB(4, 0)
 
   io.aluResult := 0.U
 
-  when(io.operation === ALUOp.ADD) {
-    io.aluResult := io.operandA + io.operandB
-  }.
-    elsewhen(io.operation === ALUOp.SUB){
+  switch(io.operation) {
+    is(ALUOp.ADD) {
+      io.aluResult := io.operandA + io.operandB
+    }
+    is(ALUOp.SUB) {
       io.aluResult := io.operandA - io.operandB
-    }.
-    elsewhen(io.operation === ALUOp.AND){
+    }
+    is(ALUOp.AND) {
       io.aluResult := io.operandA & io.operandB
-    }.
-    elsewhen(io.operation === ALUOp.OR){
+    }
+    is(ALUOp.OR) {
       io.aluResult := io.operandA | io.operandB
-    }.
-    elsewhen(io.operation === ALUOp.XOR){
+    }
+    is(ALUOp.XOR) {
       io.aluResult := io.operandA ^ io.operandB
-    }.
-    elsewhen(io.operation === ALUOp.SLL){
+    }
+    is(ALUOp.SLL) {
       io.aluResult := io.operandA << shift_amount
-    }.
-    elsewhen(io.operation === ALUOp.SRL){
+    }
+    is(ALUOp.SRL) {
       io.aluResult := io.operandA >> shift_amount
-    }.
-    elsewhen(io.operation === ALUOp.SRA){
+    }
+    is(ALUOp.SRA) {
       io.aluResult := (io.operandA.asSInt >> shift_amount).asUInt
-    }.
-    elsewhen(io.operation === ALUOp.SLT){
-      when(io.operandA.asSInt > io.operandB.asSInt){
-        io.aluResult := 1.U
-      }
-    }.
-    elsewhen(io.operation === ALUOp.SLTU){
-      when(io.operandA.asUInt > io.operandB.asUInt){
-        io.aluResult := 1.U
-      }
-    }.
-    elsewhen(io.operation === ALUOp.PASSB){
+    }
+    is(ALUOp.SLT) {
+      io.aluResult := (io.operandA.asSInt < io.operandB.asSInt).asUInt
+    }
+    is(ALUOp.SLTU) {
+      io.aluResult := (io.operandA < io.operandB).asUInt
+    }
+    is(ALUOp.PASSB) {
       io.aluResult := io.operandB
     }
+  }
 }
