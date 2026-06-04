@@ -24,6 +24,6 @@ package alu_tb_config_pkg;
         SLT   = 8'h8,
         SLTU  = 8'h9,
         PASSB = 8'hA
-     } ALUOp;
+     } ALUop;
 
 endpackage

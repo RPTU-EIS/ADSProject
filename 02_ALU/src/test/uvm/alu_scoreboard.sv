@@ -28,7 +28,7 @@ class alu_scoreboard extends uvm_scoreboard;
     endfunction
 
     virtual function void write(alu_seq_item item);
-        ALUOp operation;
+        ALUop operation;
         bit signed [DATA_WIDTH-1:0]operandA, operandB, aluResult;
         operation = item.operation;
         operandA = item.operandA;

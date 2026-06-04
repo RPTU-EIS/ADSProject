@@ -1,0 +1,148 @@
+$date
+2026-05-29T14:50+0000
+$end
+$version
+0.2
+$end
+$comment
+
+$end
+$timescale 1ns  $end
+$scope module FullAdder $end
+ $var wire 1 ! HA2 $end
+ $var wire 1 $ HA1 $end
+ $var wire 1 ' io_b $end
+ $var wire 1 * clock $end
+ $var wire 1 , io_s $end
+ $var wire 1 - io_a $end
+ $var wire 1 . io_c_o $end
+ $var wire 1 / reset $end
+ $var wire 1 0 io_c_i $end
+  $scope module HA1 $end
+   $var wire 1 " io_b $end
+   $var wire 1 % io_s $end
+   $var wire 1 & io_a $end
+   $var wire 1 1 io_c_o $end
+  $upscope $end
+  $scope module HA2 $end
+   $var wire 1 # io_b $end
+   $var wire 1 ( io_s $end
+   $var wire 1 ) io_a $end
+   $var wire 1 + io_c_o $end
+  $upscope $end
+$upscope $end
+$enddefinitions $end
+$dumpvars
+0%
+0&
+0-
+0'
+0.
+0/
+0!
+00
+0(
+0"
+01
+0)
+0#
+0*
+0+
+0,
+0$
+$end
+#0
+1/
+#1
+1*
+#6
+0*
+0/
+#11
+1*
+#16
+10
+1#
+0*
+1(
+1,
+#21
+1*
+#26
+00
+1%
+1"
+0.
+0#
+0*
+1'
+0+
+1(
+1,
+1)
+#31
+1*
+#36
+10
+1.
+1#
+0*
+1+
+0(
+0,
+#41
+1*
+#46
+1-
+1%
+0.
+1&
+0'
+1(
+1)
+00
+0"
+01
+0#
+0*
+0+
+1,
+#51
+1*
+#56
+10
+1.
+1#
+0*
+1+
+0(
+0,
+#61
+1*
+#66
+00
+0%
+1"
+11
+0#
+0*
+1'
+0+
+0(
+0,
+0)
+#71
+1*
+#76
+10
+1#
+0*
+1(
+1,
+#81
+1*
+#86
+00
+0-
+0*
+0'

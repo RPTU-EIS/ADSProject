@@ -1,2 +1,0 @@
-[0m[[0m[31merror[0m] [0m[0mfirrtl.passes.CheckWidths$DshlTooBig:  @[ALU.scala 53:33] : [target ~ALU|ALU]  Width of dshl shift amount must be less than 20 bits.[0m
-[0m[[0m[31merror[0m] [0m[0m(Compile / [31mrun[0m) firrtl.passes.CheckWidths$DshlTooBig:  @[ALU.scala 53:33] : [target ~ALU|ALU]  Width of dshl shift amount must be less than 20 bits.[0m
