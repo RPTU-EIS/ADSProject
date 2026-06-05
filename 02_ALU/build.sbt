@@ -1,5 +1,7 @@
 scalaVersion := "2.12.13"
 
+Test / parallelExecution := false
+
 scalacOptions ++= Seq(
   "-deprecation",
   "-feature",
