@@ -77,22 +77,32 @@ class ALU extends Module {
       io.aluResult := io.operandA ^ io.operandB
     }
 
-    //CHECKING
+    //NOTHING ELSE TO DO
     is(ALUOp.SLL) {
-      io.aluResult := io.operandA << shift_amount
+      io.aluResult := (io.operandA << shift_amount)
     }
+
+    //NOTHING ELSE TO DO
     is(ALUOp.SRL) {
       io.aluResult := io.operandA >> shift_amount
     }
+
+    //NOTHING ELSE TO DO
     is(ALUOp.SRA) {
       io.aluResult := (io.operandA.asSInt >> shift_amount).asUInt
     }
+
+    //IMPLICITLY EXTENDING ZEROES TO THE 0 or 1 COMPARISON RESULT
     is(ALUOp.SLT) {
       io.aluResult := (io.operandA.asSInt < io.operandB.asSInt).asUInt
     }
+
+    //IMPLICITLY EXTENDING ZEROES TO THE 0 or 1 COMPARISON RESULT
     is(ALUOp.SLTU) {
       io.aluResult := (io.operandA < io.operandB).asUInt
     }
+
+    //JUST STRAIGHTFORWARD
     is(ALUOp.PASSB) {
       io.aluResult := io.operandB
     }
