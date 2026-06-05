@@ -113,6 +113,9 @@ class ALUAndTest extends AnyFlatSpec with ChiselScalatestTester {
       val A = 45
       val B = 37
       val result = A & B
+
+      val log = new StringBuilder
+
       dut.clock.setTimeout(0)
 
       dut.io.operandA.poke(A.U)
@@ -121,8 +124,31 @@ class ALUAndTest extends AnyFlatSpec with ChiselScalatestTester {
       dut.io.aluResult.expect(result.U)
       dut.clock.step(1)
 
+      log.append(s"\nAND - REGULAR:\n")
+      log.append(s"A = $A\n")
+      log.append(s"B = $B\n")
+      log.append(s"ALU result = ${dut.io.aluResult.peek().litValue}\n")
+
       //ToDo: add more test cases for ADD operation
 
+      val A1 = BigInt("FFFFFFFF",16)
+      val B1 = BigInt("00000001",16)
+      val result1 = A1 & B1
+
+      dut.clock.setTimeout(0)
+
+      dut.io.operandA.poke(A1.U)
+      dut.io.operandB.poke(B1.U)
+      dut.io.operation.poke(ALUOp.AND)
+      dut.io.aluResult.expect(result1.U)
+      dut.clock.step(1)
+
+      log.append(s"\nAND - VALUE 1 MASK:\n")
+      log.append(s"A = $A1\n")
+      log.append(s"B = $B1\n")
+      log.append(s"ALU result = ${dut.io.aluResult.peek().litValue}\n")
+
+      print(log.toString)
     }
   }
 }

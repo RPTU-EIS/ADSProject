@@ -14,6 +14,7 @@ import chisel3.experimental.ChiselEnum
 //ToDo: define AluOp Enum
 
 object ALUOp extends ChiselEnum {
+  //WE ARE MISSING THE CASE OF UNVALID OPCODE
   val ADD = Value(0.U)
   val SUB = Value(1.U)
   val AND = Value(2.U)
@@ -43,6 +44,8 @@ class ALU extends Module {
   io.aluResult := 0.U
   io.negativeNum := 0.U
 
+  //MISSING DEFAULT CASE FOR UNVALID OPCODE
+
   switch(io.operation) {
 
     //STRAIGHTFORWARD. NO CHANGES.
@@ -54,20 +57,27 @@ class ALU extends Module {
     //WE NEED AN ADDITIONAL OUTPUT TO LET KNOW THE NUMBER IS NEGATIVE
     //DISCUSS IN PERSON
     is(ALUOp.SUB) {
-      io.aluResult := (io.operandA - io.operandB)(31,0)
-      when(io.aluResult(31)===1.U)
+      io.aluResult := (io.operandA - io.operandB)
+      when(io.operandA < io.operandB)
         {io.negativeNum := 1.U}
     }
 
+    //CANNOT THINK ABOUT CORNER CASES. LOOKS STRAIGHTFORWARD.
     is(ALUOp.AND) {
       io.aluResult := io.operandA & io.operandB
     }
+
+    //CANNOT THINK ABOUT CORNER CASES. LOOKS STRAIGHTFORWARD.
     is(ALUOp.OR) {
       io.aluResult := io.operandA | io.operandB
     }
+
+    //CANNOT THINK ABOUT CORNER CASES. LOOKS STRAIGHTFORWARD.
     is(ALUOp.XOR) {
       io.aluResult := io.operandA ^ io.operandB
     }
+
+    //CHECKING
     is(ALUOp.SLL) {
       io.aluResult := io.operandA << shift_amount
     }
