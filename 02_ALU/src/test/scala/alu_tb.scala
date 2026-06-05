@@ -65,7 +65,7 @@ class ALUSubTest extends AnyFlatSpec with ChiselScalatestTester {
     test(new ALU).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
       val A = 20
       val B = 40
-      val result = A - B
+      val result = wrap32(A - B)
       val log = new StringBuilder
 
       dut.clock.setTimeout(0)
@@ -73,15 +73,34 @@ class ALUSubTest extends AnyFlatSpec with ChiselScalatestTester {
       dut.io.operandA.poke(A.U)
       dut.io.operandB.poke(B.U)
       dut.io.operation.poke(ALUOp.SUB)
-      dut.io.aluResult.expect(wrap32(result).U)
+      dut.io.aluResult.expect(result.U)
       dut.clock.step(1)
 
-      log.append(s"\nSUBTRACTION - REGULAR\n")
+      log.append(s"\nSUBTRACTION - REGULAR:\n")
       log.append(s"A = $A\n")
       log.append(s"B = $B\n")
       log.append(s"ALU result = ${dut.io.aluResult.peek().litValue}\n")
+      log.append(s"Negative Number = ${dut.io.negativeNum.peek().litValue}\n")
 
       //ToDo: add more test cases for SUB operation
+
+      val A1 = 128
+      val B1 = 63
+      val result1 = wrap32(A1 - B1)
+
+      dut.clock.setTimeout(0)
+
+      dut.io.operandA.poke(A1.U)
+      dut.io.operandB.poke(B1.U)
+      dut.io.operation.poke(ALUOp.SUB)
+      dut.io.aluResult.expect(result1.U)
+      dut.clock.step(1)
+
+      log.append(s"\nSUBTRACTION - POSITIVE RESULT:\n")
+      log.append(s"A = $A1\n")
+      log.append(s"B = $B1\n")
+      log.append(s"ALU result = ${dut.io.aluResult.peek().litValue}\n")
+      log.append(s"Negative Number = ${dut.io.negativeNum.peek().litValue}\n")
 
       print(log.toString())
     }

@@ -34,19 +34,31 @@ class ALU extends Module {
     val operandB = Input(UInt(32.W))
     val operation = Input(ALUOp())
     val aluResult = Output(UInt(32.W))
+
+    val negativeNum = Output(UInt(1.W))
   })
 
   val shift_amount = io.operandB(4, 0)
 
   io.aluResult := 0.U
+  io.negativeNum := 0.U
 
   switch(io.operation) {
+
+    //STRAIGHTFORWARD. NO CHANGES.
     is(ALUOp.ADD) {
       io.aluResult := io.operandA + io.operandB
     }
+
+    //FINISHED
+    //WE NEED AN ADDITIONAL OUTPUT TO LET KNOW THE NUMBER IS NEGATIVE
+    //DISCUSS IN PERSON
     is(ALUOp.SUB) {
-      io.aluResult := io.operandA - io.operandB
+      io.aluResult := (io.operandA - io.operandB)(31,0)
+      when(io.aluResult(31)===1.U)
+        {io.negativeNum := 1.U}
     }
+
     is(ALUOp.AND) {
       io.aluResult := io.operandA & io.operandB
     }
