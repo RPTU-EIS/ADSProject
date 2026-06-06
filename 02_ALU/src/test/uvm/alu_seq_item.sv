@@ -17,16 +17,16 @@ class alu_seq_item extends uvm_sequence_item;
     bit [31:0] aluResult;
 
     //ToDo: register the class with the factory
-    'uvm_object_utils_begin(alu_seq_item)
-        'uvm_field_int (operandA, UVM_DEFAULT)
-        'uvm_field_int (operandB, UVM_DEFAULT)
-        'uvm_field_enum (ALUOp, operation, UVM_DEFAULT)
-        'uvm_field_int (aluResult, UVM_DEFAULT)
-    'uvm_object_utils_end
+    `uvm_object_utils_begin(alu_seq_item)
+        `uvm_field_int (operandA, UVM_DEFAULT)
+        `uvm_field_int (operandB, UVM_DEFAULT)
+        `uvm_field_enum (ALUOp, operation, UVM_DEFAULT)
+        `uvm_field_int (aluResult, UVM_DEFAULT)
+    `uvm_object_utils_end
 
     //ToDo: add constraint for operation field
     constraint aluOP_constraint{
-        operation inside {ADD, SUB, AND, OR, XOR, SLL, SRL, SRA, SLT, SLTU, PASSB}
+        operation inside {ADD, SUB, AND, OR, XOR, SLL, SRL, SRA, SLT, SLTU, PASSB};
     }
 
     virtual function string convert2str();
