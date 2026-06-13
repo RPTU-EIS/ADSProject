@@ -59,8 +59,14 @@ import uopc._
 class PipelinedRV32Icore (BinaryFile: String) extends Module {
   val io = IO(new Bundle {
     //ToDo: Add I/O ports
-  })
 
-//ToDo: Add your implementation according to the specification above here 
+      val check_res = Output(UInt(32.W))
+      val exception = Output(Bool())
+    })
+  // Temporary outputs to allow compilation.
+  // Replace with WBBarrier outputs after pipeline integration.
+  io.check_res := 0.U
+  io.exception := false.B
+  //ToDo: Add your implementation according to the specification above here
 
 }
