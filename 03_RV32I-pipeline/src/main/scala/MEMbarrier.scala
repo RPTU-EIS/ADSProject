@@ -34,4 +34,26 @@ import chisel3._
 // MEM-Barrier
 // -----------------------------------------
 
-//ToDo: Add your implementation according to the specification above here 
+class MEMBarrier extends Module {
+  val io = IO(new Bundle {
+    val inAluResult = Input(UInt(32.W))  // Get result from memory stage path
+    val inRD        = Input(UInt(5.W))   // Get destination register
+    val inException = Input(Bool())      // Get exception flag
+
+    val outAluResult = Output(UInt(32.W))  // Send result to writeback stage
+    val outRD        = Output(UInt(5.W))   // Send destination register to writeback stage
+    val outException = Output(Bool())      // Send exception flag to writeback stage
+  })
+
+  val aluResultReg = RegInit(0.U(32.W))  // Register for result
+  val rdReg        = RegInit(0.U(5.W))   // Register for destination register
+  val exceptionReg = RegInit(false.B)    // Register for exception flag
+
+  aluResultReg := io.inAluResult  // Store result
+  rdReg        := io.inRD         // Store destination register
+  exceptionReg := io.inException  // Store exception flag
+
+  io.outAluResult := aluResultReg  // Output stored result
+  io.outRD        := rdReg         // Output stored destination register
+  io.outException := exceptionReg  // Output stored exception flag
+}

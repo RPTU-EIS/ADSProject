@@ -49,18 +49,69 @@ The goal of this task is to implement a 5-stage pipeline that features a subset 
 
 package core_tile
 
-import chisel3._
-import chisel3.util._
-import chisel3.util.experimental.loadMemoryFromFile
-import Assignment02.{ALU, ALUOp}
-import uopc._
+import chisel3._                                      // Import the basic Chisel hardware types
+import chisel3.util._                                 // Import common Chisel utilities
+import chisel3.util.experimental.loadMemoryFromFile   // Import memory file loader
+import Assignment02.{ALU, ALUOp}                      // Import ALU definitions from Assignment 02
+import uopc._                                         // Import internal operation names
 
 
 class PipelinedRV32Icore (BinaryFile: String) extends Module {
   val io = IO(new Bundle {
-    //ToDo: Add I/O ports
+    val check_res = Output(UInt(32.W))  // Send the final result to the outside tester
+    val exception = Output(Bool())      // Send the final exception flag to the outside tester
   })
 
-//ToDo: Add your implementation according to the specification above here 
+  // Create all pipeline stages and pipeline registers
+  val fetch      = Module(new IF(BinaryFile))  // Create instruction fetch stage
+  val ifBarrier  = Module(new IFBarrier())     // Create register between IF and ID
+  val decode     = Module(new ID())            // Create instruction decode stage
+  val idBarrier  = Module(new IDBarrier())     // Create register between ID and EX
+  val execute    = Module(new EX())            // Create execute stage
+  val exBarrier  = Module(new EXBarrier())     // Create register between EX and MEM
+  val memBarrier = Module(new MEMBarrier())    // Create register between MEM and WB
+  val writeback  = Module(new WB())            // Create writeback stage
+  val wbBarrier  = Module(new WBBarrier())     // Create final register for test output
+  val regs       = Module(new regFile())       // Create the register file
+
+  ifBarrier.io.inInstr := fetch.io.instr  // Move fetched instruction into the IF barrier
+
+  decode.io.instr := ifBarrier.io.outInstr        // Send instruction to decode stage
+  regs.io.req_1 := decode.io.regFileReq_A         // Connect first register read request
+  regs.io.req_2 := decode.io.regFileReq_B         // Connect second register read request
+  decode.io.regFileResp_A := regs.io.resp_1       // Return first register read data
+  decode.io.regFileResp_B := regs.io.resp_2       // Return second register read data
+
+  idBarrier.io.inUOP         := decode.io.uop          // Store decoded operation
+  idBarrier.io.inRD          := decode.io.rd           // Store destination register
+  idBarrier.io.inOperandA    := decode.io.operandA     // Store first operand
+  idBarrier.io.inOperandB    := decode.io.operandB     // Store second operand
+  idBarrier.io.inXcptInvalid := decode.io.XcptInvalid  // Store invalid flag
+
+  execute.io.uop         := idBarrier.io.outUOP          // Send operation to execute stage
+  execute.io.rd          := idBarrier.io.outRD           // Send destination register to execute stage
+  execute.io.operandA    := idBarrier.io.outOperandA     // Send first operand to execute stage
+  execute.io.operandB    := idBarrier.io.outOperandB     // Send second operand to execute stage
+  execute.io.XcptInvalid := idBarrier.io.outXcptInvalid  // Send invalid flag to execute stage
+
+  exBarrier.io.inAluResult   := execute.io.aluResult  // Store ALU result
+  exBarrier.io.inRD          := execute.io.outRD      // Store destination register
+  exBarrier.io.inXcptInvalid := execute.io.exception  // Store exception flag
+
+  memBarrier.io.inAluResult := exBarrier.io.outAluResult   // Pass ALU result through memory stage
+  memBarrier.io.inRD        := exBarrier.io.outRD          // Pass destination register through memory stage
+  memBarrier.io.inException := exBarrier.io.outXcptInvalid // Pass exception flag through memory stage
+
+  writeback.io.aluResult := memBarrier.io.outAluResult  // Send result to writeback stage
+  writeback.io.rd        := memBarrier.io.outRD         // Send destination register to writeback stage
+  writeback.io.exception := memBarrier.io.outException  // Send exception flag to writeback stage
+
+  regs.io.req_3 := writeback.io.regFileReq  // Connect writeback stage to register file write port
+
+  wbBarrier.io.inCheckRes    := writeback.io.check_res       // Store result for external checking
+  wbBarrier.io.inXcptInvalid := memBarrier.io.outException   // Store exception for external checking
+
+  io.check_res := wbBarrier.io.outCheckRes       // Output final observed result
+  io.exception := wbBarrier.io.outXcptInvalid    // Output final observed exception
 
 }

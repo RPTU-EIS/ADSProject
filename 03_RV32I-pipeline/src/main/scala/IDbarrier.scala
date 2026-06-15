@@ -39,4 +39,36 @@ import uopc._
 // ID-Barrier
 // -----------------------------------------
 
-//ToDo: Add your implementation according to the specification above here 
+class IDBarrier extends Module {
+  val io = IO(new Bundle {
+    val inUOP         = Input(uopc())      // Get decoded operation from ID stage
+    val inRD          = Input(UInt(5.W))   // Get destination register from ID stage
+    val inOperandA    = Input(UInt(32.W))  // Get first operand from ID stage
+    val inOperandB    = Input(UInt(32.W))  // Get second operand from ID stage
+    val inXcptInvalid = Input(Bool())      // Get invalid flag from ID stage
+
+    val outUOP         = Output(uopc())      // Send decoded operation to EX stage
+    val outRD          = Output(UInt(5.W))   // Send destination register to EX stage
+    val outOperandA    = Output(UInt(32.W))  // Send first operand to EX stage
+    val outOperandB    = Output(UInt(32.W))  // Send second operand to EX stage
+    val outXcptInvalid = Output(Bool())      // Send invalid flag to EX stage
+  })
+
+  val uopReg       = RegInit(uopc.NOP)    // Register for the decoded operation
+  val rdReg        = RegInit(0.U(5.W))    // Register for the destination register
+  val operandAReg  = RegInit(0.U(32.W))   // Register for the first operand
+  val operandBReg  = RegInit(0.U(32.W))   // Register for the second operand
+  val invalidReg   = RegInit(false.B)     // Register for the invalid flag
+
+  uopReg      := io.inUOP
+  rdReg       := io.inRD
+  operandAReg := io.inOperandA
+  operandBReg := io.inOperandB
+  invalidReg  := io.inXcptInvalid
+
+  io.outUOP         := uopReg       // Output stored operation
+  io.outRD          := rdReg        // Output stored destination
+  io.outOperandA    := operandAReg  // Output stored first operand
+  io.outOperandB    := operandBReg  // Output stored second operand
+  io.outXcptInvalid := invalidReg   // Output stored invalid flag
+}
