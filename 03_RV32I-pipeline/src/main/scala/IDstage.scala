@@ -47,7 +47,7 @@ import uopc._
 
 //ToDo: Add your implementation according to the specification above here
 
-class IDstage extends Module {
+class IDStage extends Module {
   val io = IO(new Bundle {
 
     val instr = Input(UInt(32.W))
@@ -58,6 +58,13 @@ class IDstage extends Module {
     val operandA = Output(UInt(32.W))
     val operandB = Output(UInt(32.W))
     val XcptInvalid = Output(Bool())
+
+
+    //Ports For FeedBack for WB stage
+    val wb_req_en = Input(Bool())
+    val wb_req_addr = Input(UInt(5.W))
+    val wb_req_data = Input(UInt(32.W))
+
   })
 
   val regFile = Module(new regFile)
@@ -68,10 +75,11 @@ class IDstage extends Module {
   //Register Interfaces
   regFile.io.req_1.addr := rs1
   regFile.io.req_2.addr := rs2
-  //Write port is not used here
-  regFile.io.req_3.wr_en := false.B
-  regFile.io.req_3.addr := 0.U
-  regFile.io.req_3.data := 0.U
+  
+  // Connecting the feedback loop
+  regFile.io.req_3.wr_en := io.wb_req_en
+  regFile.io.req_3.addr  := io.wb_req_addr
+  regFile.io.req_3.data  := io.wb_req_data
 
 
   //Extraction

@@ -40,7 +40,7 @@ import uopc._
 // -----------------------------------------
 
 //ToDo: Add your implementation according to the specification above here 
-class IDbarrier extends Module {
+class IDBarrier extends Module {
   val io = IO(new Bundle {
     val inUOP = Input(uopc.Type())
     val inRD = Input(UInt(5.W))
