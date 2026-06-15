@@ -21,10 +21,14 @@ This enum is used throughout the pipeline:
 package core_tile
 
 import chisel3._
+import chisel3.util._
 import chisel3.experimental.ChiselEnum
 
-// -----------------------------------------
-// Global Definitions and Data Types
-// -----------------------------------------
+object ImmGen {
+  //Sign-extends the 12-bit I-type immediate instruction to a full 32-bit value
 
-//ToDo: Add your implementation according to the specification above here 
+  def iTypeImme(instr: UInt): UInt = {
+    val imm12 = instr(31,20)
+    Cat(Fill(20, imm12(11)), imm12).asUInt
+  }
+}
