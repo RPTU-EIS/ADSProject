@@ -45,4 +45,62 @@ import uopc._
 // Decode Stage
 // -----------------------------------------
 
-//ToDo: Add your implementation according to the specification above here 
+class ID extends Module {
+  val io = IO(new Bundle {
+    val instr         = Input(UInt(32.W))
+    val regFileReq_A  = Output(new regFileReadReq)
+    val regFileResp_A = Input(new regFileReadResp)
+    val regFileReq_B  = Output(new regFileReadReq)
+    val regFileResp_B = Input(new regFileReadResp)
+    val uop           = Output(uopc())
+    val rd            = Output(UInt(5.W))
+    val operandA      = Output(UInt(32.W))
+    val operandB      = Output(UInt(32.W))
+    val XcptInvalid   = Output(Bool())
+  })
+
+  val opcode = io.instr(6,  0)
+  val rdF    = io.instr(11, 7)
+  val funct3 = io.instr(14, 12)
+  val rs1    = io.instr(19, 15)
+  val rs2    = io.instr(24, 20)
+  val funct7 = io.instr(31, 25)
+  val imm    = Cat(Fill(20, io.instr(31)), io.instr(31, 20))
+
+  io.regFileReq_A.addr := rs1
+  io.regFileReq_B.addr := rs2
+
+  io.uop         := uopc.isNOP
+  io.rd          := rdF
+  io.operandA    := io.regFileResp_A.data
+  io.operandB    := io.regFileResp_B.data
+  io.XcptInvalid := false.B
+
+  when(opcode === "b0110011".U) {
+    when(funct3 === "b000".U && funct7 === "b0000000".U)      { io.uop := uopc.isADD  }
+    .elsewhen(funct3 === "b000".U && funct7 === "b0100000".U) { io.uop := uopc.isSUB  }
+    .elsewhen(funct3 === "b001".U && funct7 === "b0000000".U) { io.uop := uopc.isSLL  }
+    .elsewhen(funct3 === "b010".U && funct7 === "b0000000".U) { io.uop := uopc.isSLT  }
+    .elsewhen(funct3 === "b011".U && funct7 === "b0000000".U) { io.uop := uopc.isSLTU }
+    .elsewhen(funct3 === "b100".U && funct7 === "b0000000".U) { io.uop := uopc.isXOR  }
+    .elsewhen(funct3 === "b101".U && funct7 === "b0000000".U) { io.uop := uopc.isSRL  }
+    .elsewhen(funct3 === "b101".U && funct7 === "b0100000".U) { io.uop := uopc.isSRA  }
+    .elsewhen(funct3 === "b110".U && funct7 === "b0000000".U) { io.uop := uopc.isOR   }
+    .elsewhen(funct3 === "b111".U && funct7 === "b0000000".U) { io.uop := uopc.isAND  }
+    .otherwise                                                 { io.XcptInvalid := true.B }
+  }.elsewhen(opcode === "b0010011".U) {
+    io.operandB := imm
+    when(funct3 === "b000".U)                                  { io.uop := uopc.isADDI  }
+    .elsewhen(funct3 === "b010".U)                             { io.uop := uopc.isSLTI  }
+    .elsewhen(funct3 === "b011".U)                             { io.uop := uopc.isSLTIU }
+    .elsewhen(funct3 === "b100".U)                             { io.uop := uopc.isXORI  }
+    .elsewhen(funct3 === "b110".U)                             { io.uop := uopc.isORI   }
+    .elsewhen(funct3 === "b111".U)                             { io.uop := uopc.isANDI  }
+    .elsewhen(funct3 === "b001".U && funct7 === "b0000000".U)  { io.uop := uopc.isSLLI  }
+    .elsewhen(funct3 === "b101".U && funct7 === "b0000000".U)  { io.uop := uopc.isSRLI  }
+    .elsewhen(funct3 === "b101".U && funct7 === "b0100000".U)  { io.uop := uopc.isSRAI  }
+    .otherwise                                                 { io.XcptInvalid := true.B }
+  }.otherwise {
+    io.XcptInvalid := true.B
+  }
+}
