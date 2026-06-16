@@ -50,14 +50,14 @@ class ID extends Module{
         val inst = Input(UInt(32.W)) 
     })
 
-    val opcode = io.inst(6,0)
-    val funct3 = io.inst(14,12)
-    val funct7 = io.inst(31,25)
-    val rs1 = io.inst(19,15)
-    val rs2 = io.inst(24,20)
-    val rd = io.inst(11,7)
-    val i_imm = io.inst(31,20)
-    val s_imm = Cat(io.inst(31,25), io.inst(11,7))
-    val u_imm = io.inst(31,12)
+    val opcode  = io.inst(6,0)
+    val funct3  = io.inst(14,12)
+    val funct7  = io.inst(31,25)
+    val rs1     = io.inst(19,15)
+    val rs2     = io.inst(24,20)
+    val rd      = io.inst(11,7)
+    val i_imm   = io.inst(31,20)
+    val s_imm   = Cat(io.inst(31,25), io.inst(11,7))
+    val u_imm   = io.inst(31,12)
 //ToDo: Add your implementation according to the specification above here 
 }
