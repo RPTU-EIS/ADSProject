@@ -39,4 +39,12 @@ import uopc._
 // ID-Barrier
 // -----------------------------------------
 
+class ID extends Module{
+    val io = IO(new Bundle{
+
+        val operandA_in = Output(UInt(32.W))
+        val operandB_in = Output(UInt(32.W))
+    })
+
 //ToDo: Add your implementation according to the specification above here 
+}
