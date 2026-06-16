@@ -47,9 +47,15 @@ import uopc._
 
 class ID extends Module{
     val io = IO(new Bundle{
-        val inst = Input(UInt(32.W)) 
+        val inst = Input(UInt(32.W))
+        val w_en = Bool()
+        val write_data = Input(UInt(32.W)) 
+
+        val operandA = Output(UInt(32.W))
+        val operandB = Output(UInt(32.W))
     })
 
+//ToDo: Add your implementation according to the specification above here 
     val opcode  = io.inst(6,0)
     val funct3  = io.inst(14,12)
     val funct7  = io.inst(31,25)
@@ -59,5 +65,15 @@ class ID extends Module{
     val i_imm   = io.inst(31,20)
     val s_imm   = Cat(io.inst(31,25), io.inst(11,7))
     val u_imm   = io.inst(31,12)
-//ToDo: Add your implementation according to the specification above here 
+
+    val rf = Module(new regFile)
+
+    rf.io.req_1.addr := rs1
+    rf.io.req_2.addr := rs2
+    rf.io.req_3.addr := rd
+    rf.io.req_3.w_en := io.w_en
+    rf.io.req_3.data := io.write_data
+
+    io.operandA = rf.io.resp_1.data
+    io.operandB = rf.io.resp_2.data
 }
