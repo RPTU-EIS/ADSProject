@@ -25,11 +25,11 @@ Ports:
     req_3: write port
         req_3.addr: write destination address
         req_3.data: data to write
-        req_3.wr_en: write enable signal
+        req_3.w_en: write enable signal
 
 Functionality:
     Two read ports allow simultaneous reading of two operands
-    Synchronous write updates register if wr_en is asserted
+    Synchronous write updates register if w_en is asserted
 */
 
 // -----------------------------------------
@@ -47,27 +47,25 @@ class regFileReadResp extends Bundle {
 class regFileWriteReq extends Bundle {
   val addr  = UInt(5.W)
   val data  = UInt(32.W)
-  val wr_en = Bool()
+  val w_en = Bool()
 }
 
 class regFile extends Module {
-  val io = IO(new Bundle {
-    val req_1 = Input(new regFileReadReq)
-    val resp_1 = Output(new regFileReadResp)
+    val io = IO(new Bundle {
+        val req_1  = Input(new regFileReadReq)
+        val req_2  = Input(new regFileReadReq)
+        val req_3  = Input(new regFileWriteReq)
 
-    val req_2 = Input(new regFileReadReq)
-    val resp_2 = Output(new regFileReadResp)
+        val resp_1 = Output(new regFileReadResp)
+        val resp_2 = Output(new regFileReadResp)
+    })
 
-    val req_3 = Input(new regFileWriteReq)
-  })
+    val regFile = RegInit(VecInit(Seq.fill(32)(0.U(32.W))))
 
-  // 32 registers, 32-bit each
-  val regFile = RegInit(VecInit(Seq.fill(32)(0.U(32.W))))
+    io.resp_1.data := Mux(io.req_1.addr === 0.U, 0.U, regFile(io.req_1.addr))
+    io.resp_2.data := Mux(io.req_2.addr === 0.U, 0.U, regFile(io.req_2.addr))
 
-  io.resp_1.data := Mux(io.req_1.addr === 0.U, 0.U, regFile(io.req_1.addr))
-  io.resp_2.data := Mux(io.req_2.addr === 0.U, 0.U, regFile(io.req_2.addr))
-
-  when(io.req_3.wr_en && io.req_3.addr =/= 0.U) {
-    regFile(io.req_3.addr) := io.req_3.data
-  }
+    when(io.req_3.w_en && io.req_3.addr =/= 0.U) {
+        regFile(io.req_3.addr) := io.req_3.data
+    }
 }

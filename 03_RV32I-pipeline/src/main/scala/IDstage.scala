@@ -47,12 +47,14 @@ import uopc._
 
 class ID extends Module{
     val io = IO(new Bundle{
-        val inst = Input(UInt(32.W))
-        val w_en = Bool()
-        val write_data = Input(UInt(32.W)) 
-
-        val operandA = Output(UInt(32.W))
-        val operandB = Output(UInt(32.W))
+        val inst        = Input(UInt(32.W))
+        val w_en        = Input(Bool())
+        val rd_in       = Input(UInt(5.W))
+        val write_data  = Input(UInt(32.W)) 
+        
+        val rd_out      = Output(UInt(5.W))
+        val operandA    = Output(UInt(32.W))
+        val operandB    = Output(UInt(32.W))
     })
 
 //ToDo: Add your implementation according to the specification above here 
@@ -70,10 +72,10 @@ class ID extends Module{
 
     rf.io.req_1.addr := rs1
     rf.io.req_2.addr := rs2
-    rf.io.req_3.addr := rd
+    rf.io.req_3.addr := io.rd_in
     rf.io.req_3.w_en := io.w_en
     rf.io.req_3.data := io.write_data
 
-    io.operandA = rf.io.resp_1.data
-    io.operandB = rf.io.resp_2.data
+    io.operandA := rf.io.resp_1.data
+    io.operandB := rf.io.resp_2.data
 }
