@@ -42,9 +42,21 @@ import uopc._
 class ID extends Module{
     val io = IO(new Bundle{
 
-        val operandA_in = Output(UInt(32.W))
-        val operandB_in = Output(UInt(32.W))
+        val operandA_in = Input(UInt(32.W))
+        val operandB_in = Input(UInt(32.W))
+
+        val operandA_out = Output(UInt(32.W))
+        val operandB_out = Output(UInt(32.W))
     })
 
 //ToDo: Add your implementation according to the specification above here 
+
+    val operandA_reg = RegInit(0.U(32.W))
+    val operandB_reg = RegInit(0.U(32.W))
+
+    operandA_reg := io.operandA_in
+    operandB_reg := io.operandB_in
+
+    io.operandA_out := operandA_reg
+    io.operandB_out := operandB_reg
 }
