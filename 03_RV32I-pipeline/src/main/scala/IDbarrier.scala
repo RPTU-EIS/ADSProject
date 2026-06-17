@@ -40,3 +40,43 @@ import uopc._
 // -----------------------------------------
 
 //ToDo: Add your implementation according to the specification above here 
+
+
+class IDBarrier extends Module {
+  val io = IO(new Bundle {
+    // Inputs from ID stage
+    val inUOP          = Input(uopc())
+    val inRD           = Input(UInt(5.W))
+    val inOperandA     = Input(UInt(32.W))
+    val inOperandB     = Input(UInt(32.W))
+    val inXcptInvalid  = Input(Bool())
+
+    // Outputs to EX stage
+    val outUOP         = Output(uopc())
+    val outRD          = Output(UInt(5.W))
+    val outOperandA    = Output(UInt(32.W))
+    val outOperandB    = Output(UInt(32.W))
+    val outXcptInvalid = Output(Bool())
+  })
+
+  // --- Pipeline registers, all initialized to 0/NOP ---
+  val uopReg         = RegInit(NOP)
+  val rdReg          = RegInit(0.U(5.W))
+  val operandAReg    = RegInit(0.U(32.W))
+  val operandBReg    = RegInit(0.U(32.W))
+  val XcptInvalidReg = RegInit(false.B)
+
+  // --- Capture inputs on every rising clock edge ---
+  uopReg         := io.inUOP
+  rdReg          := io.inRD
+  operandAReg    := io.inOperandA
+  operandBReg    := io.inOperandB
+  XcptInvalidReg := io.inXcptInvalid
+
+  // --- Drive outputs from registers ---
+  io.outUOP         := uopReg
+  io.outRD          := rdReg
+  io.outOperandA    := operandAReg
+  io.outOperandB    := operandBReg
+  io.outXcptInvalid := XcptInvalidReg
+}
