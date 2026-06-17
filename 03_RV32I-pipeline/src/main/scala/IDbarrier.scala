@@ -41,17 +41,17 @@ import uopc._
 
 class IDBarrier extends Module{
     val io = IO(new Bundle{
-        val uop_in          = Input(uopc())
-        val XcptInvalid_in  = Input(Bool())
-        val rd_in           = Input(UInt(5.W))
-        val operandA_in     = Input(UInt(32.W))
-        val operandB_in     = Input(UInt(32.W))
+        val inUOP          = Input(uopc())
+        val inRD           = Input(UInt(5.W))
+        val inOperandA     = Input(UInt(32.W))
+        val inOperandB     = Input(UInt(32.W))
+        val inXcptInvalid  = Input(Bool())
         
-        val uop_out         = Output(uopc())
-        val XcptInvalid_out = Output(Bool())
-        val rd_out          = Output(UInt(5.W))
-        val operandA_out    = Output(UInt(32.W))
-        val operandB_out    = Output(UInt(32.W))
+        val outUOP         = Output(uopc())
+        val outRD          = Output(UInt(5.W))
+        val outOperandA    = Output(UInt(32.W))
+        val outOperandB    = Output(UInt(32.W))
+        val outXcptInvalid = Output(Bool())
     })
 
 //ToDo: Add your implementation according to the specification above here 
@@ -62,15 +62,15 @@ class IDBarrier extends Module{
     val operandA_reg = RegInit(0.U(32.W))
     val operandB_reg = RegInit(0.U(32.W))
 
-    uop_reg      := io.uop_in
-    XcptInvalid  := io.XcptInvalid_in
-    rd_reg       := io.rd_in
-    operandA_reg := io.operandA_in
-    operandB_reg := io.operandB_in
+    uop_reg      := io.inUOP
+    rd_reg       := io.inRD
+    operandA_reg := io.inOperandA
+    operandB_reg := io.inOperandB
+    XcptInvalid  := io.inXcptInvalid
 
-    io.uop_out          := uop_reg
-    io.XcptInvalid_out  := XcptInvalid
-    io.rd_out           := rd_reg
-    io.operandA_out     := operandA_reg
-    io.operandB_out     := operandB_reg
+    io.outUOP          := uop_reg
+    io.outXcptInvalid  := XcptInvalid
+    io.outRD           := rd_reg
+    io.outOperandA     := operandA_reg
+    io.outOperandB     := operandB_reg
 }
