@@ -57,42 +57,40 @@ import uopc._
 
 
 class PipelinedRV32Icore (BinaryFile: String) extends Module {
-  val io = IO(new Bundle {
-    //ToDo: Add I/O ports
-
+    val io = IO(new Bundle {
+        //ToDo: Add I/O ports
   })
 //ToDo: Add your implementation according to the specification above here 
 
-  val IFstage = Module(new IF(BinaryFile: String))
-  val IFbarrier = Module(new IFBarrier)
+    val IFstage = Module(new IF(BinaryFile: String))
+    val IFbarrier = Module(new IFBarrier)
 
-  val IDstage = Module(new ID)
-  val IDbarrier = Module(new IDBarrier)
+    val IDstage = Module(new ID)
+    val IDbarrier = Module(new IDBarrier)
 
-  val EXstage = Module(new EXstage)
- // val EXbarrier = Module(new )
+    val EXstage = Module(new EXstage)
+    val EXbarrier = Module(new )
 
-  val MEMstage = Module(new MEM)
-  val MEMbarrier = Module(new MEMbarrier)
+    val MEMstage = Module(new MEM)
+    val MEMbarrier = Module(new MEMbarrier)
 
-  //val WBstage = Module(new )
-  //val WBbarrier = Module(new )
+    //val WBstage = Module(new )
+    //val WBbarrier = Module(new )
 
-  //IF STAGE & BARRIER WERKS
-  IFstage.io.inst := IFbarrier.io.inInstr
+    //IF STAGE & BARRIER WERKS
+    IFstage.io.inst := IFbarrier.io.inInstr
 
-  //ID STAGE
-  IDstage.io.inst := IFbarrier.io.outInstr//DO NOT KNOW WHAT TO DO WITH OTHER INPUTS INSIDE IDSTAGE
+    //ID STAGE
+    IDstage.io.inst := IFbarrier.io.outInstr//DO NOT KNOW WHAT TO DO WITH OTHER INPUTS INSIDE IDSTAGE
 
-  //ID BARRIER
-  IDstage.io.uop := IDbarrier.io.inUOP
-  IDstage.io.rd_out := IDbarrier.io.inRD
-  IDstage.io.XcptInvalid := IDbarrier.io.inXcptInvalid
-  IDstage.io.operandA := IDbarrier.io.inOperandA
-  IDstage.io.operandB := IDbarrier.io.inOperandB
+    //ID BARRIER
+    IDstage.io.uop := IDbarrier.io.inUOP
+    IDstage.io.rd_out := IDbarrier.io.inRD
+    IDstage.io.XcptInvalid := IDbarrier.io.inXcptInvalid
+    IDstage.io.operandA := IDbarrier.io.inOperandA
+    IDstage.io.operandB := IDbarrier.io.inOperandB
 
-  //EX STAGE
-  EXstage.io.operandA := IDbarrier.io.outOperandA
-  EXstage.io.operandB := IDbarrier.io.outOperandB
-
+    //EX STAGE
+    EXstage.io.operandA := IDbarrier.io.outOperandA
+    EXstage.io.operandB := IDbarrier.io.outOperandB
 }
