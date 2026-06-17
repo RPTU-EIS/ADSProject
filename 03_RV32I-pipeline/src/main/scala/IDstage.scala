@@ -99,49 +99,49 @@ class ID extends Module{
     val OPC_R = "b0110011".U
     val OPC_I = "b0010011".U
 
-    io.uop := Op.INVALID
-    io.XcptInvalid := true.B
+    val uop = WireDefault(Op.INVALID)
+    val XcptInvalid = WireDefault(true.B)
 
     switch(opcode){
         is(OPC_R){
             when(funct3 === "b000".U && funct7 === "b0000000".U) {
-                io.uop := Op.ADD
-                io.XcptInvalid := false.B
+                uop := Op.ADD
+                XcptInvalid := false.B
             }
             .elsewhen(funct3 === "b000".U && funct7 === "b0100000".U) {
-                io.uop := Op.SUB
-                io.XcptInvalid := false.B
+                uop := Op.SUB
+                XcptInvalid := false.B
             }
             .elsewhen(funct3 === "b100".U && funct7 === "b0000000".U) {
-                io.uop := Op.XOR
-                io.XcptInvalid := false.B
+                uop := Op.XOR
+                XcptInvalid := false.B
             }
             .elsewhen(funct3 === "b110".U && funct7 === "b0000000".U) {
-                io.uop := Op.OR
-                io.XcptInvalid := false.B
+                uop := Op.OR
+                XcptInvalid := false.B
             }
             .elsewhen(funct3 === "b111".U && funct7 === "b0000000".U) {
-                io.uop := Op.AND
-                io.XcptInvalid := false.B
+                uop := Op.AND
+                XcptInvalid := false.B
             }
         }
         is(OPC_I){
             switch(funct3) {
                 is("b000".U) {
-                    io.uop := Op.ADDI
-                    io.XcptInvalid := false.B
+                    uop := Op.ADDI
+                    XcptInvalid := false.B
                 }
                 is("b100".U) {
-                    io.uop := Op.XORI
-                    io.XcptInvalid := false.B
+                    uop := Op.XORI
+                    XcptInvalid := false.B
                 }
                 is("b110".U) {
-                    io.uop := Op.ORI
-                    io.XcptInvalid := false.B
+                    uop := Op.ORI
+                    XcptInvalid := false.B
                 }
                 is("b111".U) {
-                    io.uop := Op.ANDI
-                    io.XcptInvalid := false.B
+                    uop := Op.ANDI
+                    XcptInvalid := false.B
                 }
             }
         }
@@ -163,4 +163,6 @@ class ID extends Module{
     }
 
     io.rd_out := rd
+    io.uop := uop
+    io.XcptInvalid := XcptInvalid
 }
