@@ -69,10 +69,10 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
     val IDbarrier = Module(new IDBarrier)
 
     val EXstage = Module(new EXstage)
-    val EXbarrier = Module(new )
+    val EXbarrier = Module(new EXBarrier)
 
-    val MEMstage = Module(new MEM)
-    val MEMbarrier = Module(new MEMbarrier)
+    // val MEMstage = Module(new MEM)
+    val MEMbarrier = Module(new MEMBarrier)
 
     //val WBstage = Module(new )
     //val WBbarrier = Module(new )
@@ -81,7 +81,7 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
     IFstage.io.inst := IFbarrier.io.inInstr
 
     //ID STAGE
-    IDstage.io.inst := IFbarrier.io.outInstr//DO NOT KNOW WHAT TO DO WITH OTHER INPUTS INSIDE IDSTAGE
+    IDstage.io.inst := IFbarrier.io.outInstr
 
     //ID BARRIER
     IDstage.io.uop := IDbarrier.io.inUOP
@@ -91,6 +91,17 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
     IDstage.io.operandB := IDbarrier.io.inOperandB
 
     //EX STAGE
+    EXstage.io.uop      := IDbarrier.io.outUOP
+    EXstage.io.rd       := IDbarrier.io.outRD
     EXstage.io.operandA := IDbarrier.io.outOperandA
     EXstage.io.operandB := IDbarrier.io.outOperandB
+
+    EXbarrier.io.inAluResult    := EXstage.io.aluResult
+    EXbarrier.io.inRD           := EXstage.io.rd
+    EXbarrier.io.inXcptInvalid  := EXstage.exception
+
+    //MEM STAGE (As it is empty, we connect MEM reg to EXE reg)
+    MEMbarrier.io.inALUResult := EXbarrier.io.outALUResult
+    MEMbarrier.io.inRD        := EXbarrier.io.outRD
+    MEMbarrier.io.inException := EXbarrier.io.outXcptInvalid
 }
