@@ -75,48 +75,48 @@ class ID extends Module{
     val OPC_R = "b0110011".U
     val OPC_I = "b0010011".U
 
-    val uop = WireDefault(Op.INVALID)
+    val uop = WireDefault(uopc.INVALID)
     val XcptInvalid = WireDefault(true.B)
 
     switch(opcode){
         is(OPC_R){
             when(funct3 === "b000".U && funct7 === "b0000000".U) {
-                uop := Op.ADD
+                uop := uopc.ADD
                 XcptInvalid := false.B
             }
             .elsewhen(funct3 === "b000".U && funct7 === "b0100000".U) {
-                uop := Op.SUB
+                uop := uopc.SUB
                 XcptInvalid := false.B
             }
             .elsewhen(funct3 === "b100".U && funct7 === "b0000000".U) {
-                uop := Op.XOR
+                uop := uopc.XOR
                 XcptInvalid := false.B
             }
             .elsewhen(funct3 === "b110".U && funct7 === "b0000000".U) {
-                uop := Op.OR
+                uop := uopc.OR
                 XcptInvalid := false.B
             }
             .elsewhen(funct3 === "b111".U && funct7 === "b0000000".U) {
-                uop := Op.AND
+                uop := uopc.AND
                 XcptInvalid := false.B
             }
         }
         is(OPC_I){
             switch(funct3) {
                 is("b000".U) {
-                    uop := Op.ADDI
+                    uop := uopc.ADDI
                     XcptInvalid := false.B
                 }
                 is("b100".U) {
-                    uop := Op.XORI
+                    uop := uopc.XORI
                     XcptInvalid := false.B
                 }
                 is("b110".U) {
-                    uop := Op.ORI
+                    uop := uopc.ORI
                     XcptInvalid := false.B
                 }
                 is("b111".U) {
-                    uop := Op.ANDI
+                    uop := uopc.ANDI
                     XcptInvalid := false.B
                 }
             }
