@@ -40,30 +40,6 @@ package core_tile
 import chisel3._
 import chisel3.util._
 import uopc._
-import chisel3.experimental.ChiselEnum
-
-object Op extends ChiselEnum {
-    val INVALID = Value(0.U)
-
-    val ADD  = Value(1.U)
-    val SUB  = Value(2.U)
-    val XOR  = Value(3.U)
-    val OR   = Value(4.U)
-    val AND  = Value(5.U)
-
-    val ADDI = Value(6.U)
-    val XORI = Value(7.U)
-    val ORI  = Value(8.U)
-    val ANDI = Value(9.U)
-
-    val LW   = Value(10.U)
-    val SW   = Value(11.U)
-
-    val BEQ  = Value(12.U)
-    val BNE  = Value(13.U)
-
-    val LUI  = Value(14.U)
-}
 
 // -----------------------------------------
 // Decode Stage
@@ -76,7 +52,7 @@ class ID extends Module{
         val rd_in       = Input(UInt(5.W))
         val write_data  = Input(UInt(32.W)) 
         
-        val uop         = Output(Op())
+        val uop         = Output(uopc())
         val rd_out      = Output(UInt(5.W))
         val operandA    = Output(UInt(32.W))
         val operandB    = Output(UInt(32.W))
@@ -99,48 +75,48 @@ class ID extends Module{
     val OPC_R = "b0110011".U
     val OPC_I = "b0010011".U
 
-    io.uop := Op.INVALID
+    io.uop := uopc.INVALID
     io.XcptInvalid := true.B
 
     switch(opcode){
         is(OPC_R){
             when(funct3 === "b000".U && funct7 === "b0000000".U) {
-                io.uop := Op.ADD
+                io.uop := uopc.ADD
                 io.XcptInvalid := false.B
             }
             .elsewhen(funct3 === "b000".U && funct7 === "b0100000".U) {
-                io.uop := Op.SUB
+                io.uop := uopc.SUB
                 io.XcptInvalid := false.B
             }
             .elsewhen(funct3 === "b100".U && funct7 === "b0000000".U) {
-                io.uop := Op.XOR
+                io.uop := uopc.XOR
                 io.XcptInvalid := false.B
             }
             .elsewhen(funct3 === "b110".U && funct7 === "b0000000".U) {
-                io.uop := Op.OR
+                io.uop := uopc.OR
                 io.XcptInvalid := false.B
             }
             .elsewhen(funct3 === "b111".U && funct7 === "b0000000".U) {
-                io.uop := Op.AND
+                io.uop := uopc.AND
                 io.XcptInvalid := false.B
             }
         }
         is(OPC_I){
             switch(funct3) {
                 is("b000".U) {
-                    io.uop := Op.ADDI
+                    io.uop := uopc.ADDI
                     io.XcptInvalid := false.B
                 }
                 is("b100".U) {
-                    io.uop := Op.XORI
+                    io.uop := uopc.XORI
                     io.XcptInvalid := false.B
                 }
                 is("b110".U) {
-                    io.uop := Op.ORI
+                    io.uop := uopc.ORI
                     io.XcptInvalid := false.B
                 }
                 is("b111".U) {
-                    io.uop := Op.ANDI
+                    io.uop := uopc.ANDI
                     io.XcptInvalid := false.B
                 }
             }
