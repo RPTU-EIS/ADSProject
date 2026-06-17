@@ -63,45 +63,49 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
 //ToDo: Add your implementation according to the specification above here 
 
     val IFstage = Module(new IF(BinaryFile: String))
-    val IFbarrier = Module(new IFBarrier)
+    val IFBarrier = Module(new IFBarrier)
 
     val IDstage = Module(new ID)
-    val IDbarrier = Module(new IDBarrier)
+    val IDBarrier = Module(new IDBarrier)
 
     val EXstage = Module(new EXstage)
-    val EXbarrier = Module(new EXBarrier)
+    val EXBarrier = Module(new EXBarrier)
 
     // val MEMstage = Module(new MEM)
-    val MEMbarrier = Module(new MEMBarrier)
+    val MEMBarrier = Module(new MEMBarrier)
 
-    //val WBstage = Module(new )
+    val WBstage = Module(new WBstage)
     //val WBbarrier = Module(new )
 
     //IF STAGE & BARRIER WERKS
-    IFstage.io.inst := IFbarrier.io.inInstr
+    IFstage.io.inst := IFBarrier.io.inInstr
 
     //ID STAGE
-    IDstage.io.inst := IFbarrier.io.outInstr
+    IDstage.io.inst := IFBarrier.io.outInstr
 
     //ID BARRIER
-    IDstage.io.uop := IDbarrier.io.inUOP
-    IDstage.io.rd_out := IDbarrier.io.inRD
-    IDstage.io.XcptInvalid := IDbarrier.io.inXcptInvalid
-    IDstage.io.operandA := IDbarrier.io.inOperandA
-    IDstage.io.operandB := IDbarrier.io.inOperandB
+    IDstage.io.uop := IDBarrier.io.inUOP
+    IDstage.io.rd_out := IDBarrier.io.inRD
+    IDstage.io.XcptInvalid := IDBarrier.io.inXcptInvalid
+    IDstage.io.operandA := IDBarrier.io.inOperandA
+    IDstage.io.operandB := IDBarrier.io.inOperandB
 
     //EX STAGE
-    EXstage.io.uop      := IDbarrier.io.outUOP
-    EXstage.io.rd       := IDbarrier.io.outRD
-    EXstage.io.operandA := IDbarrier.io.outOperandA
-    EXstage.io.operandB := IDbarrier.io.outOperandB
+    EXstage.io.uop      := IDBarrier.io.outUOP
+    EXstage.io.rd       := IDBarrier.io.outRD
+    EXstage.io.operandA := IDBarrier.io.outOperandA
+    EXstage.io.operandB := IDBarrier.io.outOperandB
 
-    EXbarrier.io.inAluResult    := EXstage.io.aluResult
-    EXbarrier.io.inRD           := EXstage.io.rd
-    EXbarrier.io.inXcptInvalid  := EXstage.exception
+    EXBarrier.io.inAluResult    := EXstage.io.aluResult
+    EXBarrier.io.inRD           := EXstage.io.rd
+    EXBarrier.io.inXcptInvalid  := EXstage.exception
 
     //MEM STAGE (As it is empty, we connect MEM reg to EXE reg)
-    MEMbarrier.io.inALUResult := EXbarrier.io.outALUResult
-    MEMbarrier.io.inRD        := EXbarrier.io.outRD
-    MEMbarrier.io.inException := EXbarrier.io.outXcptInvalid
+    MEMBarrier.io.inALUResult := EXBarrier.io.outALUResult
+    MEMBarrier.io.inRD        := EXBarrier.io.outRD
+    MEMBarrier.io.inException := EXBarrier.io.outXcptInvalid
+
+    //WB STAGE
+    WBstage.io.aluResult := MEMBarrier.io.outALUResult
+    WBstage.io.rd        := MEMBarrier.io.outRD
 }
