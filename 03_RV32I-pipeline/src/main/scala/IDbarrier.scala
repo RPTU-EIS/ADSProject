@@ -41,26 +41,36 @@ import uopc._
 
 class ID extends Module{
     val io = IO(new Bundle{
-        val rd_in        = Input(UInt(5.W))
-        val operandA_in  = Input(UInt(32.W))
-        val operandB_in  = Input(UInt(32.W))
+        val uop_in          = Input(Op())
+        val XcptInvalid_in  = Input(Bool())
+        val rd_in           = Input(UInt(5.W))
+        val operandA_in     = Input(UInt(32.W))
+        val operandB_in     = Input(UInt(32.W))
         
-        val rd_out       = Output(UInt(5.W))
-        val operandA_out = Output(UInt(32.W))
-        val operandB_out = Output(UInt(32.W))
+        val uop_out         = Output(Op())
+        val XcptInvalid_out = Output(Bool())
+        val rd_out          = Output(UInt(5.W))
+        val operandA_out    = Output(UInt(32.W))
+        val operandB_out    = Output(UInt(32.W))
     })
 
 //ToDo: Add your implementation according to the specification above here 
 
+    val uop_reg      = RegInit(Op.INVALID)
+    val XcptInvalid  = RegInit(0.U(1.W))
     val rd_reg       = RegInit(0.U(5.W))
     val operandA_reg = RegInit(0.U(32.W))
     val operandB_reg = RegInit(0.U(32.W))
 
+    uop_reg      := io.uop_in
+    XcptInvalid  := io.XcptInvalid_in
     rd_reg       := io.rd_in
     operandA_reg := io.operandA_in
     operandB_reg := io.operandB_in
 
-    io.rd_out       := rd_reg
-    io.operandA_out := operandA_reg
-    io.operandB_out := operandB_reg
+    io.uop_out          := uop_reg
+    io.XcptInvalid_out  := XcptInvalid
+    io.rd_out           := rd_reg
+    io.operandA_out     := operandA_reg
+    io.operandB_out     := operandB_reg
 }
