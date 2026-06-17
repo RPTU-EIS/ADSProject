@@ -25,6 +25,6 @@ val io = IO(new Bundle {
   val core = Module(new PipelinedRV32Icore(BinaryFile))
 
   io.result    := core.io.check_res
-  io.exception := core.io.exception
+  io.exception := core.io.isInvalid
 
 }
