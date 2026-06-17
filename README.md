@@ -199,7 +199,11 @@ That's it! You have now successfully forked a repository, cloned it, created a n
 ## Contact
 
 Tobias Jauch - tobias.jauch@rptu.de<br />
+### Remote Assessments:
 Andro Mazmishvili - syq71ran@rptu.de
+### Lab Supervisors:
+Juriaan Muijsson<br />
+Tristan Schmitt
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
