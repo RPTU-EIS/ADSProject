@@ -40,30 +40,6 @@ package core_tile
 import chisel3._
 import chisel3.util._
 import uopc._
-import chisel3.experimental.ChiselEnum
-
-object Op extends ChiselEnum {
-    val INVALID = Value(0.U)
-
-    val ADD  = Value(1.U)
-    val SUB  = Value(2.U)
-    val XOR  = Value(3.U)
-    val OR   = Value(4.U)
-    val AND  = Value(5.U)
-
-    val ADDI = Value(6.U)
-    val XORI = Value(7.U)
-    val ORI  = Value(8.U)
-    val ANDI = Value(9.U)
-
-    val LW   = Value(10.U)
-    val SW   = Value(11.U)
-
-    val BEQ  = Value(12.U)
-    val BNE  = Value(13.U)
-
-    val LUI  = Value(14.U)
-}
 
 // -----------------------------------------
 // Decode Stage
@@ -76,7 +52,7 @@ class ID extends Module{
         val rd_in       = Input(UInt(5.W))
         val write_data  = Input(UInt(32.W)) 
         
-        val uop         = Output(Op())
+        val uop         = Output(uopc())
         val rd_out      = Output(UInt(5.W))
         val operandA    = Output(UInt(32.W))
         val operandB    = Output(UInt(32.W))

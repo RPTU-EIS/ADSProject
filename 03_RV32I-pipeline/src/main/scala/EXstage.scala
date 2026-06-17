@@ -40,4 +40,24 @@ import uopc._
 // Execute Stage
 // -----------------------------------------
 
-//ToDo: Add your implementation according to the specification above here 
+class EXstage extends Module {
+
+  val io = IO(new Bundle {
+    val operandA = Input(UInt(32.W))
+    val operandB = Input(UInt(32.W))
+    val operation = Input(ALUOp())
+    val aluResult = Output(UInt(32.W))
+    val exception = Output(UInt(1.W))
+  })
+
+  val ALU = Module(new ALU)
+
+    io.operandA := ALU.io.operandA
+    io.operandB := ALU.io.operandA
+    io.aluResult := ALU.io.aluResult
+
+
+
+  }
+
+//ToDo: Add your implementation according to the specification above here
