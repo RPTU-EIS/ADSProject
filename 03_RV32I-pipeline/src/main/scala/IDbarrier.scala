@@ -33,10 +33,51 @@ Functionality:
 package core_tile
 
 import chisel3._
+import chisel3.experimental.ChiselEnum
+import Assignment02.{ALU, ALUOp}
+
 import uopc._
 
 // -----------------------------------------
 // ID-Barrier
 // -----------------------------------------
 
-//ToDo: Add your implementation according to the specification above here 
+
+class IDBarrier extends Module {
+  val io = IO(new Bundle {
+    //ToDo: Add I/O ports
+    val inUOP = Input(ALUOp()) // check the uopc, no idea yet
+    val inRD = Input(UInt(5.W))
+    val inOperandA = Input(UInt(32.W))
+    val inOperandB = Input(UInt(32.W))
+    val inXcptInvalid = Input(UInt(1.W))
+
+    val outUOP = Output(ALUOp()) // check the uopc, no idea yet
+    val outRD = Output(UInt(5.W))
+    val outOperandA = Output(UInt(32.W))
+    val outOperandB = Output(UInt(32.W))
+    val outXcptInvalid = Output(UInt(1.W))
+  })
+
+  val uop = RegInit(ALUOp()) // check the uopc, no idea yet
+  val rd = RegInit(0.asUInt(5.W))
+  val operandA = RegInit(0.asUInt(32.W))
+  val operandB = RegInit(0.asUInt(32.W))
+  val xcptInvalid = RegInit(0.asUInt(1.W))
+
+  uop := io.inUOP
+  rd := io.inRD
+  operandA := io.inOperandA
+  operandB := io.inOperandB
+  xcptInvalid := io.inXcptInvalid
+
+  io.outUOP := uop
+  io.outRD := rd
+  io.outOperandA := operandA
+  io.outOperandB := operandB
+  io.outXcptInvalid := xcptInvalid
+}
+//ToDo: Add your implementation according to the specification above here
+
+
+
