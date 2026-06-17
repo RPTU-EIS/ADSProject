@@ -33,51 +33,34 @@ Functionality:
 package core_tile
 
 import chisel3._
-import chisel3.experimental.ChiselEnum
-import Assignment02.{ALU, ALUOp}
-
 import uopc._
 
 // -----------------------------------------
 // ID-Barrier
 // -----------------------------------------
 
+class ID extends Module{
+    val io = IO(new Bundle{
+        val rd_in        = Input(UInt(5.W))
+        val operandA_in  = Input(UInt(32.W))
+        val operandB_in  = Input(UInt(32.W))
+        
+        val rd_out       = Output(UInt(5.W))
+        val operandA_out = Output(UInt(32.W))
+        val operandB_out = Output(UInt(32.W))
+    })
 
-class IDBarrier extends Module {
-  val io = IO(new Bundle {
-    //ToDo: Add I/O ports
-    val inUOP = Input(ALUOp()) // check the uopc, no idea yet
-    val inRD = Input(UInt(5.W))
-    val inOperandA = Input(UInt(32.W))
-    val inOperandB = Input(UInt(32.W))
-    val inXcptInvalid = Input(UInt(1.W))
+//ToDo: Add your implementation according to the specification above here 
 
-    val outUOP = Output(ALUOp()) // check the uopc, no idea yet
-    val outRD = Output(UInt(5.W))
-    val outOperandA = Output(UInt(32.W))
-    val outOperandB = Output(UInt(32.W))
-    val outXcptInvalid = Output(UInt(1.W))
-  })
+    val rd_reg       = RegInit(0.U(5.W))
+    val operandA_reg = RegInit(0.U(32.W))
+    val operandB_reg = RegInit(0.U(32.W))
 
-  val uop = RegInit(ALUOp()) // check the uopc, no idea yet
-  val rd = RegInit(0.asUInt(5.W))
-  val operandA = RegInit(0.asUInt(32.W))
-  val operandB = RegInit(0.asUInt(32.W))
-  val xcptInvalid = RegInit(0.asUInt(1.W))
+    rd_reg       := io.rd_in
+    operandA_reg := io.operandA_in
+    operandB_reg := io.operandB_in
 
-  uop := io.inUOP
-  rd := io.inRD
-  operandA := io.inOperandA
-  operandB := io.inOperandB
-  xcptInvalid := io.inXcptInvalid
-
-  io.outUOP := uop
-  io.outRD := rd
-  io.outOperandA := operandA
-  io.outOperandB := operandB
-  io.outXcptInvalid := xcptInvalid
+    io.rd_out       := rd_reg
+    io.operandA_out := operandA_reg
+    io.operandB_out := operandB_reg
 }
-//ToDo: Add your implementation according to the specification above here
-
-
-
