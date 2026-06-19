@@ -1,0 +1,22 @@
+// SETUP — Load base values (no hazards)
+00000013 // ADDI x0, x0, 0    → NOP, x0 stays 0
+00500093 // ADDI x1, x0, 5    → x1 = 5
+00a00113 // ADDI x2, x0, 10   → x2 = 10
+
+// CASE 1 — Mixed forwarding (x1 in WB, x2 in MEM)
+002081b3 // ADD  x3, x1, x2   → x3 = 5 + 10 = 15
+
+// CASE 2 — Forward rs1 from MEM
+401182b3 // SUB  x5, x3, x1   → x5 = 15 - 5 = 10
+
+// CASE 3 — Forward rs2 from WB
+003103b3 // ADD  x7, x2, x3   → x7 = 10 + 15 = 25
+
+// CASE 4 — Forward rs2 from MEM
+00838433 // ADD  x8, x7, x8   → x8 = 25 + 0 = 25
+
+// CASE 5 — Double forward MEM (same reg on rs1 and rs2)
+008404b3 // ADD  x9, x8, x8   → x9 = 25 + 25 = 50
+
+// CASE 6 — Hazard with x0 (must NOT forward)
+00008513 // ADDI x10, x1, 0   → x10 = 5 + 0 = 5 [x1 stable]
