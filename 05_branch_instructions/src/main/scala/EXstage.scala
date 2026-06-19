@@ -27,6 +27,8 @@ Functionality:
 Outputs:
     aluResult: computation result from ALU
     exception: pass exception flag
+    branchTarget: calculated branch target address for conditional branch instructions
+    flush: control signal to flush pipeline on mispredicted branches
 */
 
 package core_tile
