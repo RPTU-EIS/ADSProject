@@ -32,7 +32,7 @@ The goal of this task is to implement a 5-stage pipeline that features a subset 
             Operands (operandA and operandB) are determined based on the instruction type.
 
         Execute Stage:
-            Arithmetic and logic operations are performed based on the control signals and operands.
+            Arithmetic and logic operations, including branch target calculation, are performed based on the control signals and operands.
             The result is stored in the aluResult register.
 
         Memory Stage:

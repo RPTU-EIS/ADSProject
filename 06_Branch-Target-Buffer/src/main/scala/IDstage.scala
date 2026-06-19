@@ -25,7 +25,7 @@ Internal Signals:
 
 Functionality:
     Decode opcode to determine instruction and identify operation (ADD, SUB, XOR, ...)
-    Output: uop (operation code), rd, operandA (from rs1), operandB (rs2 or immediate)
+    Handle flushes due to mispredicted branches
 
 Outputs:
     uop: micro-operation code (identifies instruction type)

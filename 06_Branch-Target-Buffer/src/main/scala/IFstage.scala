@@ -19,6 +19,7 @@ Internal Signals:
 Functionality:
     Fetch the instruction at the current PC (word-aligned addressing)
     Increment the PC (word-aligned) each clock cycle to fetch the next sequential instruction
+    Handle flushes due to mispredicted branches
 
 Parameters:
     BinaryFile: String - path to the binary file to load into instruction memory
