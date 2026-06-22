@@ -59,8 +59,96 @@ import uopc._
 class PipelinedRV32Icore (BinaryFile: String) extends Module {
   val io = IO(new Bundle {
     //ToDo: Add I/O ports
+        val check_res    = Output(UInt(32.W))  // final result for verification
+        val isInvalid    = Output(Bool())      // exception flag for verification
+
   })
 
 //ToDo: Add your implementation according to the specification above here 
+
+// --- Instantiate all pipeline stages and barriers ---
+  val if_stage    = Module(new IF(BinaryFile))
+  val if_barrier  = Module(new IFBarrier)
+  val id_stage    = Module(new ID)
+  val id_barrier  = Module(new IDBarrier)
+  val ex_stage    = Module(new EX)
+  val ex_barrier  = Module(new EXBarrier)
+  val mem_stage   = Module(new MEM)
+  val mem_barrier = Module(new MEMBarrier)
+  val wb_stage    = Module(new WB)
+  val wb_barrier  = Module(new WBBarrier)
+
+  // -------------------------------------------------------
+  // IF → IFBarrier
+  // -------------------------------------------------------
+  if_barrier.io.inInstr   := if_stage.io.instr
+
+  // -------------------------------------------------------
+  // IFBarrier → ID
+  // -------------------------------------------------------
+  id_stage.io.instr       := if_barrier.io.outInstr
+
+  // -------------------------------------------------------
+  // ID → IDBarrier
+  // -------------------------------------------------------
+  id_barrier.io.inUOP         := id_stage.io.uop
+  id_barrier.io.inRD          := id_stage.io.rd
+  id_barrier.io.inOperandA    := id_stage.io.operandA
+  id_barrier.io.inOperandB    := id_stage.io.operandB
+  id_barrier.io.inXcptInvalid := id_stage.io.xcptInvalid
+
+  // -------------------------------------------------------
+  // IDBarrier → EX
+  // -------------------------------------------------------
+  ex_stage.io.uop         := id_barrier.io.outUOP
+  ex_stage.io.inRD          := id_barrier.io.outRD
+  ex_stage.io.operandA    := id_barrier.io.outOperandA
+  ex_stage.io.operandB    := id_barrier.io.outOperandB
+  ex_stage.io.inXcptInvalid := id_barrier.io.outXcptInvalid
+
+  // -------------------------------------------------------
+  // EX → EXBarrier
+  // -------------------------------------------------------
+  ex_barrier.io.inAluResult   := ex_stage.io.aluResult
+  ex_barrier.io.inRD          := ex_stage.io.outRD
+  ex_barrier.io.inXcptInvalid := ex_stage.io.outXcptInvalid
+
+  // -------------------------------------------------------
+  // EXBarrier → MEM
+  // -------------------------------------------------------
+  mem_stage.io.aluResult   := ex_barrier.io.outAluResult
+  mem_stage.io.rd          := ex_barrier.io.outRD
+  mem_stage.io.xcptInvalid := ex_barrier.io.outXcptInvalid
+
+  // -------------------------------------------------------
+  // MEM → MEMBarrier
+  // -------------------------------------------------------
+  mem_barrier.io.inAluResult := mem_stage.io.aluResultOut
+  mem_barrier.io.inRD        := mem_stage.io.rdOut
+  mem_barrier.io.inException := mem_stage.io.outXcptInvalid
+
+  // -------------------------------------------------------
+  // MEMBarrier → WB
+  // -------------------------------------------------------
+  wb_stage.io.aluResult := mem_barrier.io.outAluResult
+  wb_stage.io.rd        := mem_barrier.io.outRD
+  wb_stage.io.exception := mem_barrier.io.outException
+
+  // -------------------------------------------------------
+  // WB → WBBarrier
+  // -------------------------------------------------------
+  wb_barrier.io.inCheckRes    := wb_stage.io.check_res
+  wb_barrier.io.inXcptInvalid := mem_barrier.io.outException
+
+  // -------------------------------------------------------
+  // WB → ID (register file writeback)
+  // -------------------------------------------------------
+  id_stage.io.req_3 := wb_stage.io.regFileReq
+
+  // -------------------------------------------------------
+  // Top-level outputs
+  // -------------------------------------------------------
+  io.check_res := wb_barrier.io.outCheckRes
+  io.isInvalid := wb_barrier.io.outXcptInvalid
 
 }
