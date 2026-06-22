@@ -37,21 +37,48 @@ Functionality:
 
 class regFileReadReq extends Bundle {
     //ToDo: implement bundle for read request
+  val addr = Input(UInt(5.W))
 }
 
 class regFileReadResp extends Bundle {
     //ToDo: implement bundle for read response
+  val data = Output(UInt(32.W))
 }
 
 class regFileWriteReq extends Bundle {
     //ToDo: implement bundle for write request
+    val addr = Input(UInt(5.W))
+    val data = Input(UInt(32.W))
+    val wr_en = Input(Bool())
 }
 
 class regFile extends Module {
   val io = IO(new Bundle {
-    //ToDo: Add I/O ports 
+    //ToDo: Add I/O ports
+
+    //First read port
+    val req_1 = Input(new regFileReadReq)
+    val resp_1 = Output(new regFileReadResp)
+
+    //Second read port
+    val req_2 = Input(new regFileReadReq)
+    val resp_2 = Output(new regFileReadResp)
+
+    //Write Port
+    val req_3 = Input(new regFileWriteReq)
 })
 
-//ToDo: Add your implementation according to the specification above here 
+//ToDo: Add your implementation according to the specification above here
+  //All 32 registers are initialised to 0
+    val regFile = RegInit(VecInit(Seq.fill(32)(0.U(32.W))))          // Create a vector of 32 registers, each initialized to 0, and each register is 32 bits wide
 
+    //Read part
+    io.resp_1.data := Mux(io.req_1.addr === 0.U, 0.U, regFile(io.req_1.addr))  // the mux syntax is (condition, true case, false case) 
+    io.resp_2.data := Mux(io.req_2.addr === 0.U, 0.U, regFile(io.req_2.addr))  // Register x0 is hardwired to 0, so if the read address is 0, we return 0, otherwise we return the value from the register file at the specified address
+
+    //Write part
+    when(io.req_3.wr_en && io.req_3.addr =/= 0.U) {      // Only write to the register file if write enable is asserted and the destination register is not x0 (address 0)
+        regFile(io.req_3.addr) := io.req_3.data          // Write the data to the specified register address
+
+    }
 }

@@ -41,3 +41,38 @@ import chisel3._
 // -----------------------------------------
 
 //ToDo: Add your implementation according to the specification above here 
+
+class WBStage extends Module {
+    val io = IO(new Bundle {
+        // Inputs from MEMbarrier
+        val inAluResult   = Input(UInt(32.W))
+        val inRD          = Input(UInt(5.W))
+        val inXcptInvalid = Input(Bool())
+
+
+        // Register File Interface Output 
+        // (Uses the regFileWriteReq Bundle defined in register file source)
+        val regFileReq = Output(new regFileWriteReq)
+
+
+
+        //outputs to the WB-barrier for external observation
+        val check_res      = Output(UInt(32.W))
+        val outXcptInvalid = Output(Bool())
+    })
+
+    //Result forwarding
+    //the alu result is passed directly to the write data port of the register file
+
+    io.regFileReq.data := io.inAluResult
+
+    //Write Enable Control
+    io.regFileReq.wr_en := !io.inXcptInvalid && (io.inRD =/= 0.U)   //every valid instruction that reaches WB and has a non‑zero destination register will write to the register file
+
+    //Write Address
+    io.regFileReq.addr := io.inRD                                   // the destination register index is passed to the write address port of the register file
+
+    //Verificaton Outputs
+    io.check_res      := io.inAluResult
+    io.outXcptInvalid := io.inXcptInvalid                           // Pass the exception flag to the output for external observation
+}

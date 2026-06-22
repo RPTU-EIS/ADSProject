@@ -59,8 +59,108 @@ import uopc._
 class PipelinedRV32Icore (BinaryFile: String) extends Module {
   val io = IO(new Bundle {
     //ToDo: Add I/O ports
-  })
 
-//ToDo: Add your implementation according to the specification above here 
+      val check_res = Output(UInt(32.W))
+      val exception = Output(Bool())
+    })
+  
+  
+  //ToDo: Add your implementation according to the specification above here
+
+  
+  // instantiating the 5 pipeline stages
+  val fetchStage     = Module(new IFStage(BinaryFile))    // retrieves instructions from memory, outputs the instruction and the current PC,
+  val decodeStage    = Module(new IDStage())              // decodes the instruction, reads operands from the register file, and outputs the micro-operation code (uop), destination register index (rd), operandA, operandB, and exception flag
+  val executeStage   = Module(new EXStage())              // performs ALU operations based on the micro-operation code and operands, outputs the ALU result, destination register index (rd), and exception flag
+  val memoryStage    = Module(new MEMStage())             // no memory operations are implemented in this basic CPU, but it can be used for future extensions
+  val writebackStage = Module(new WBStage())              // prepares the final results to be committed to the register file, outputs the write-back data and exception flag
+
+
+  // instantiating the 5 barriers 
+  // These hold the state between clock cycles to allow parallel execution
+  val IfBarrier   = Module(new IFBarrier())               // holds the instruction and PC from the fetch stage to pass to the decode stage
+  val IdBarrier   = Module(new IDBarrier())               // holds the decoded information from the decode stage to pass to the execute stage
+  val ExBarrier   = Module(new EXBarrier())               // holds the ALU result and related information from the execute stage to pass to the memory stage
+  val MemBarrier  = Module(new MEMBarrier())              // holds the results from the memory stage to pass to the writeback stage, even though there are no memory operations in this basic CPU, it can be used for future extensions
+  val WbBarrier   = Module(new WBBarrier())               // holds the final results from the writeback stage for external observation and verification
+
+
+  //stage 1: The fetch stage retrieves instructions from memory
+  IfBarrier.io.instrReg := fetchStage.io.instr            
+  
+
+ // Stage 2: Decodes raw instructions and fetches operands from the Register File
+
+ decodeStage.io.instr := IfBarrier.io.outInstr
+ 
+ //Passing decoded data to the ID/EX Barrier
+ IdBarrier.io.inUOP          := decodeStage.io.uop
+ IdBarrier.io.inRD           := decodeStage.io.rd
+ IdBarrier.io.inOperandA     := decodeStage.io.operandA
+ IdBarrier.io.inOperandB     := decodeStage.io.operandB
+ IdBarrier.io.inXcptInvalid  := decodeStage.io.XcptInvalid
+ // Forwarding 
+ IdBarrier.io.inRS1 := decodeStage.io.rs1
+ IdBarrier.io.inRS2 := decodeStage.io.rs2
+ IdBarrier.io.inWrEn := decodeStage.io.wr_en
+
+
+ //Stage 3: Performs ALU operations based on the micro-operation (uop) 
+ executeStage.io.inUOP          := IdBarrier.io.outUOP
+ executeStage.io.inOperandA     := IdBarrier.io.outOperandA
+ executeStage.io.inOperandB     := IdBarrier.io.outOperandB
+ executeStage.io.inRD           := IdBarrier.io.outRD
+ executeStage.io.inXcptInvalid  := IdBarrier.io.outXcptInvalid
+ // Forwarding
+ executeStage.io.inRS1  := IdBarrier.io.outRS1
+ executeStage.io.inRS2  := IdBarrier.io.outRS2
+ executeStage.io.inWrEn := IdBarrier.io.outWrEn
+
+
+ ExBarrier.io.inAluResult   := executeStage.io.aluResult
+ ExBarrier.io.inRD          := executeStage.io.rd
+ ExBarrier.io.inXcptInvalid := executeStage.io.exception
+ // Forwarding
+ ExBarrier.io.inWrEn        := executeStage.io.outWrEn                   // check
+
+
+ // Stage 4: directly connecting EXBarrier to MEMBarrier
+ MemBarrier.io.inAluResult     := ExBarrier.io.outAluResult
+ MemBarrier.io.inRD            := ExBarrier.io.outRD
+ MemBarrier.io.inXcptInvalid   := ExBarrier.io.outXcptInvalid
+ // Forwarding
+ MemBarrier.io.inWrEn          := ExBarrier.io.outWrEn
+
+
+ //Stage 5: Prepares the final results to be committed to the Register File
+ writebackStage.io.inAluResult   := MemBarrier.io.outAluResult
+ writebackStage.io.inRD          := MemBarrier.io.outRD
+ writebackStage.io.inXcptInvalid := MemBarrier.io.outXcptInvalid
+ 
+
+ //Feedback loop to ID
+ decodeStage.io.wb_req_en   := writebackStage.io.regFileReq.wr_en
+ decodeStage.io.wb_req_addr := writebackStage.io.regFileReq.addr
+ decodeStage.io.wb_req_data := writebackStage.io.regFileReq.data
+
+ // Forwarding Unit Connections
+ executeStage.io.ExBarrier_RD      := ExBarrier.io.outRD
+ executeStage.io.ExBarrier_Result  := ExBarrier.io.outAluResult
+ executeStage.io.ExBarrier_WrEn    := ExBarrier.io.outWrEn
+ executeStage.io.MemBarrier_RD     := MemBarrier.io.outRD
+ executeStage.io.MemBarrier_Result := MemBarrier.io.outAluResult
+ executeStage.io.MemBarrier_WrEn   := MemBarrier.io.outWrEn
+
+
+
+ // Last Barrier :synchronization for verification output
+ WbBarrier.io.inCheckRes      := writebackStage.io.check_res
+ WbBarrier.io.inXcptInvalid   := writebackStage.io.outXcptInvalid
+
+
+ //Top level outputs :These connect to the PipelinedRV32I wrapper and the testbench
+ io.check_res := WbBarrier.io.outCheckRes
+ io.exception := WbBarrier.io.outXcptInvalid
+
 
 }

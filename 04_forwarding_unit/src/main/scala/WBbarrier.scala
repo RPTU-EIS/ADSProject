@@ -33,3 +33,26 @@ import chisel3._
 // -----------------------------------------
 
 //ToDo: Add your implementation according to the specification above here 
+class WBBarrier extends Module {
+    val io = IO(new Bundle {
+        val inCheckRes     = Input(UInt(32.W))
+        val inXcptInvalid  = Input(Bool())
+
+        val outCheckRes    = Output(UInt(32.W))
+        val outXcptInvalid = Output(Bool())
+
+
+    })
+
+    val check_resReg    = RegInit(0.U(32.W))
+    val isInvalidReg    = RegInit(false.B)
+
+    check_resReg  := io.inCheckRes
+    isInvalidReg  := io.inXcptInvalid
+
+
+    io.outCheckRes    := check_resReg
+    io.outXcptInvalid := isInvalidReg
+
+
+}
