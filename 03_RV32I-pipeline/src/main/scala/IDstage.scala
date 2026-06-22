@@ -117,10 +117,10 @@ class ID extends Module {
           io.uop := SLL
           when(funct7 =/= "b0000000".U) { io.xcptInvalid := true.B }
         }
-        is("b010".U) {  // SLT
+       is("b010".U) {  // SLT
           io.uop := SLT
           when(funct7 =/= "b0000000".U) { io.xcptInvalid := true.B }
-        }
+        } 
         is("b011".U) {  // SLTU
           io.uop := SLTU
           when(funct7 =/= "b0000000".U) { io.xcptInvalid := true.B }
