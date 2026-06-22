@@ -116,6 +116,137 @@ class PipelinedRISCV32ITest extends AnyFlatSpec with ChiselScalatestTester {
       dut.io.exception.expect(false.B)
       dut.clock.step(1)
 
+
+            // =========================================
+      // Initialization
+      // =========================================
+
+      dut.io.result.expect(4.U)    // ADDI x1, x0, 4
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      dut.io.result.expect(5.U)    // ADDI x2, x0, 5
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      // =========================================
+      // EX->EX Forwarding Chain
+      // =========================================
+
+      dut.io.result.expect(9.U)    // ADD x3, x1, x2   
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      dut.io.result.expect(5.U)    // SUB x4, x3, x1
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      dut.io.result.expect(0.U)    // XOR x5, x4, x2
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      dut.io.result.expect(4.U)    // OR x6, x5, x1
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      dut.io.result.expect(4.U)    // AND x7, x6, x2
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      // =========================================
+      // Shift Operations
+      // =========================================
+
+      dut.io.result.expect(64.U)   // SLL x8, x7, x1
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      dut.io.result.expect(4.U)    // SRL x9, x8, x1
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      dut.io.result.expect(0.U)    // SRA x10, x9, x1
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      // =========================================
+      // Both operands forwarded
+      // =========================================
+
+      dut.io.result.expect(9.U)    // ADD x11, x1, x2
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      dut.io.result.expect(18.U)   // ADD x12, x11, x11
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      // =========================================
+      // rs2 forwarding
+      // =========================================
+
+      dut.io.result.expect(10.U)   // ADDI x13, x0, 10
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      dut.io.result.expect(14.U)   // ADD x14, x1, x13
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      // =========================================
+      // rs1 forwarding
+      // =========================================
+
+      dut.io.result.expect(20.U)   // ADDI x15, x0, 20
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      dut.io.result.expect(24.U)   // ADD x16, x15, x1
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      // =========================================
+      // Long forwarding chain
+      // =========================================
+
+      dut.io.result.expect(1.U)    // ADDI x17, x0, 1
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      dut.io.result.expect(2.U)    // ADD x18, x17, x17
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      dut.io.result.expect(4.U)    // ADD x19, x18, x18
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      dut.io.result.expect(8.U)    // ADD x20, x19, x19
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      dut.io.result.expect(16.U)   // ADD x21, x20, x20
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      dut.io.result.expect(32.U)   // ADD x22, x21, x21
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      // =========================================
+      // SLT / SLTU forwarding
+      // =========================================
+
+      dut.io.result.expect(1.U)    // SLT x23, x1, x2
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      dut.io.result.expect(1.U)    // SLTU x24, x23, x2
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+    
+
     }
   }
 }

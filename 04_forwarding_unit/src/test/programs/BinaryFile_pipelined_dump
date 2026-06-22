@@ -20,3 +20,58 @@
 
 // CASE 6 — Hazard with x0 (must NOT forward)
 00008513 // ADDI x10, x1, 0   → x10 = 5 + 0 = 5 [x1 stable]
+
+
+
+
+
+
+
+
+
+ // New data for testing :
+
+
+
+# Initialize registers
+ADDI x1, x0, 4          # x1 = 4
+ADDI x2, x0, 5          # x2 = 5
+
+# EX->EX forwarding
+ADD  x3, x1, x2         # x3 = 9
+SUB  x4, x3, x1         # x4 = 5 (needs x3 forwarded)
+XOR  x5, x4, x2         # x5 = 0 (needs x4 forwarded)
+OR   x6, x5, x1         # x6 = 4 (needs x5 forwarded)
+AND  x7, x6, x2         # x7 = 4 (needs x6 forwarded)
+
+# Chain of dependencies
+SLL  x8,  x7, x1        # x8  = 64
+SRL  x9,  x8, x1        # x9  = 4
+SRA  x10, x9, x1        # x10 = 0
+
+# Forward rs1 and rs2 simultaneously
+ADD  x11, x1, x2        # x11 = 9
+ADD  x12, x11, x11      # x12 = 18 (both operands forwarded)
+
+# Forwarding on rs2 only
+ADDI x13, x0, 10        # x13 = 10
+ADD  x14, x1, x13       # x14 = 14
+
+# Forwarding on rs1 only
+ADDI x15, x0, 20        # x15 = 20
+ADD  x16, x15, x1       # x16 = 24
+
+# Long dependency chain
+ADDI x17, x0, 1
+ADD  x18, x17, x17      # 2
+ADD  x19, x18, x18      # 4
+ADD  x20, x19, x19      # 8
+ADD  x21, x20, x20      # 16
+ADD  x22, x21, x21      # 32
+
+# SLT/SLTU forwarding
+SLT  x23, x1, x2        # 1
+SLTU x24, x23, x2       # 1 (needs x23 forwarded)
+
+# End
+ADDI x0, x0, 0
