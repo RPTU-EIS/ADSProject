@@ -28,3 +28,6 @@
 005236b3 // SLTU x13, x4, x5
 0042b6b3 // SLTU x13, x5, x4
 021141b3 // DIV x3, x2, x1 (NOT IMPLEMENTED!)
+
+	//addi x5, x0 10
+	//add x6, x5 ,x1
