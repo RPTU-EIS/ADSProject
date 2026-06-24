@@ -1,44 +1,34 @@
 // ADS I Class Project
 // Chisel Introduction
-//
-// Chair of Electronic Design Automation, RPTU in Kaiserslautern
-// File created on 18/10/2022 by Tobias Jauch (@tojauch)
 
-package adder
+package adder // This tester belongs to the adder package.
 
-import chisel3._
-import chiseltest._
-import org.scalatest.flatspec.AnyFlatSpec
+import chisel3._ // Import Chisel data types such as UInt.
+import chiseltest._ // Import ChiselTest functions such as poke and expect.
+import org.scalatest.flatspec.AnyFlatSpec // Import the ScalaTest style used by this project.
 
+// This tester checks all possible 4-bit input combinations of the FourBitAdder.
+class FourBitAdderTester extends AnyFlatSpec with ChiselScalatestTester { // Define the test class.
 
-/** 
-  4-bit adder tester
-  *
-  * Truth tables are not very efficient for testing more complex components, 
-  * as they grow exponentially with the number of input bits. Therefore, we 
-  * have to think of a more clever way to test the 4-bit adder. To test the 
-  * Basic Adder design in our Chisel Introduction, we used loops to generate 
-  * a sequence of increasing input values testing the design. To generate 
-  * test cases for the 4-bit adder, you should also start by using two nested 
-  * loops. To determine the borders of the loop counter, think about the lowest 
-  * and the highest unsignes integer that you can represent with four bit. To 
-  * test the result produced by your design, think about what happens to the 
-  * result in case of an overflow and at which point this can happen. 
-  * Hint: It might be helpful to check the expected output behaviour for two 
-  * different scenarios with the help of a condition.
-  */
-class FourBitAdderTester extends AnyFlatSpec with ChiselScalatestTester {
+  "4-bit Adder" should "work" in { // Name the behavior that is being tested.
+    test(new FourBitAdder).withAnnotations(Seq(WriteVcdAnnotation)) { dut => // Create the device under test.
 
-  "4-bit Adder" should "work" in {
-    test(new FourBitAdder).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+      for (a <- 0 to 15) { // Iterate over every possible 4-bit value for input a.
+        for (b <- 0 to 15) { // Iterate over every possible 4-bit value for input b.
+          val sum = a + b // Calculate the expected mathematical sum in Scala.
 
-        
-      /*
-       * TODO: Insert your test cases
-       */  
-        
-      
-    } 
-  }
-}
+          dut.io.a.poke(a.U) // Apply input a to the hardware.
+          dut.io.b.poke(b.U) // Apply input b to the hardware.
 
+          if (sum > 15) { // If the result does not fit in 4 bits, there is an overflow.
+            dut.io.s.expect((sum - 16).U) // The 4-bit sum is the lower 4 bits of the result.
+            dut.io.co.expect(1.U) // Carry-out must be 1 when overflow happens.
+          } else { // If the result fits in 4 bits, there is no overflow.
+            dut.io.s.expect(sum.U) // The sum output must equal the mathematical sum.
+            dut.io.co.expect(0.U) // Carry-out must be 0 when there is no overflow.
+          } // End of overflow check.
+        } // End of b loop.
+      } // End of a loop.
+    } // End of test body.
+  } // End of test case.
+} // End of FourBitAdderTester.

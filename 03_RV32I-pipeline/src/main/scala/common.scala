@@ -28,3 +28,32 @@ import chisel3.experimental.ChiselEnum
 // -----------------------------------------
 
 //ToDo: Add your implementation according to the specification above here 
+
+    object uopc extends ChiselEnum {
+           
+            // R-type
+            val ADD  = Value
+            val SUB  = Value
+            val XOR  = Value
+            val OR   = Value
+            val AND  = Value
+            val SLL  = Value  // shift left logical
+            val SRL  = Value  // shift right logical
+            val SRA  = Value  // shift right arithmetic
+            val SLT  = Value  // set less than (signed)
+            val SLTU = Value  // set less than (unsigned)
+
+            // I-type ALU
+            val ADDI  = Value
+            val XORI  = Value
+            val ORI   = Value
+            val ANDI  = Value
+            val SLLI  = Value
+            val SRLI  = Value
+            val SRAI  = Value
+            val SLTI  = Value   // set less than immediate (signed)
+            val SLTIU = Value   // set less than immediate (unsigned)
+
+            // NOP / invalid
+            val NOP = Value
+            }

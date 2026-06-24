@@ -20,15 +20,30 @@ package core_tile
 
 import chisel3._
 
+
+  // No memory operations implemented in Assignment03, nothing to do here! :)
+
+
 // -----------------------------------------
 // Memory Stage
 // -----------------------------------------
 
 class MEM extends Module {
   val io = IO(new Bundle {
+    // Inputs from EX Barrier
+    val aluResult   = Input(UInt(32.W))
+    val rd          = Input(UInt(5.W))
+    val xcptInvalid = Input(Bool())
 
+    // Outputs to MEM Barrier
+    val aluResultOut   = Output(UInt(32.W))
+    val rdOut          = Output(UInt(5.W))
+    val outXcptInvalid = Output(Bool())
   })
 
-  // No memory operations implemented in Assignment03, nothing to do here! :)
-
+  // No memory operations for R-type/I-type subset
+  // Just pass signals straight through combinationally
+  io.aluResultOut   := io.aluResult
+  io.rdOut          := io.rd
+  io.outXcptInvalid := io.xcptInvalid
 }

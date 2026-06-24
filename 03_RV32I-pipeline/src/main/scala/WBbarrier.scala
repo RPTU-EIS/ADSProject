@@ -33,3 +33,27 @@ import chisel3._
 // -----------------------------------------
 
 //ToDo: Add your implementation according to the specification above here 
+
+class WBBarrier extends Module {
+  val io = IO(new Bundle {
+    // Inputs from WB stage
+    val inCheckRes     = Input(UInt(32.W))
+    val inXcptInvalid  = Input(Bool())
+
+    // Outputs for external observation
+    val outCheckRes    = Output(UInt(32.W))
+    val outXcptInvalid = Output(Bool())
+  })
+
+  // --- Pipeline registers, initialized to 0/false ---
+  val checkResReg    = RegInit(0.U(32.W))
+  val isInvalidReg   = RegInit(false.B)
+
+  // --- Capture inputs on every rising clock edge ---
+  checkResReg  := io.inCheckRes
+  isInvalidReg := io.inXcptInvalid
+
+  // --- Drive outputs from registers ---
+  io.outCheckRes    := checkResReg
+  io.outXcptInvalid := isInvalidReg
+}
