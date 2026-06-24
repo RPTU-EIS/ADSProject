@@ -34,10 +34,25 @@ Outputs:
 
 package core_tile
 
-import chisel3._
+import chisel3._  // Import the basic Chisel hardware types
 
 // -----------------------------------------
 // Writeback Stage
 // -----------------------------------------
 
-//ToDo: Add your implementation according to the specification above here 
+class WB extends Module {
+  val io = IO(new Bundle {
+    val aluResult = Input(UInt(32.W))  // Get the final ALU result
+    val rd        = Input(UInt(5.W))   // Get the destination register
+    val exception = Input(Bool())      // Get the exception flag
+
+    val regFileReq = Output(new regFileWriteReq)  // Send write request to register file
+    val check_res  = Output(UInt(32.W))           // Send result to the testbench
+  })
+
+  io.regFileReq.addr  := io.rd         // Select which register will be written
+  io.regFileReq.data  := io.aluResult  // Select the data that will be written
+  io.regFileReq.wr_en := !io.exception // Write only if there is no exception
+
+  io.check_res := io.aluResult  // Show the result outside for testing
+}

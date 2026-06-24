@@ -32,8 +32,7 @@ Outputs:
 
 package core_tile
 
-import chisel3._
-import chisel3.util.experimental.loadMemoryFromFile
+import chisel3._  // Import basic Chisel hardware types
 
 // -----------------------------------------
 // Fetch Stage
@@ -41,9 +40,17 @@ import chisel3.util.experimental.loadMemoryFromFile
 
 class IF (BinaryFile: String) extends Module {
   val io = IO(new Bundle {
-    // ToDo: Add I/O ports
+    val instr = Output(UInt(32.W))  // Send the fetched instruction to the next pipeline stage
   })
 
-//ToDo: Add your implementation according to the specification above here 
+  val PC = RegInit(0.U(32.W))  // Create the program counter and start it at address zero
+
+  val instructionMemory = Module(new InstructionMemory(BinaryFile))  // Create the instruction memory module
+
+  instructionMemory.io.address := PC  // Send the current PC address to instruction memory
+
+  io.instr := instructionMemory.io.instruction  // Send fetched instruction to the IF barrier
+
+  PC := PC + 4.U  // Move the PC to the next instruction every clock cycle
   
 }

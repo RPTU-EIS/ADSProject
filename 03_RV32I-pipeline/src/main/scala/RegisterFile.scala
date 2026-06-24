@@ -6,7 +6,7 @@
 
 package core_tile
 
-import chisel3._
+import chisel3._  // Import the basic Chisel hardware types
 
 /*
 Register File Module: 32x32-bit dual-read single-write register file
@@ -36,22 +36,35 @@ Functionality:
 // -----------------------------------------
 
 class regFileReadReq extends Bundle {
-    //ToDo: implement bundle for read request
+  val addr = UInt(5.W)  // Register address that needs to be read
 }
 
 class regFileReadResp extends Bundle {
-    //ToDo: implement bundle for read response
+  val data = UInt(32.W) // Data read from the register file
 }
 
 class regFileWriteReq extends Bundle {
-    //ToDo: implement bundle for write request
+  val addr  = UInt(5.W)   // Register address that needs to be written
+  val data  = UInt(32.W)  // Data that will be written
+  val wr_en = Bool()      // Write enable signal
 }
 
 class regFile extends Module {
   val io = IO(new Bundle {
-    //ToDo: Add I/O ports 
-})
+    val req_1  = Input(new regFileReadReq)    // First read request
+    val resp_1 = Output(new regFileReadResp)  // First read response
+    val req_2  = Input(new regFileReadReq)    // Second read request
+    val resp_2 = Output(new regFileReadResp)  // Second read response
+    val req_3  = Input(new regFileWriteReq)   // Write request
+  })
 
-//ToDo: Add your implementation according to the specification above here 
+  val registers = RegInit(VecInit(Seq.fill(32)(0.U(32.W))))  // Create 32 registers initialized to zero
+
+  io.resp_1.data := Mux(io.req_1.addr === 0.U, 0.U, registers(io.req_1.addr))  // Read port 1, but x0 is always zero
+  io.resp_2.data := Mux(io.req_2.addr === 0.U, 0.U, registers(io.req_2.addr))  // Read port 2, but x0 is always zero
+
+  when(io.req_3.wr_en && io.req_3.addr =/= 0.U) {
+    registers(io.req_3.addr) := io.req_3.data  // Write data only if write is enabled and register is not x0
+  }
 
 }

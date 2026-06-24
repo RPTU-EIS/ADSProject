@@ -34,5 +34,26 @@ import chisel3._
 // EX-Barrier
 // -----------------------------------------
 
-//ToDo: Add your implementation according to the specification above here 
+class EXBarrier extends Module {
+  val io = IO(new Bundle {
+    val inAluResult   = Input(UInt(32.W))  // Get ALU result from EX stage
+    val inRD          = Input(UInt(5.W))   // Get destination register from EX stage
+    val inXcptInvalid = Input(Bool())      // Get invalid flag from EX stage
 
+    val outAluResult   = Output(UInt(32.W))  // Send ALU result to MEM stage
+    val outRD          = Output(UInt(5.W))   // Send destination register to MEM stage
+    val outXcptInvalid = Output(Bool())      // Send invalid flag to MEM stage
+  })
+
+  val aluResultReg = RegInit(0.U(32.W))  // Register for the ALU result
+  val rdReg        = RegInit(0.U(5.W))   // Register for the destination register
+  val invalidReg   = RegInit(false.B)    // Register for the invalid flag
+
+  aluResultReg := io.inAluResult    // Store ALU result
+  rdReg        := io.inRD           // Store destination register
+  invalidReg   := io.inXcptInvalid  // Store invalid flag
+
+  io.outAluResult   := aluResultReg  // Output stored ALU result
+  io.outRD          := rdReg         // Output stored destination register
+  io.outXcptInvalid := invalidReg    // Output stored invalid flag
+}
