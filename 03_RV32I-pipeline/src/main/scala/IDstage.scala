@@ -45,4 +45,100 @@ import uopc._
 // Decode Stage
 // -----------------------------------------
 
+class ID extends Module{
+    val io = IO(new Bundle{
+        val inst        = Input(UInt(32.W))
+        val w_en        = Input(Bool())
+        val rd_in       = Input(UInt(5.W))
+        val write_data  = Input(UInt(32.W)) 
+        
+        val uop         = Output(uopc())
+        val rd_out      = Output(UInt(5.W))
+        val operandA    = Output(UInt(32.W))
+        val operandB    = Output(UInt(32.W))
+        val XcptInvalid = Output(Bool())
+    })
+
 //ToDo: Add your implementation according to the specification above here 
+    val opcode  = io.inst(6,0)
+    val funct3  = io.inst(14,12)
+    val funct7  = io.inst(31,25)
+    val rs1     = io.inst(19,15)
+    val rs2     = io.inst(24,20)
+    val rd      = io.inst(11,7)
+    val i_imm   = Cat(Fill(20, io.inst(31)), io.inst(31,20))
+    val s_imm   = Cat(io.inst(31,25), io.inst(11,7))
+    val u_imm   = io.inst(31,12)
+
+    val rf = Module(new regFile)
+
+    val OPC_R = "b0110011".U
+    val OPC_I = "b0010011".U
+
+    val uop = WireDefault(uopc.INVALID)
+    val XcptInvalid = WireDefault(true.B)
+
+    switch(opcode){
+        is(OPC_R){
+            when(funct3 === "b000".U && funct7 === "b0000000".U) {
+                uop := uopc.ADD
+                XcptInvalid := false.B
+            }
+            .elsewhen(funct3 === "b000".U && funct7 === "b0100000".U) {
+                uop := uopc.SUB
+                XcptInvalid := false.B
+            }
+            .elsewhen(funct3 === "b100".U && funct7 === "b0000000".U) {
+                uop := uopc.XOR
+                XcptInvalid := false.B
+            }
+            .elsewhen(funct3 === "b110".U && funct7 === "b0000000".U) {
+                uop := uopc.OR
+                XcptInvalid := false.B
+            }
+            .elsewhen(funct3 === "b111".U && funct7 === "b0000000".U) {
+                uop := uopc.AND
+                XcptInvalid := false.B
+            }
+        }
+        is(OPC_I){
+            switch(funct3) {
+                is("b000".U) {
+                    uop := uopc.ADDI
+                    XcptInvalid := false.B
+                }
+                is("b100".U) {
+                    uop := uopc.XORI
+                    XcptInvalid := false.B
+                }
+                is("b110".U) {
+                    uop := uopc.ORI
+                    XcptInvalid := false.B
+                }
+                is("b111".U) {
+                    uop := uopc.ANDI
+                    XcptInvalid := false.B
+                }
+            }
+        }
+    }
+
+    rf.io.req_1.addr := rs1
+    rf.io.req_2.addr := rs2
+    rf.io.req_3.addr := io.rd_in
+    rf.io.req_3.w_en := io.w_en
+    rf.io.req_3.data := io.write_data
+
+    io.operandA := rf.io.resp_1.data
+
+    when(opcode === OPC_I) {
+        io.operandB := i_imm
+    }
+    .otherwise {
+        io.operandB := rf.io.resp_2.data
+    }
+
+    io.rd_out := rd
+    io.uop := uop
+    io.XcptInvalid := XcptInvalid
+}

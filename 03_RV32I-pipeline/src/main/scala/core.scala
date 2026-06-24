@@ -57,10 +57,55 @@ import uopc._
 
 
 class PipelinedRV32Icore (BinaryFile: String) extends Module {
-  val io = IO(new Bundle {
-    //ToDo: Add I/O ports
+    val io = IO(new Bundle {
+        //ToDo: Add I/O ports
   })
-
 //ToDo: Add your implementation according to the specification above here 
 
+    val IFstage = Module(new IF(BinaryFile: String))
+    val IFBarrier = Module(new IFBarrier)
+
+    val IDstage = Module(new ID)
+    val IDBarrier = Module(new IDBarrier)
+
+    val EXstage = Module(new EXstage)
+    val EXBarrier = Module(new EXBarrier)
+
+    // val MEMstage = Module(new MEM)
+    val MEMBarrier = Module(new MEMBarrier)
+
+    val WBstage = Module(new WBstage)
+    //val WBbarrier = Module(new )
+
+    //IF STAGE & BARRIER WERKS
+    IFstage.io.inst := IFBarrier.io.inInstr
+
+    //ID STAGE
+    IDstage.io.inst := IFBarrier.io.outInstr
+
+    //ID BARRIER
+    IDstage.io.uop := IDBarrier.io.inUOP
+    IDstage.io.rd_out := IDBarrier.io.inRD
+    IDstage.io.XcptInvalid := IDBarrier.io.inXcptInvalid
+    IDstage.io.operandA := IDBarrier.io.inOperandA
+    IDstage.io.operandB := IDBarrier.io.inOperandB
+
+    //EX STAGE
+    EXstage.io.uop      := IDBarrier.io.outUOP
+    EXstage.io.rd       := IDBarrier.io.outRD
+    EXstage.io.operandA := IDBarrier.io.outOperandA
+    EXstage.io.operandB := IDBarrier.io.outOperandB
+
+    EXBarrier.io.inAluResult    := EXstage.io.aluResult
+    EXBarrier.io.inRD           := EXstage.io.rd
+    EXBarrier.io.inXcptInvalid  := EXstage.exception
+
+    //MEM STAGE (As it is empty, we connect MEM reg to EXE reg)
+    MEMBarrier.io.inALUResult := EXBarrier.io.outALUResult
+    MEMBarrier.io.inRD        := EXBarrier.io.outRD
+    MEMBarrier.io.inException := EXBarrier.io.outXcptInvalid
+
+    //WB STAGE
+    WBstage.io.aluResult := MEMBarrier.io.outALUResult
+    WBstage.io.rd        := MEMBarrier.io.outRD
 }

@@ -1,0 +1,52 @@
+[33m4674060[m[33m ([m[1;36mHEAD -> [m[1;32mGroup02[m[33m, [m[1;31morigin/Group02[m[33m)[m HEAD@{0}: pull: Fast-forward
+[33md0949a0[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{1}: reset: moving to origin/main
+[33mca585c3[m HEAD@{2}: pull: Fast-forward
+[33m58b81d1[m HEAD@{3}: reset: moving to HEAD
+[33m58b81d1[m HEAD@{4}: checkout: moving from Iman to Group02
+[33m42c6bff[m[33m ([m[1;31morigin/Iman[m[33m, [m[1;32mIman[m[33m)[m HEAD@{5}: checkout: moving from Group02 to Iman
+[33m58b81d1[m HEAD@{6}: commit (merge): -----
+[33m42c6bff[m[33m ([m[1;31morigin/Iman[m[33m, [m[1;32mIman[m[33m)[m HEAD@{7}: checkout: moving from de6be3df777f8e073c513bd259a5bf3e64b0abd1 to Group02
+[33mde6be3d[m HEAD@{8}: commit: ====
+[33m179b0ce[m HEAD@{9}: pull --rebase origin Group02 (start): checkout 179b0ce730b73c99635eff6d906a2e4e181baf38
+[33m42c6bff[m[33m ([m[1;31morigin/Iman[m[33m, [m[1;32mIman[m[33m)[m HEAD@{10}: rebase (abort): updating HEAD
+[33m179b0ce[m HEAD@{11}: pull --rebase origin Group02 (start): checkout 179b0ce730b73c99635eff6d906a2e4e181baf38
+[33m42c6bff[m[33m ([m[1;31morigin/Iman[m[33m, [m[1;32mIman[m[33m)[m HEAD@{12}: checkout: moving from Iman to Group02
+[33m42c6bff[m[33m ([m[1;31morigin/Iman[m[33m, [m[1;32mIman[m[33m)[m HEAD@{13}: checkout: moving from Iman to Iman
+[33m42c6bff[m[33m ([m[1;31morigin/Iman[m[33m, [m[1;32mIman[m[33m)[m HEAD@{14}: checkout: moving from Group02 to Iman
+[33m42c6bff[m[33m ([m[1;31morigin/Iman[m[33m, [m[1;32mIman[m[33m)[m HEAD@{15}: reset: moving to HEAD
+[33m42c6bff[m[33m ([m[1;31morigin/Iman[m[33m, [m[1;32mIman[m[33m)[m HEAD@{16}: merge Iman: Fast-forward
+[33m44e2d1f[m HEAD@{17}: checkout: moving from Iman to Group02
+[33m42c6bff[m[33m ([m[1;31morigin/Iman[m[33m, [m[1;32mIman[m[33m)[m HEAD@{18}: commit: SLTU and PASSB implemented and Tested
+[33m44e2d1f[m HEAD@{19}: merge Group02: Fast-forward
+[33m94d142b[m HEAD@{20}: checkout: moving from Group02 to Iman
+[33m44e2d1f[m HEAD@{21}: pull: Merge made by the 'ort' strategy.
+[33mec448e3[m HEAD@{22}: commit: SLL, SRL, SRA, SLT implented and tested
+[33m9e761bc[m HEAD@{23}: merge Iman: Merge made by the 'ort' strategy.
+[33m05dff72[m HEAD@{24}: checkout: moving from Iman to Group02
+[33m94d142b[m HEAD@{25}: commit: XOR and SLL implemented and Tested
+[33mbb0b019[m HEAD@{26}: checkout: moving from Group02 to Iman
+[33m05dff72[m HEAD@{27}: pull: Merge made by the 'ort' strategy.
+[33mbb0b019[m HEAD@{28}: merge Iman: Fast-forward
+[33m8f2ca5f[m HEAD@{29}: checkout: moving from Iman to Group02
+[33mbb0b019[m HEAD@{30}: commit: Sub tests are fixed
+[33m5965928[m HEAD@{31}: commit: SUB added and tested
+[33mf3f15fd[m HEAD@{32}: commit: Adder added and tested
+[33m8f2ca5f[m HEAD@{33}: checkout: moving from Group02 to Iman
+[33m8f2ca5f[m HEAD@{34}: commit (merge): Merge branch 'Group02' of github.com:christianrptu/ADSProject into Group02
+[33m57f1bd6[m HEAD@{35}: commit: Tested completely
+[33ma49a100[m HEAD@{36}: commit: Top module added
+[33m7aa9cdf[m HEAD@{37}: pull: Merge made by the 'ort' strategy.
+[33m2a70ab1[m HEAD@{38}: commit: Controller modified
+[33mc62b9b6[m HEAD@{39}: pull: Fast-forward
+[33m2ba82cc[m HEAD@{40}: commit: Controller Added
+[33mc4b0b23[m HEAD@{41}: commit: Fixed 4bit-adder summation
+[33mf926a5d[m HEAD@{42}: commit: Fixed 4bit tester
+[33ma837129[m HEAD@{43}: pull: Fast-forward
+[33mbc611ae[m HEAD@{44}: commit: Fully written 4bit adder test
+[33mfe3571d[m HEAD@{45}: pull: Fast-forward
+[33m413554d[m HEAD@{46}: commit: Generating 4bit adder tests
+[33m9088820[m HEAD@{47}: commit: Full Adder Tested
+[33me6e5f22[m HEAD@{48}: commit (merge): Syncronization
+[33m89a3508[m HEAD@{49}: commit: Syntax checking
+[33m0c3a7bf[m HEAD@{50}: checkout: moving from main to Group02
+[33md0949a0[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{51}: clone: from https://github.com/christianrptu/ADSProject.git

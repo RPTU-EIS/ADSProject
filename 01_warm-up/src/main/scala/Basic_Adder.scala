@@ -12,12 +12,12 @@ import chisel3.util._
 
 /** Basic adder class */
 class BasicAdder extends Module{
-  
+
   val io = IO(new Bundle {
     val a  = Input(UInt(8.W))
     val b  = Input(UInt(8.W))
     val c  = Output(UInt(8.W))
-    })
+  })
 
   val Reg = RegInit(0.U(8.W))
 
