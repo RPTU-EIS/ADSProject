@@ -107,6 +107,22 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
  IdBarrier.io.inOperandB     := decodeStage.io.operandB
  IdBarrier.io.inXcptInvalid  := decodeStage.io.XcptInvalid
 
+  // Forwarding connections
+  IdBarrier.io.inRs1 := decodeStage.io.rs1
+  IdBarrier.io.inRs2 := decodeStage.io.rs2
+
+  executeStage.io.inRs1 := IdBarrier.io.outRs1
+  executeStage.io.inRs2 := IdBarrier.io.outRs2
+
+  executeStage.io.rdEX := ExBarrier.io.outRD
+  executeStage.io.rdMEM := MemBarrier.io.outRD
+  executeStage.io.rdWB := WbBarrier.io.outRD
+
+  executeStage.io.aluResEX := ExBarrier.io.outAluResult
+  executeStage.io.aluResMEM := MemBarrier.io.outAluResult
+  executeStage.io.aluResWB := WbBarrier.io.outCheckRes
+
+  WbBarrier.io.inRD := writebackStage.io.inRD
 
  //Stage 3: Performs ALU operations based on the micro-operation (uop) 
  executeStage.io.inUOP          := IdBarrier.io.outUOP

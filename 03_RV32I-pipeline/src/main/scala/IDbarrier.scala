@@ -53,14 +53,6 @@ class IDBarrier extends Module {
     val outOperandA = Output(UInt(32.W))
     val outOperandB = Output(UInt(32.W))
     val outXcptInvalid = Output(Bool())
-
-
-    //Forwarding Unit
-    val inRs1 = Input(UInt(5.W))
-    val inRs2 = Input(UInt(5.W))
-
-    val outRs1 = Output(UInt(5.W))
-    val outRs2 = Output(UInt(5.W))
   })
 
   val uopReg = RegInit(uopc.NOP)
@@ -68,24 +60,16 @@ class IDBarrier extends Module {
   val operandAReg = RegInit(0.U(32.W))
   val operandBReg = RegInit(0.U(32.W))
   val xcptInvalidReg = RegInit(false.B)
-  //Forwarding Unit
-  val rs1Reg = RegInit(0.U(5.W))
-  val rs2Reg = RegInit(0.U(5.W))
 
   uopReg := io.inUOP
   rdReg := io.inRD
   operandAReg := io.inOperandA
   operandBReg := io.inOperandB
   xcptInvalidReg := io.inXcptInvalid
-  rs1Reg := io.inRs1
-  rs2Reg := io.inRs2
 
   io.outUOP := uopReg
   io.outRD := rdReg
   io.outOperandA := operandAReg
   io.outOperandB := operandBReg
   io.outXcptInvalid := xcptInvalidReg
-  io.outRs1 := rs1Reg
-  io.outRs2 := rs2Reg
-
 }

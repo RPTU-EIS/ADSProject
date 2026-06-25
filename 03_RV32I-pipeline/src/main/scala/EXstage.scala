@@ -55,18 +55,6 @@ class EXStage extends Module {
     val aluResult     = Output(UInt(32.W))
     val rd            = Output(UInt(5.W))
     val exception     = Output(Bool())
-
-    //Forwarding Unit
-    val inRs1 = Input(UInt(5.W))
-    val inRs2 = Input(UInt(5.W))
-
-    val rdEX = Input(UInt(5.W))
-    val rdMEM = Input(UInt(5.W))
-    val rdWB = Input(UInt(5.W))
-
-    val aluResEX = Input(UInt(32.W))
-    val aluResMEM = Input(UInt(32.W))
-    val aluResWB = Input(UInt(32.W))
   })
 
   val alu = Module(new ALU)
@@ -107,28 +95,6 @@ class EXStage extends Module {
 
     is(uopc.SLTU)  { alu.io.operation := ALUOp.SLTU }
     is(uopc.SLTIU) { alu.io.operation := ALUOp.SLTU }
-  }
-
-  //Forwarding Unit
-  // FORWARDING LOGIC (from reference)
-  when(io.inRs1 =/= 0.U && io.inRs1 === io.rdEX) {
-    alu.io.operandA := io.aluResEX
-  }.elsewhen(io.inRs1 =/= 0.U && io.inRs1 === io.rdMEM) {
-    alu.io.operandA := io.aluResMEM
-  }.elsewhen(io.inRs1 =/= 0.U && io.inRs1 === io.rdWB) {
-    alu.io.operandA := io.aluResWB
-  }.otherwise {
-    alu.io.operandA := io.inOperandA
-  }
-
-  when(io.inRs2 =/= 0.U && io.inRs2 === io.rdEX) {
-    alu.io.operandB := io.aluResEX
-  }.elsewhen(io.inRs2 =/= 0.U && io.inRs2 === io.rdMEM) {
-    alu.io.operandB := io.aluResMEM
-  }.elsewhen(io.inRs2 =/= 0.U && io.inRs2 === io.rdWB) {
-    alu.io.operandB := io.aluResWB
-  }.otherwise {
-    alu.io.operandB := io.inOperandB
   }
 
   io.aluResult := alu.io.aluResult

@@ -11,14 +11,14 @@ The processor implements a classic 5-stage pipeline architecture:
 1. **Instruction Fetch (IF)**: Fetch instruction from instruction memory and increment program counter
 2. **Instruction Decode (ID)**: Decode instruction, extract operands from register file, generate immediate values
 3. **Execute (EX)**: Execute ALU operations
-4. **Memory (MEM)**: Load/Store operations on data memory (left empty)
+4. **Memory (MEM)**: Load/Store operations on data memory
 5. **Write-Back (WB)**: Write results back to register file
 
 ### Key Features
 
-- **Full RV32I ISA Support**: Supports all R-type and I-type RV32I instructions
-  - R-type arithmetic and logical operations (ADD, SUB, AND, OR, XOR, SLL, SRL, SRA, SLT, SLTU)
-  - I-type immediate operations (ADDI, ANDI, ORI, XORI, SLLI, SRLI, SRAI, SLTI, SLTIU)
+- **Full RV32I ISA Support**: Supports the following RV32I instructions
+  - R-type arithmetic and logical operations
+  - I-type immediate operations
 
 - **Comprehensive ALU**: All 11 RV32I ALU operations with exception detection
 
@@ -54,13 +54,11 @@ The processor implements a classic 5-stage pipeline architecture:
 
 ### Instruction Categories
 
-| Category | Instructions | Count |
-|----------|--------------|-------|
-| **Arithmetic** | ADD, ADDI, SUB | 3 |
-| **Comparison** | SLT, SLTI, SLTU, SLTIU | 4 |
-| **Logical** | AND, ANDI, OR, ORI, XOR, XORI | 6 |
-| **Shift** | SLL, SLLI, SRL, SRLI, SRA, SRAI | 6 |
-| **Total** | | **19** |
+- **Arithmetic** 
+- **Comparison** 
+- **Logical**
+- **Shift**
+- **Total** 
 
 ### Not Implemented
 
@@ -129,7 +127,7 @@ This:
 ### Processor Design
 
 - **5-Stage Pipeline**: Classical MIPS-style pipeline with pipeline registers between stages
-- **32×32 Register File**: Full register file with x0 hard-wired to zero
+- **Register File**: Full register file with x0 hard-wired to zero
 
 ### Instruction Decoding
 
