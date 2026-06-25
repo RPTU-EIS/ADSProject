@@ -53,34 +53,13 @@ class IDBarrier extends Module {
     val outOperandA = Output(UInt(32.W))
     val outOperandB = Output(UInt(32.W))
     val outXcptInvalid = Output(Bool())
-
-
-    // For Forwarding Unit
-    val inRS1 = Input(UInt(5.W))              // Source register 1 index for forwarding unit
-    val inRS2 = Input(UInt(5.W))              // Source register 2 index for forwarding unit
-    val inWrEn = Input(Bool())                // Write enable signal for forwarding unit
-
-    val outRS1 = Output(UInt(5.W))             
-    val outRS2 = Output(UInt(5.W))             
-    val outWrEn = Output(Bool())
   })
 
-  val uopReg = RegInit(uopc.NOP)               // Register for storing the micro-operation code, initialized to NOP (no operation)
-  val rdReg = RegInit(0.U(5.W))                // Register for storing the destination register index, initialized to 0 
-  val operandAReg = RegInit(0.U(32.W))          
+  val uopReg = RegInit(uopc.NOP)
+  val rdReg = RegInit(0.U(5.W))
+  val operandAReg = RegInit(0.U(32.W))
   val operandBReg = RegInit(0.U(32.W))
   val xcptInvalidReg = RegInit(false.B)
-
-  //Forwarding unit registers.
-  val rs1Reg  = RegInit(0.U(5.W))
-  val rs2Reg  = RegInit(0.U(5.W))
-  val wrEnReg = RegInit(false.B)
-
-  rs1Reg  := io.inRS1
-  rs2Reg  := io.inRS2
-  wrEnReg := io.inWrEn
-
-
 
   uopReg := io.inUOP
   rdReg := io.inRD
@@ -88,16 +67,9 @@ class IDBarrier extends Module {
   operandBReg := io.inOperandB
   xcptInvalidReg := io.inXcptInvalid
 
-
   io.outUOP := uopReg
   io.outRD := rdReg
   io.outOperandA := operandAReg
   io.outOperandB := operandBReg
   io.outXcptInvalid := xcptInvalidReg
-
-  // Forwarding unit signals
-  io.outRS1  := rs1Reg
-  io.outRS2  := rs2Reg
-  io.outWrEn := wrEnReg
-  
 }

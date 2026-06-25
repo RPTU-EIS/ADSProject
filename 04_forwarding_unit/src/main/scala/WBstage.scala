@@ -69,10 +69,10 @@ class WBStage extends Module {
     //Write Enable Control
     io.regFileReq.wr_en := !io.inXcptInvalid && (io.inRD =/= 0.U)   //every valid instruction that reaches WB and has a non‑zero destination register will write to the register file
 
-    //Write Address
-    io.regFileReq.addr := io.inRD                                   // the destination register index is passed to the write address port of the register file
+    // see it again 
+    io.regFileReq.addr := io.inRD
 
     //Verificaton Outputs
     io.check_res      := io.inAluResult
-    io.outXcptInvalid := io.inXcptInvalid                           // Pass the exception flag to the output for external observation
+    io.outXcptInvalid := io.inXcptInvalid
 }

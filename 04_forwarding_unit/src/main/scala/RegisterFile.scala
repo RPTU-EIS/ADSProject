@@ -70,15 +70,14 @@ class regFile extends Module {
 
 //ToDo: Add your implementation according to the specification above here
   //All 32 registers are initialised to 0
-    val regFile = RegInit(VecInit(Seq.fill(32)(0.U(32.W))))          // Create a vector of 32 registers, each initialized to 0, and each register is 32 bits wide
+    val regFile = RegInit(VecInit(Seq.fill(32)(0.U(32.W))))
 
     //Read part
-    io.resp_1.data := Mux(io.req_1.addr === 0.U, 0.U, regFile(io.req_1.addr))  // the mux syntax is (condition, true case, false case) 
-    io.resp_2.data := Mux(io.req_2.addr === 0.U, 0.U, regFile(io.req_2.addr))  // Register x0 is hardwired to 0, so if the read address is 0, we return 0, otherwise we return the value from the register file at the specified address
+    io.resp_1.data := Mux(io.req_1.addr === 0.U, 0.U, regFile(io.req_1.addr))
+    io.resp_2.data := Mux(io.req_2.addr === 0.U, 0.U, regFile(io.req_2.addr))
 
     //Write part
-    when(io.req_3.wr_en && io.req_3.addr =/= 0.U) {      // Only write to the register file if write enable is asserted and the destination register is not x0 (address 0)
-        regFile(io.req_3.addr) := io.req_3.data          // Write the data to the specified register address
-
+    when(io.req_3.wr_en && io.req_3.addr =/= 0.U) {
+      regFile(io.req_3.addr) := io.req_3.data
     }
 }

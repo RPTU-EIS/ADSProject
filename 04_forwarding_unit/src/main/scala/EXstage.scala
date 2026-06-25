@@ -55,53 +55,20 @@ class EXStage extends Module {
     val aluResult     = Output(UInt(32.W))
     val rd            = Output(UInt(5.W))
     val exception     = Output(Bool())
-
-    // For Forwarding Unit
-    val inRS1   = Input(UInt(5.W))              // Source register 1 index for forwarding unit
-    val inRS2   = Input(UInt(5.W))              // Source register 2 index for forwarding unit
-    val inWrEn  = Input(Bool())                 // Write enable signal for forwarding unit
-    val outWrEn = Output(Bool())                // Forwarding unit write enable output
-
-    // for source 1
-    val ExBarrier_RD     = Input(UInt(5.W))              // Destination register index from EX barrier for forwarding unit
-    val ExBarrier_Result = Input(UInt(32.W))             // ALU result from EX barrier for forwarding unit
-    val ExBarrier_WrEn   = Input(Bool())                 // Write enable signal from EX barrier for forwarding unit
-    // for source 2
-    val MemBarrier_RD     = Input(UInt(5.W))              // Destination register index from MEM barrier for forwarding unit
-    val MemBarrier_Result = Input(UInt(32.W))             // ALU result from MEM barrier for forwarding unit
-    val MemBarrier_WrEn   = Input(Bool())                 // Write enable signal from MEM barrier for forwarding unit
   })
-  // Forwarding Mux Logic
-  def forwardMux(raw: UInt, rs: UInt, exWr: Bool, exRd: UInt, exRes: UInt, memWr: Bool, memRd: UInt, memRes: UInt): UInt = {
-    val select = WireDefault(0.U(2.W)) // 0=raw, 1=EX, 2=MEM
-    
-    when(exWr && (exRd =/= 0.U) && (exRd === rs)) {select := 1.U} 
-    .elsewhen(memWr && (memRd =/= 0.U) && (memRd === rs)) {select := 2.U}
-
-    MuxLookup(select, raw, Seq(                    // muxlookup syntax: select, default, Seq of (key -> value) pairs
-      0.U -> raw,
-      1.U -> exRes,
-      2.U -> memRes
-    ))
-  }
-
-  // Apply forwarding logic to operands
-  val opA_fwd = forwardMux(io.inOperandA, io.inRS1, io.ExBarrier_WrEn, io.ExBarrier_RD, io.ExBarrier_Result, io.MemBarrier_WrEn, io.MemBarrier_RD, io.MemBarrier_Result)
-  val opB_fwd = forwardMux(io.inOperandB, io.inRS2, io.ExBarrier_WrEn, io.ExBarrier_RD, io.ExBarrier_Result, io.MemBarrier_WrEn, io.MemBarrier_RD, io.MemBarrier_Result)
 
   val alu = Module(new ALU)
-  //Modified for Forwarding
-  alu.io.operandA := opA_fwd
-  alu.io.operandB := opB_fwd
+
+  alu.io.operandA := io.inOperandA
+  alu.io.operandB := io.inOperandB
 
   // default
   alu.io.operation := ALUOp.PASSB
-   // Add this line right before your ALU switch statement!
-  printf(p"DEBUG: UOP = ${io.inUOP}, OpA = ${opA_fwd}, OpB = ${opB_fwd}\n")
+
   switch(io.inUOP) {
 
-    is(uopc.ADD)   { alu.io.operation := ALUOp.ADD }      // For R-type ADD instruction
-    is(uopc.ADDI)  { alu.io.operation := ALUOp.ADD }      // For I-type ADDI instruction, we can use the same ALU operation as ADD since the immediate value is already prepared in operandB
+    is(uopc.ADD)   { alu.io.operation := ALUOp.ADD }
+    is(uopc.ADDI)  { alu.io.operation := ALUOp.ADD }
 
     is(uopc.SUB)   { alu.io.operation := ALUOp.SUB }
 
@@ -133,5 +100,4 @@ class EXStage extends Module {
   io.aluResult := alu.io.aluResult
   io.rd := io.inRD
   io.exception := io.inXcptInvalid
-  io.outWrEn := io.inWrEn                              // Pass the write enable signal to the next stage for forwarding unit
 }

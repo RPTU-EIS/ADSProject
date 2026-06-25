@@ -47,25 +47,17 @@ class EXBarrier extends Module {
     val outAluResult   = Output(UInt(32.W))
     val outRD          = Output(UInt(5.W))
     val outXcptInvalid = Output(Bool())
-
-    // For Forwarding Unit
-    val inWrEn = Input(Bool())                // Write enable signal for forwarding unit
-    val outWrEn = Output(Bool())               // Forwarding unit write enable output
   })
 
   val aluResultReg   = RegInit(0.U(32.W))
   val rdReg          = RegInit(0.U(5.W))
   val xcptInvalidReg = RegInit(false.B)
-  val wrEnReg        = RegInit(false.B)  // Register to hold the write enable signal for the forwarding unit
 
   aluResultReg   := io.inAluResult
   rdReg          := io.inRD
   xcptInvalidReg := io.inXcptInvalid
-  wrEnReg        := io.inWrEn            
-
 
   io.outAluResult   := aluResultReg
   io.outRD          := rdReg
   io.outXcptInvalid := xcptInvalidReg
-  io.outWrEn        := wrEnReg          // Output the write enable signal for the forwarding unit
 }

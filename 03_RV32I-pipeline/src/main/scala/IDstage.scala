@@ -65,6 +65,10 @@ class IDStage extends Module {
     val wb_req_addr = Input(UInt(5.W))
     val wb_req_data = Input(UInt(32.W))
 
+    //Forwarding Unit
+    val rs1 = Output(UInt(5.W))
+    val rs2 = Output(UInt(5.W))
+
   })
 
   val regFile = Module(new regFile)
@@ -89,6 +93,10 @@ class IDStage extends Module {
   val rd = io.instr(11, 7)
 
   val imm = Cat(Fill(20, io.instr(31)), io.instr(31, 20)).asSInt.asUInt
+
+  //Forwarding Unit
+  io.rs1 := rs1
+  io.rs2 := rs2
 
   // Default values
   io.uop := uopc.NOP

@@ -1,4 +1,4 @@
-// ToDo: Add your ALU implementation from Assignment02 here// ToDo: Add your ALU implementation from Assignment02 here
+// ToDo: Add your ALU implementation from Assignment02 here
 
 package Assignment02
 
@@ -27,9 +27,7 @@ class ALU extends Module {
     is(ALUOp.ADD) { io.aluResult := io.operandA + io.operandB}
     is(ALUOp.SUB) { io.aluResult := io.operandA - io.operandB}
     is(ALUOp.AND) { io.aluResult := io.operandA & io.operandB}
-    is(ALUOp.OR)  {   printf(p"INSIDE ALU OR: OpA=${io.operandA}, OpB=${io.operandB}, Result=${io.operandA | io.operandB}\n")
-
-        io.aluResult := io.operandA | io.operandB}
+    is(ALUOp.OR) { io.aluResult := io.operandA | io.operandB}
     is(ALUOp.XOR) { io.aluResult := io.operandA ^ io.operandB}
     is(ALUOp.SLL) { io.aluResult := io.operandA << io.operandB(4,0) }
     is(ALUOp.SRL) { io.aluResult := io.operandA >> io.operandB(4,0) }

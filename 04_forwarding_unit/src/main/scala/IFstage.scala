@@ -50,10 +50,10 @@ class IFStage (BinaryFile: String) extends Module {
   val PC = RegInit(0.U(32.W))
   val IMem = Mem(4096, UInt(32.W))
 
-  loadMemoryFromFile(IMem, BinaryFile)       // Load instruction memory from the specified binary file at compile time 
+  loadMemoryFromFile(IMem, BinaryFile)
 
   io.PC := PC
-  io.instr := IMem(PC >> 2.U)               // Word-aligned addressing: divide PC by 4 to get the correct index in the instruction memory 
+  io.instr := IMem(PC >> 2.U)
   PC := PC + 4.U
 
 }
