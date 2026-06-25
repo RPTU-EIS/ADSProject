@@ -116,7 +116,8 @@ class EXStage extends Module {
   }.elsewhen(io.inRs1 =/= 0.U && io.inRs1 === io.rdMEM) {
     alu.io.operandA := io.aluResMEM
   }.elsewhen(io.inRs1 =/= 0.U && io.inRs1 === io.rdWB) {
-    alu.io.operandA := io.aluResWB
+    //alu.io.operandA := io.aluResWB
+    alu.io.operandA := io.inOperandA
   }.otherwise {
     alu.io.operandA := io.inOperandA
   }
@@ -126,7 +127,8 @@ class EXStage extends Module {
   }.elsewhen(io.inRs2 =/= 0.U && io.inRs2 === io.rdMEM) {
     alu.io.operandB := io.aluResMEM
   }.elsewhen(io.inRs2 =/= 0.U && io.inRs2 === io.rdWB) {
-    alu.io.operandB := io.aluResWB
+    //alu.io.operandB := io.aluResWB
+    alu.io.operandB := io.inOperandB
   }.otherwise {
     alu.io.operandB := io.inOperandB
   }

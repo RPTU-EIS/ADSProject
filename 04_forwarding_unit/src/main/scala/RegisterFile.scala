@@ -72,12 +72,18 @@ class regFile extends Module {
   //All 32 registers are initialised to 0
     val regFile = RegInit(VecInit(Seq.fill(32)(0.U(32.W))))
 
-    //Read part
-    io.resp_1.data := Mux(io.req_1.addr === 0.U, 0.U, regFile(io.req_1.addr))
-    io.resp_2.data := Mux(io.req_2.addr === 0.U, 0.U, regFile(io.req_2.addr))
+  //Read part
+  io.resp_1.data := Mux(io.req_3.wr_en && (io.req_3.addr === io.req_1.addr) && (io.req_1.addr =/= 0.U),
+    io.req_3.data,
+    regFile(io.req_1.addr))
+
+  io.resp_2.data := Mux(io.req_3.wr_en && (io.req_3.addr === io.req_2.addr) && (io.req_2.addr =/= 0.U),
+    io.req_3.data,
+    regFile(io.req_2.addr))
 
     //Write part
     when(io.req_3.wr_en && io.req_3.addr =/= 0.U) {
       regFile(io.req_3.addr) := io.req_3.data
     }
+
 }
