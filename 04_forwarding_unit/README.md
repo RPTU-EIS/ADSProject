@@ -1,12 +1,11 @@
-# Assignment 03: Pipelined RV32I Core
+# Assignment 04: Hazard Detection and Forwarding Unit
 
-This is an implementation of a 5-stage pipelined RISC-V 32-bit Integer (RV32I) processor core, designed in Chisel HDL. The processor executes the R-type and I-type subset of the RV32I instruction set without hazard detection or resolution.
 
 ## Processor Architecture Overview
 
-### 5-Stage Pipeline
+### 5-Stage Pipeline with Hazard Detection and Forwarding
 
-The processor implements a classic 5-stage pipeline architecture:
+This task is based on the classic 5-stage pipeline architecture implemented in assignment 3:
 
 1. **Instruction Fetch (IF)**: Fetch instruction from instruction memory and increment program counter
 2. **Instruction Decode (ID)**: Decode instruction, extract operands from register file, generate immediate values
@@ -24,6 +23,9 @@ The processor implements a classic 5-stage pipeline architecture:
 
 - **Memory Interface**: Configurable instruction and data memory with word-addressed access
 
+Add a Forwarding Unit to your RISC-V pipeline from assignment 03 that detects data hazards and resolves them by controlling input multiplexers in the EX stage. 
+Connect the Forwarding Unit and the input signals to the multiplexers accordingly in core.scala.
+ 
 ## Project Structure
 
 ### Source Code (`src/main/scala/`)
@@ -38,6 +40,7 @@ The processor implements a classic 5-stage pipeline architecture:
 - **`IFbarrier.scala`, `IDbarrier.scala`, `EXbarrier.scala`, `MEMbarrier.scala`, `WBbarrier.scala`**: Pipeline registers holding stage outputs
 - **`ALU.scala`**: 32-bit ALU supporting all 11 RV32I operations with exception handling
 - **`RegisterFile.scala`**: 32×32-bit register file with 2 read ports and 1 write port
+- **`ForwardingUnit.scala`**: Forwarding Unit to control the input muxes in the EX stage
 - **`common.scala`**: Common enums and control signals (ALU operations, opcodes, control types)
 - **`MakeVerilog.scala`**: Verilog generation driver
 
@@ -88,7 +91,7 @@ The processor implements a classic 5-stage pipeline architecture:
 Generate Verilog RTL from Chisel:
 
 ```bash
-cd 03_RV32I-pipeline
+cd 04_forwarding_unit
 sbt run
 ```
 
@@ -149,9 +152,7 @@ No solution implemented in Assignment03
 
 ## Test Coverage
 
-The testbench verifies:
-- ✓ R-type and I-type arithmetic/logical operations
-- ✓ Immediate value extraction and sign extension
+Test all possible cases of potential data hazards in this pipeline and check whether all of them are resolved by your implemented forwarding unit.
 
 ## References
 

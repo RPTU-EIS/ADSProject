@@ -1,29 +1,26 @@
-# Assignment 03: Pipelined RV32I Core
+# Assignment 05: Branch and Jump Instructions
 
-This is an implementation of a 5-stage pipelined RISC-V 32-bit Integer (RV32I) processor core, designed in Chisel HDL. The processor executes the R-type and I-type subset of the RV32I instruction set without hazard detection or resolution.
 
 ## Processor Architecture Overview
 
-### 5-Stage Pipeline
+### 5-Stage Pipeline with Hazard Detection and Forwarding
 
-The processor implements a classic 5-stage pipeline architecture:
+This task is based on the classic 5-stage pipeline architecture implemented in assignment 3 and assignment 4:
 
 1. **Instruction Fetch (IF)**: Fetch instruction from instruction memory and increment program counter
 2. **Instruction Decode (ID)**: Decode instruction, extract operands from register file, generate immediate values
-3. **Execute (EX)**: Execute ALU operations
+3. **Execute (EX)**: Execute ALU operations and evaluate conditional branches
 4. **Memory (MEM)**: Load/Store operations on data memory (left empty)
 5. **Write-Back (WB)**: Write results back to register file
 
-### Key Features
+### Key Features to be added in this task
 
-- **Full RV32I ISA Support**: Supports all R-type and I-type RV32I instructions
-  - R-type arithmetic and logical operations (ADD, SUB, AND, OR, XOR, SLL, SRL, SRA, SLT, SLTU)
-  - I-type immediate operations (ADDI, ANDI, ORI, XORI, SLLI, SRLI, SRAI, SLTI, SLTIU)
-
-- **Comprehensive ALU**: All 11 RV32I ALU operations with exception detection
-
-- **Memory Interface**: Configurable instruction and data memory with word-addressed access
-
+The fifth assignment extends the implemented instruction set to include the B-type and J-type instructions from the RV32I ISA.
+Pay attention to enabling the core to handle control hazards correctly that arise from branch and jump instructions.
+For this task you can use a simple static branch prediction scheme that always assumes conditional branches as not taken. 
+Unconditional jumps should always be taken.
+Implement the necessary control logic to flush the necessary pipeline stages when a conditional branch evaluates to be taken.
+ 
 ## Project Structure
 
 ### Source Code (`src/main/scala/`)
@@ -38,6 +35,7 @@ The processor implements a classic 5-stage pipeline architecture:
 - **`IFbarrier.scala`, `IDbarrier.scala`, `EXbarrier.scala`, `MEMbarrier.scala`, `WBbarrier.scala`**: Pipeline registers holding stage outputs
 - **`ALU.scala`**: 32-bit ALU supporting all 11 RV32I operations with exception handling
 - **`RegisterFile.scala`**: 32×32-bit register file with 2 read ports and 1 write port
+- **`ForwardingUnit.scala`**: Forwarding Unit to control the input muxes in the EX stage
 - **`common.scala`**: Common enums and control signals (ALU operations, opcodes, control types)
 - **`MakeVerilog.scala`**: Verilog generation driver
 
@@ -60,14 +58,14 @@ The processor implements a classic 5-stage pipeline architecture:
 | **Comparison** | SLT, SLTI, SLTU, SLTIU | 4 |
 | **Logical** | AND, ANDI, OR, ORI, XOR, XORI | 6 |
 | **Shift** | SLL, SLLI, SRL, SRLI, SRA, SRAI | 6 |
-| **Total** | | **19** |
+| **Branch** | BEQ, BNE, BLT, BGE, BLTU, BGEU | 6 |
+| **Jump** | JAL, JALR | 2 |
+| **Total** | | **27** |
 
 ### Not Implemented
 
 - **Load** LW, LH, LHU, LB, LBU
 - **Store** SW, SH, SB
-- **Branch** BEQ, BNE, BLT, BGE, BLTU, BGEU
-- **Jump** JAL, JALR
 - **Upper Immediate** LUI, AUIPC
 - **System Instructions**: ECALL, EBREAK, FENCE, FENCE.I
 - **Privileged Instructions**: CSRRW, CSRRS, CSRRC, CSRRWI, CSRRSI, CSRRCI
@@ -90,7 +88,7 @@ The processor implements a classic 5-stage pipeline architecture:
 Generate Verilog RTL from Chisel:
 
 ```bash
-cd 03_RV32I-pipeline
+cd 05_branch_instructions
 sbt run
 ```
 
@@ -124,36 +122,11 @@ This:
   gtkwave test_run_dir/*/PipelinedRV32I.vcd
   ```
 
-## Key Implementation Features
-
-### Processor Design
-
-- **5-Stage Pipeline**: Classical MIPS-style pipeline with pipeline registers between stages
-- **32×32 Register File**: Full register file with x0 hard-wired to zero
-
-### Instruction Decoding
-
-- **Comprehensive Control Unit**: RV32I instruction subset with:
-  - R-type instruction recognition and funct3/funct7 decoding
-  - I-type immediate decoding with sign extension
-
-
-### ALU Implementation
-
-ALU design used from previous assignment.
-
-
-## Hazard Detection and Resolution
-
-### Data Hazards
-No solution implemented in Assignment03
 
 
 ## Test Coverage
 
-The testbench verifies:
-- ✓ R-type and I-type arithmetic/logical operations
-- ✓ Immediate value extraction and sign extension
+Test all newly implemented branch and jump instructions and evaluate if the pipeline handles the branch resolution correctly.
 
 ## References
 

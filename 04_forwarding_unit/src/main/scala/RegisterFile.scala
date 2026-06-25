@@ -29,6 +29,10 @@ Ports:
 Functionality:
     Two read ports allow simultaneous reading of two operands
     Synchronous write updates register if wr_en is asserted
+
+
+Special Case for hazard resolution:    
+    If a register is read and written in the same clock cycle, send the new data to data output!
 */
 
 // -----------------------------------------
