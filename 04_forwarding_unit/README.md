@@ -1,12 +1,11 @@
-# Assignment 03: Pipelined RV32I Core
+# Assignment 04: Hazard Detection and Forwarding Unit
 
-This is an implementation of a 5-stage pipelined RISC-V 32-bit Integer (RV32I) processor core, designed in Chisel HDL. The processor executes the R-type and I-type subset of the RV32I instruction set without hazard detection or resolution.
 
 ## Processor Architecture Overview
 
-### 5-Stage Pipeline
+### 5-Stage Pipeline with Hazard Detection and Forwarding
 
-The processor implements a classic 5-stage pipeline architecture:
+This task is based on the classic 5-stage pipeline architecture implemented in assignment 3:
 
 1. **Instruction Fetch (IF)**: Fetch instruction from instruction memory and increment program counter
 2. **Instruction Decode (ID)**: Decode instruction, extract operands from register file, generate immediate values
@@ -14,16 +13,11 @@ The processor implements a classic 5-stage pipeline architecture:
 4. **Memory (MEM)**: Load/Store operations on data memory (left empty)
 5. **Write-Back (WB)**: Write results back to register file
 
-### Key Features
+### Key Features to be added in this task
 
-- **Full RV32I ISA Support**: Supports all R-type and I-type RV32I instructions
-  - R-type arithmetic and logical operations (ADD, SUB, AND, OR, XOR, SLL, SRL, SRA, SLT, SLTU)
-  - I-type immediate operations (ADDI, ANDI, ORI, XORI, SLLI, SRLI, SRAI, SLTI, SLTIU)
-
-- **Comprehensive ALU**: All 11 RV32I ALU operations with exception detection
-
-- **Memory Interface**: Configurable instruction and data memory with word-addressed access
-
+Add a Forwarding Unit to your RISC-V pipeline from assignment 03 that detects data hazards and resolves them by controlling input multiplexers in the EX stage. 
+Connect the Forwarding Unit and the input signals to the multiplexers accordingly in core.scala.
+ 
 ## Project Structure
 
 ### Source Code (`src/main/scala/`)
@@ -38,6 +32,7 @@ The processor implements a classic 5-stage pipeline architecture:
 - **`IFbarrier.scala`, `IDbarrier.scala`, `EXbarrier.scala`, `MEMbarrier.scala`, `WBbarrier.scala`**: Pipeline registers holding stage outputs
 - **`ALU.scala`**: 32-bit ALU supporting all 11 RV32I operations with exception handling
 - **`RegisterFile.scala`**: 32×32-bit register file with 2 read ports and 1 write port
+- **`ForwardingUnit.scala`**: Forwarding Unit to control the input muxes in the EX stage
 - **`common.scala`**: Common enums and control signals (ALU operations, opcodes, control types)
 - **`MakeVerilog.scala`**: Verilog generation driver
 
@@ -90,7 +85,7 @@ The processor implements a classic 5-stage pipeline architecture:
 Generate Verilog RTL from Chisel:
 
 ```bash
-cd 03_RV32I-pipeline
+cd 04_forwarding_unit
 sbt run
 ```
 
@@ -124,36 +119,11 @@ This:
   gtkwave test_run_dir/*/PipelinedRV32I.vcd
   ```
 
-## Key Implementation Features
-
-### Processor Design
-
-- **5-Stage Pipeline**: Classical MIPS-style pipeline with pipeline registers between stages
-- **32×32 Register File**: Full register file with x0 hard-wired to zero
-
-### Instruction Decoding
-
-- **Comprehensive Control Unit**: RV32I instruction subset with:
-  - R-type instruction recognition and funct3/funct7 decoding
-  - I-type immediate decoding with sign extension
-
-
-### ALU Implementation
-
-ALU design used from previous assignment.
-
-
-## Hazard Detection and Resolution
-
-### Data Hazards
-No solution implemented in Assignment03
 
 
 ## Test Coverage
 
-The testbench verifies:
-- ✓ R-type and I-type arithmetic/logical operations
-- ✓ Immediate value extraction and sign extension
+Test all possible cases of potential data hazards in this pipeline and check whether all of them are resolved by your implemented forwarding unit.
 
 ## References
 

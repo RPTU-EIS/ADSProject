@@ -1,29 +1,34 @@
-# Assignment 03: Pipelined RV32I Core
+# Assignment 06: Branch Target Buffer
 
-This is an implementation of a 5-stage pipelined RISC-V 32-bit Integer (RV32I) processor core, designed in Chisel HDL. The processor executes the R-type and I-type subset of the RV32I instruction set without hazard detection or resolution.
 
 ## Processor Architecture Overview
 
-### 5-Stage Pipeline
+### 5-Stage Pipeline with Hazard Detection, Forwarding and Branch Prediction
 
-The processor implements a classic 5-stage pipeline architecture:
+This task is based on the classic 5-stage pipeline architecture implemented in assignments 3-5:
 
-1. **Instruction Fetch (IF)**: Fetch instruction from instruction memory and increment program counter
+1. **Instruction Fetch (IF)**: Fetch instruction from instruction memory and predict next PC
 2. **Instruction Decode (ID)**: Decode instruction, extract operands from register file, generate immediate values
-3. **Execute (EX)**: Execute ALU operations
+3. **Execute (EX)**: Execute ALU operations and evaluate conditional branches
 4. **Memory (MEM)**: Load/Store operations on data memory (left empty)
 5. **Write-Back (WB)**: Write results back to register file
 
-### Key Features
+### Key Features to be added in this task
 
-- **Full RV32I ISA Support**: Supports all R-type and I-type RV32I instructions
-  - R-type arithmetic and logical operations (ADD, SUB, AND, OR, XOR, SLL, SRL, SRA, SLT, SLTU)
-  - I-type immediate operations (ADDI, ANDI, ORI, XORI, SLLI, SRLI, SRAI, SLTI, SLTIU)
-
-- **Comprehensive ALU**: All 11 RV32I ALU operations with exception detection
-
-- **Memory Interface**: Configurable instruction and data memory with word-addressed access
-
+Assignment 6 extends the pipeline with a Branch Target Buffer (BTB).
+Your task is to implement a BTB, as presented in the ADS I lecture (slide 6-48), in combination with a dynamic 2-bit branch predictor (slide 6-47). 
+A BTB is a hardware component used in modern processors to improve the efficiency of branch instructions. 
+The BTB acts as a lookup table for target addresses.
+When the control flow encounters a branch instruction, the BTB checks if it contains an entry for this branch and what outcome the prediction scheme used by the BTB predicts. 
+This allows the processor to quickly fetch the next instruction without waiting for a full evaluation of the branch. 
+If the prediction is correct, the processor continues execution without delay. 
+If it is wrong, the processor rolls back and resumes execution at the correct target PC. 
+In both cases, the prediction is updated to reflect the current behavior of the program. 
+This way, a BTB helps to reduce pipeline stalls and improves overall performance. 
+The BTB serves as a cache for target addresses. Therefore, we can utilize strategies known from data caches, such as associativity (cf. slide 7-23), to make the BTB more efficient. 
+The BTB should only be applied to conditional branch instructions (beq, bne, blt, bge, bltu, bgeu). 
+Unconditional jumps (jal, jalr) should always be handled as taken branches without consulting the BTB.
+ 
 ## Project Structure
 
 ### Source Code (`src/main/scala/`)
@@ -38,6 +43,8 @@ The processor implements a classic 5-stage pipeline architecture:
 - **`IFbarrier.scala`, `IDbarrier.scala`, `EXbarrier.scala`, `MEMbarrier.scala`, `WBbarrier.scala`**: Pipeline registers holding stage outputs
 - **`ALU.scala`**: 32-bit ALU supporting all 11 RV32I operations with exception handling
 - **`RegisterFile.scala`**: 32×32-bit register file with 2 read ports and 1 write port
+- **`ForwardingUnit.scala`**: Forwarding Unit to control the input muxes in the EX stage
+- **`BTB.scala`**: Branch Target Buffer
 - **`common.scala`**: Common enums and control signals (ALU operations, opcodes, control types)
 - **`MakeVerilog.scala`**: Verilog generation driver
 
@@ -60,14 +67,14 @@ The processor implements a classic 5-stage pipeline architecture:
 | **Comparison** | SLT, SLTI, SLTU, SLTIU | 4 |
 | **Logical** | AND, ANDI, OR, ORI, XOR, XORI | 6 |
 | **Shift** | SLL, SLLI, SRL, SRLI, SRA, SRAI | 6 |
-| **Total** | | **19** |
+| **Branch** | BEQ, BNE, BLT, BGE, BLTU, BGEU | 6 |
+| **Jump** | JAL, JALR | 2 |
+| **Total** | | **27** |
 
 ### Not Implemented
 
 - **Load** LW, LH, LHU, LB, LBU
 - **Store** SW, SH, SB
-- **Branch** BEQ, BNE, BLT, BGE, BLTU, BGEU
-- **Jump** JAL, JALR
 - **Upper Immediate** LUI, AUIPC
 - **System Instructions**: ECALL, EBREAK, FENCE, FENCE.I
 - **Privileged Instructions**: CSRRW, CSRRS, CSRRC, CSRRWI, CSRRSI, CSRRCI
@@ -90,7 +97,7 @@ The processor implements a classic 5-stage pipeline architecture:
 Generate Verilog RTL from Chisel:
 
 ```bash
-cd 03_RV32I-pipeline
+cd 06_Branch-Target-Buffer
 sbt run
 ```
 
@@ -124,36 +131,12 @@ This:
   gtkwave test_run_dir/*/PipelinedRV32I.vcd
   ```
 
-## Key Implementation Features
-
-### Processor Design
-
-- **5-Stage Pipeline**: Classical MIPS-style pipeline with pipeline registers between stages
-- **32×32 Register File**: Full register file with x0 hard-wired to zero
-
-### Instruction Decoding
-
-- **Comprehensive Control Unit**: RV32I instruction subset with:
-  - R-type instruction recognition and funct3/funct7 decoding
-  - I-type immediate decoding with sign extension
-
-
-### ALU Implementation
-
-ALU design used from previous assignment.
-
-
-## Hazard Detection and Resolution
-
-### Data Hazards
-No solution implemented in Assignment03
 
 
 ## Test Coverage
 
-The testbench verifies:
-- ✓ R-type and I-type arithmetic/logical operations
-- ✓ Immediate value extraction and sign extension
+Test the bahaviour of your BTB and evaluate if the pipeline handles the branch resolution correctly.
+Evaluate the effectivness of your BTB in comparison to the static prediction scheme from assignment 5.
 
 ## References
 
