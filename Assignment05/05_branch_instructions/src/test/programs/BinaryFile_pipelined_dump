@@ -1,0 +1,81 @@
+// ADS I Class Project
+// Pipelined RISC-V Core with Branch and Jump support
+//
+// Chair of Electronic Design Automation, RPTU in Kaiserslautern
+// Test cases for branch and jump instructions
+
+package PipelinedRV32I_Tester
+
+import chisel3._
+import chiseltest._
+import PipelinedRV32I._
+import org.scalatest.flatspec.AnyFlatSpec
+
+// -----------------------------------------
+// Test cases for Branch and Jump instructions
+// -----------------------------------------
+
+//Start code
+
+//We test the new control hazard logic by running a program full of
+//branches and jumps. Each instruction is designed to trigger a specific
+//scenario: taken branch, not taken branch, and unconditional jump
+class PipelinedRISCV32ITest extends AnyFlatSpec with ChiselScalatestTester {
+
+  "RV32I_BranchJumpTester" should "work" in {
+    test(new PipelinedRV32I("src/test/programs/BinaryFile_pipelined")).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+
+      dut.clock.setTimeout(0)
+      dut.clock.step(5)
+
+
+      //SETUP
+      dut.io.result.expect(0.U)        // ADDI x0, x0, 0
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      dut.io.result.expect(4.U)        // ADDI x1, x0, 4
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      dut.io.result.expect(5.U)        // ADDI x2, x0, 5
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+
+      //CASE 1 — BEQ not taken (4 != 5), keep going
+      //The branch result is the PC+imm but it does NOT take effect
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      dut.io.result.expect(99.U)       // ADDI x3, x0, 99
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      dut.io.result.expect(100.U)      // ADDI x4, x0, 100
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+
+      //CASE 2 — BNE taken (4 != 5), skip 2 instructions
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      //SKIPPED instructions flushed → no result expected here
+      dut.clock.step(2)
+
+
+      //CASE 3 — JAL (always taken)
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+      //SKIPPED instruction
+      dut.clock.step(1)
+
+      dut.io.result.expect(101.U)      // ADDI x9, x0, 101 [JAL target]
+      dut.io.exception.expect(false.B)
+      dut.clock.step(1)
+
+    }
+  }
+}
