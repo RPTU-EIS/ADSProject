@@ -1,0 +1,21 @@
+00000013 // ADDI x0, x0, 0         # NOP/setup
+00400093 // ADDI x1, x0, 4         # x1 = 4
+00500113 // ADDI x2, x0, 5         # x2 = 5
+00100193 // ADDI x3, x0, 1         # x3 = 1
+00400213 // ADDI x4, x0, 4         # x4 = 4 (for equality test)
+fff00393 // ADDI x7, x0, -1        # x7 = -1
+00000013 // ADDI x0, x0, 0         # NOP
+00000013 // ADDI x0, x0, 0         # NOP
+00000013 // ADDI x0, x0, 0         # NOP (padding to test no-op)
+00801463 // BEQ x0, x1, 8          # x0 != x1, not taken
+00600313 // ADDI x6, x0, 6         # x6 = 6 (should execute)
+00000013 // ADDI x0, x0, 0         # NOP
+00001463 // BEQ x0, x0, 8          # x0 == x0, taken! jump forward
+00700313 // ADDI x6, x0, 7         # x6 = 7 (should skip)
+00800313 // ADDI x6, x0, 8         # x6 = 8 (should execute after jump)
+00001663 // BNE x0, x0, 8          # x0 == x0, not taken
+00900513 // ADDI x10, x0, 9        # x10 = 9 (should execute)
+00000013 // ADDI x0, x0, 0         # NOP
+00101663 // BNE x1, x0, 8          # x1 != x0, taken! jump forward  
+00a00513 // ADDI x10, x0, 10       # x10 = 10 (should skip)
+00b00513 // ADDI x10, x0, 11       # x10 = 11 (should execute)

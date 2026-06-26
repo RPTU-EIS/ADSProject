@@ -5,7 +5,7 @@
 // File created on 01/15/2023 by Tobias Jauch (@tojauch)
 
 /*
-The goal of this task is to implement a 5-stage pipeline that features a subset of RV32I (all R-type and I-type instructions). 
+The goal of this task is to implement a 5-stage pipeline that features a subset of RV32I (all R-type, I-type, B-type and J-type instructions).
 
     Instruction Memory:
         The CPU has an instruction memory (IMem) with 4096 words, each of 32 bits.
@@ -34,6 +34,7 @@ The goal of this task is to implement a 5-stage pipeline that features a subset 
         Execute Stage:
             Arithmetic and logic operations, including branch target calculation, are performed based on the control signals and operands.
             The result is stored in the aluResult register.
+            Branch conditions are evaluated and branch targets are calculated.
 
         Memory Stage:
             No memory operations are implemented in this basic CPU.
@@ -58,9 +59,99 @@ import uopc._
 
 class PipelinedRV32Icore (BinaryFile: String) extends Module {
   val io = IO(new Bundle {
-    //ToDo: Add I/O ports
+    val check_res = Output(UInt(32.W))
+    val exception = Output(Bool())
   })
 
-//ToDo: Add your implementation according to the specification above here 
+  val ifStage    = Module(new IF(BinaryFile))
+  val ifBarrier  = Module(new IFBarrier)
+  val idStage    = Module(new ID)
+  val idBarrier  = Module(new IDBarrier)
+  val exStage    = Module(new EX)
+  val exBarrier  = Module(new EXBarrier)
+  val memStage   = Module(new MEM)
+  val memBarrier = Module(new MEMBarrier)
+  val wbStage    = Module(new WB)
+  val wbBarrier  = Module(new WBBarrier)
+  val regfile    = Module(new regFile)
 
+  // IF → IFBarrier
+  ifBarrier.io.inInstr  := ifStage.io.instr
+  ifBarrier.io.inPC     := ifStage.io.pc
+
+  // IFBarrier → ID
+  idStage.io.instr      := ifBarrier.io.outInstr
+  idStage.io.pc         := ifBarrier.io.outPC
+
+  // Register file ↔ ID (read ports)
+  regfile.io.req_1      := idStage.io.regFileReq_A
+  idStage.io.regFileResp_A := regfile.io.resp_1
+  regfile.io.req_2      := idStage.io.regFileReq_B
+  idStage.io.regFileResp_B := regfile.io.resp_2
+
+  // ID → IDBarrier
+  idBarrier.io.inUOP         := idStage.io.uop
+  idBarrier.io.inRD          := idStage.io.rd
+  idBarrier.io.inRS1         := idStage.io.rs1
+  idBarrier.io.inRS2         := idStage.io.rs2
+  idBarrier.io.inOperandA    := idStage.io.operandA
+  idBarrier.io.inOperandB    := idStage.io.operandB
+  idBarrier.io.inPC          := idStage.io.pcOut
+  idBarrier.io.inXcptInvalid := idStage.io.XcptInvalid
+
+  // IDBarrier → EX
+  exStage.io.uop         := idBarrier.io.outUOP
+  exStage.io.operandA    := idBarrier.io.outOperandA
+  exStage.io.operandB    := idBarrier.io.outOperandB
+  exStage.io.rd          := idBarrier.io.outRD
+  exStage.io.rs1         := idBarrier.io.outRS1
+  exStage.io.rs2         := idBarrier.io.outRS2
+  exStage.io.pc          := idBarrier.io.outPC
+  exStage.io.XcptInvalid := idBarrier.io.outXcptInvalid
+
+  // EX ← Forwarding from MEM (exBarrier/EX-MEM) and WB (memBarrier/MEM-WB)
+  exStage.io.aluResult_MEM := exBarrier.io.outAluResult
+  exStage.io.rd_MEM        := exBarrier.io.outRD
+  exStage.io.wrEn_MEM      := exBarrier.io.outWriteEn
+  exStage.io.aluResult_WB  := memBarrier.io.outAluResult
+  exStage.io.rd_WB         := memBarrier.io.outRD
+  exStage.io.wrEn_WB       := memBarrier.io.outWriteEn
+
+  // EX → EXBarrier
+  exBarrier.io.inAluResult   := exStage.io.aluResult
+  exBarrier.io.inRD          := exStage.io.rdOut
+  exBarrier.io.inXcptInvalid := exStage.io.exception
+  exBarrier.io.inFlush       := exStage.io.flush
+  exBarrier.io.inBranchTarget := exStage.io.branchTarget
+
+  // EXBarrier → MEMBarrier (MEM stage is empty placeholder)
+  memBarrier.io.inAluResult := exBarrier.io.outAluResult
+  memBarrier.io.inRD        := exBarrier.io.outRD
+  memBarrier.io.inException := exBarrier.io.outXcptInvalid
+  memBarrier.io.inFlush     := exBarrier.io.outFlush
+  memBarrier.io.inBranchTarget := exBarrier.io.outBranchTarget
+
+  // MEMBarrier → WB
+  wbStage.io.aluResult := memBarrier.io.outAluResult
+  wbStage.io.rd        := memBarrier.io.outRD
+
+  // WB → register file (write port)
+  regfile.io.req_3 := wbStage.io.regFileReq
+
+  // WB → WBBarrier
+  wbBarrier.io.inCheckRes    := wbStage.io.check_res
+  wbBarrier.io.inXcptInvalid := memBarrier.io.outException
+  wbBarrier.io.inRD          := memBarrier.io.outRD
+  wbBarrier.io.inWriteEn     := memBarrier.io.outWriteEn
+  wbBarrier.io.inFlush       := memBarrier.io.outFlush
+  wbBarrier.io.inBranchTarget := memBarrier.io.outBranchTarget
+
+  // Branch control: wire flush and branch target from WB back to IF
+  ifStage.io.flush        := wbBarrier.io.outFlush
+  ifStage.io.branchTarget := wbBarrier.io.outBranchTarget
+  ifStage.io.branchTaken  := wbBarrier.io.outFlush
+
+  // Outputs
+  io.check_res := wbBarrier.io.outCheckRes
+  io.exception := wbBarrier.io.outXcptInvalid
 }

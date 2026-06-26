@@ -9,8 +9,10 @@ Global Definitions and Data Types
 
 Enumerations:
     uopc: ChiselEnum defining micro-operation codes for all supported RV32I instructions:
-        R-type instructions 
+        R-type instructions
         I-type instructions
+        B-type instructions (branch)
+        J-type instructions (jump)
         NOP (no operation, default case)
 
 This enum is used throughout the pipeline:
@@ -27,4 +29,24 @@ import chisel3.experimental.ChiselEnum
 // Global Definitions and Data Types
 // -----------------------------------------
 
-//ToDo: Add your implementation according to the specification above here 
+object uopc extends ChiselEnum {
+  val isADD, isSUB, isAND, isOR, isXOR, isSLL, isSRL, isSRA, isSLT, isSLTU,
+      isADDI, isANDI, isORI, isXORI, isSLLI, isSRLI, isSRAI, isSLTI, isSLTIU,
+      isBEQ, isBNE, isBLT, isBGE, isBLTU, isBGEU, isJAL, isJALR,
+      isNOP = Value
+}
+
+// Register file request/response types
+class regFileReadReq extends Bundle {
+  val addr = UInt(5.W)
+}
+
+class regFileReadResp extends Bundle {
+  val data = UInt(32.W)
+}
+
+class regFileWriteReq extends Bundle {
+  val addr  = UInt(5.W)
+  val data  = UInt(32.W)
+  val wr_en = Bool()
+}
