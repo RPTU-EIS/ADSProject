@@ -106,6 +106,7 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
  IdBarrier.io.inOperandA     := decodeStage.io.operandA
  IdBarrier.io.inOperandB     := decodeStage.io.operandB
  IdBarrier.io.inXcptInvalid  := decodeStage.io.XcptInvalid
+ IdBarrier.io.inWrEn         := decodeStage.io.wrEn
 
   // Forwarding connections
   IdBarrier.io.inRs1 := decodeStage.io.rs1
@@ -130,6 +131,7 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
  executeStage.io.inOperandB     := IdBarrier.io.outOperandB
  executeStage.io.inRD           := IdBarrier.io.outRD
  executeStage.io.inXcptInvalid  := IdBarrier.io.outXcptInvalid
+ executeStage.io.wrEn           := IdBarrier.io.outWrEn
 
 
  ExBarrier.io.inAluResult   := executeStage.io.aluResult

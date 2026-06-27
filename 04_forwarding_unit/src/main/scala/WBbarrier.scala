@@ -47,14 +47,14 @@ class WBBarrier extends Module {
 
     val check_resReg    = RegInit(0.U(32.W))
     val isInvalidReg    = RegInit(false.B)
-    val rdReg = RegInit(0.U(5.W))
+    val rdReg           = RegInit(0.U(5.W))
 
     check_resReg  := io.inCheckRes
     isInvalidReg  := io.inXcptInvalid
-    rdReg := io.inRD
+    rdReg         := io.inRD
 
     io.outCheckRes    := check_resReg
     io.outXcptInvalid := isInvalidReg
-    io.outRD := rdReg
+    io.outRD          := rdReg
 
 }

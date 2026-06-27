@@ -67,6 +67,8 @@ class EXStage extends Module {
     val aluResEX = Input(UInt(32.W))
     val aluResMEM = Input(UInt(32.W))
     val aluResWB = Input(UInt(32.W))
+
+    val wrEn     =Input(Bool())
   })
 
   val alu = Module(new ALU)

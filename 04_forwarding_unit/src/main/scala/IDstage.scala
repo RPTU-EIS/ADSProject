@@ -58,6 +58,7 @@ class IDStage extends Module {
     val operandA = Output(UInt(32.W))
     val operandB = Output(UInt(32.W))
     val XcptInvalid = Output(Bool())
+    val wrEn        = Output(Bool())
 
 
     //Ports For FeedBack for WB stage
@@ -105,6 +106,8 @@ class IDStage extends Module {
 
   val isRType = (opcode === "b0110011".U)  // R-type
   val isIType = (opcode === "b0010011".U)  // I-type
+
+  io.wrEn := isRType || isIType
 
   io.operandA := regFile.io.resp_1.data
 
@@ -166,4 +169,3 @@ class IDStage extends Module {
     io.XcptInvalid := true.B
   }
 }
-
