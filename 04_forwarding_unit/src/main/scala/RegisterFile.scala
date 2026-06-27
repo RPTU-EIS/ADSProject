@@ -77,13 +77,23 @@ class regFile extends Module {
     val regFile = RegInit(VecInit(Seq.fill(32)(0.U(32.W))))
 
   //Read part
-  io.resp_1.data := Mux(io.req_3.wr_en && (io.req_3.addr === io.req_1.addr) && (io.req_1.addr =/= 0.U),
-    io.req_3.data,
-    regFile(io.req_1.addr))
+  // Read port 1
+  when(io.req_1.addr === 0.U) {
+    io.resp_1.data := 0.U          // x0 is always 0
+  }.elsewhen(io.req_3.wr_en && io.req_3.addr === io.req_1.addr) {
+    io.resp_1.data := io.req_3.data  // Internal forwarding
+  }.otherwise {
+    io.resp_1.data := regFile(io.req_1.addr)  // Normal read
+  }
 
-  io.resp_2.data := Mux(io.req_3.wr_en && (io.req_3.addr === io.req_2.addr) && (io.req_2.addr =/= 0.U),
-    io.req_3.data,
-    regFile(io.req_2.addr))
+  // Read port 2
+  when(io.req_2.addr === 0.U) {
+    io.resp_2.data := 0.U  // x0 is always 0
+  }.elsewhen(io.req_3.wr_en && io.req_3.addr === io.req_2.addr) {
+    io.resp_2.data := io.req_3.data  // Internal forwarding
+  }.otherwise {
+    io.resp_2.data := regFile(io.req_2.addr)  // Normal read
+  }
 
     //Write part
     when(io.req_3.wr_en && io.req_3.addr =/= 0.U) {
