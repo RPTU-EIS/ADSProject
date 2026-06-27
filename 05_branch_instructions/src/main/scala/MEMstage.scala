@@ -24,7 +24,7 @@ import chisel3._
 // Memory Stage
 // -----------------------------------------
 
-class MEM extends Module {
+class MEMStage extends Module {
   val io = IO(new Bundle {
 
   })

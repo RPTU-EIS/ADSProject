@@ -40,22 +40,64 @@ Special Case for hazard resolution:
 // -----------------------------------------
 
 class regFileReadReq extends Bundle {
-    //ToDo: implement bundle for read request
+  //ToDo: implement bundle for read request
+  val addr = Input(UInt(5.W))
 }
 
 class regFileReadResp extends Bundle {
-    //ToDo: implement bundle for read response
+  //ToDo: implement bundle for read response
+  val data = Output(UInt(32.W))
 }
 
 class regFileWriteReq extends Bundle {
-    //ToDo: implement bundle for write request
+  //ToDo: implement bundle for write request
+  val addr = Input(UInt(5.W))
+  val data = Input(UInt(32.W))
+  val wr_en = Input(Bool())
 }
 
 class regFile extends Module {
   val io = IO(new Bundle {
-    //ToDo: Add I/O ports 
-})
+    //ToDo: Add I/O ports
 
-//ToDo: Add your implementation according to the specification above here 
+    //First read port
+    val req_1 = Input(new regFileReadReq)
+    val resp_1 = Output(new regFileReadResp)
+
+    //Second read port
+    val req_2 = Input(new regFileReadReq)
+    val resp_2 = Output(new regFileReadResp)
+
+    //Write Port
+    val req_3 = Input(new regFileWriteReq)
+  })
+
+  //ToDo: Add your implementation according to the specification above here
+  //All 32 registers are initialised to 0
+  val regFile = RegInit(VecInit(Seq.fill(32)(0.U(32.W))))
+
+  //Read part
+  // Read port 1
+  when(io.req_1.addr === 0.U) {
+    io.resp_1.data := 0.U          // x0 is always 0
+  }.elsewhen(io.req_3.wr_en && io.req_3.addr === io.req_1.addr) {
+    io.resp_1.data := io.req_3.data  // Internal forwarding
+  }.otherwise {
+    io.resp_1.data := regFile(io.req_1.addr)  // Normal read
+  }
+
+  // Read port 2
+  when(io.req_2.addr === 0.U) {
+    io.resp_2.data := 0.U  // x0 is always 0
+  }.elsewhen(io.req_3.wr_en && io.req_3.addr === io.req_2.addr) {
+    io.resp_2.data := io.req_3.data  // Internal forwarding
+  }.otherwise {
+    io.resp_2.data := regFile(io.req_2.addr)  // Normal read
+  }
+
+  //Write part
+  when(io.req_3.wr_en && io.req_3.addr =/= 0.U) {
+    regFile(io.req_3.addr) := io.req_3.data
+  }
 
 }

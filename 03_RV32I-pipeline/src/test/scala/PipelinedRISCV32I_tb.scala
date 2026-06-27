@@ -104,7 +104,145 @@ class PipelinedRISCV32ITest extends AnyFlatSpec with ChiselScalatestTester {
       dut.clock.step(1)
       dut.io.result.expect(1.U)     // SLTU x13, x5, x4
       dut.io.exception.expect(false.B)
-      dut.clock.step(1)           
+      dut.clock.step(1)
+      dut.io.result.expect("hFFFFFFFF".U)  // ADDI x1, x0, -1
+      dut.io.exception.expect(false.B)
+
+      // ============================================
+      // EDGE CASE TESTS
+      // ============================================
+
+      dut.clock.step(1)
+      dut.io.result.expect("hFFFFF800".U)  // ADDI x14, x0, -2048
+      dut.io.exception.expect(false.B)
+
+      dut.clock.step(1)
+      dut.io.result.expect(2047.U)
+      dut.io.exception.expect(false.B)    // ADDI x15, x0, 2047
+
+      dut.clock.step(1)
+      dut.io.result.expect(1.U)            // ADDI x16, x0, 1
+      dut.io.exception.expect(false.B)
+
+      dut.clock.step(1)
+      dut.io.result.expect(0.U)     // ADDI x0, x0, 0
+      dut.io.exception.expect(false.B)
+
+      dut.clock.step(1)
+      dut.io.result.expect(0.U)     // ADDI x0, x0, 0
+      dut.io.exception.expect(false.B)
+
+      dut.clock.step(1)
+      dut.io.result.expect(0.U)     // ADDI x0, x0, 0
+      dut.io.exception.expect(false.B)
+
+      dut.clock.step(1)
+      dut.io.result.expect(2048.U)         // ADD x17, x15, x16
+      dut.io.exception.expect(false.B)
+
+      dut.clock.step(1)
+      dut.io.result.expect("hFFFFF800".U)  // ADDI x18, x0, -2048
+      dut.io.exception.expect(false.B)
+
+      dut.clock.step(1)
+      dut.io.result.expect(1.U)            // ADDI x19, x0, 1
+      dut.io.exception.expect(false.B)
+
+      dut.clock.step(1)
+      dut.io.result.expect(0.U)     // ADDI x0, x0, 0
+      dut.io.exception.expect(false.B)
+
+      dut.clock.step(1)
+      dut.io.result.expect(0.U)     // ADDI x0, x0, 0
+      dut.io.exception.expect(false.B)
+
+      dut.clock.step(1)
+      dut.io.result.expect(0.U)     // ADDI x0, x0, 0
+      dut.io.exception.expect(false.B)
+
+      dut.clock.step(1)
+      dut.io.result.expect("hFFFFF7FF".U)  // SUB x20, x18, x19
+      dut.io.exception.expect(false.B)
+
+      dut.clock.step(1)
+      dut.io.result.expect("hFFFFFAAA".U)        // ADDI x21, x0, 0xAAA
+      dut.io.exception.expect(false.B)
+
+      dut.clock.step(1)
+      dut.io.result.expect(0.U)            // ADDI x22, x0, 0
+      dut.io.exception.expect(false.B)
+
+      dut.clock.step(1)
+      dut.io.result.expect(0.U)     // ADDI x0, x0, 0
+      dut.io.exception.expect(false.B)
+
+      dut.clock.step(1)
+      dut.io.result.expect(0.U)     // ADDI x0, x0, 0
+      dut.io.exception.expect(false.B)
+
+      dut.clock.step(1)
+      dut.io.result.expect(0.U)     // ADDI x0, x0, 0
+      dut.io.exception.expect(false.B)
+
+      dut.clock.step(1)
+      dut.io.result.expect("hFFFFFAAA".U)        // SLL x23, x21, x22 (shift 0)
+      dut.io.exception.expect(false.B)
+
+      dut.clock.step(1)
+      dut.io.result.expect("hFFFFFAAA".U)        // SRL x24, x21, x22 (shift 0)
+      dut.io.exception.expect(false.B)
+
+      dut.clock.step(1)
+      dut.io.result.expect("hFFFFFAAA".U)        // SRA x25, x21, x22 (shift 0)
+      dut.io.exception.expect(false.B)
+
+      dut.clock.step(1)
+      dut.io.result.expect(31.U)           // ADDI x26, x0, 31
+      dut.io.exception.expect(false.B)
+
+      dut.clock.step(1)
+      dut.io.result.expect(0.U)     // ADDI x0, x0, 0
+      dut.io.exception.expect(false.B)
+
+      dut.clock.step(1)
+      dut.io.result.expect(0.U)     // ADDI x0, x0, 0
+      dut.io.exception.expect(false.B)
+
+      dut.clock.step(1)
+      dut.io.result.expect(0.U)     // ADDI x0, x0, 0
+      dut.io.exception.expect(false.B)
+
+      dut.clock.step(1)
+      dut.io.result.expect(0.U)  // SLL x27, x21, x26 (0xAAA << 31)
+      dut.io.exception.expect(false.B)
+
+      dut.clock.step(1)
+      dut.io.result.expect("hFFFFFFFF".U)            // SRA x29, x21, x26 (0xAAA >> 31)
+      dut.io.exception.expect(false.B)
+
+      dut.clock.step(1)
+      dut.io.result.expect("hFFFFFFFF".U)  // ADDI x30, x0, -1
+      dut.io.exception.expect(false.B)
+
+      dut.clock.step(1)
+      dut.io.result.expect(1.U)            // ADDI x31, x0, 1
+      dut.io.exception.expect(false.B)
+
+      dut.clock.step(1)
+      dut.io.result.expect(0.U)     // ADDI x0, x0, 0
+      dut.io.exception.expect(false.B)
+
+      dut.clock.step(1)
+      dut.io.result.expect(0.U)     // ADDI x0, x0, 0
+      dut.io.exception.expect(false.B)
+
+      dut.clock.step(1)
+      dut.io.result.expect(0.U)     // ADDI x0, x0, 0
+      dut.io.exception.expect(false.B)
+
+      dut.clock.step(1)
+      dut.io.result.expect("hFFFFFFFF".U)  // SRA x0, x30, x31 (-1 >> 1 = -1)
+      dut.io.exception.expect(false.B)
     }
   }
 }
