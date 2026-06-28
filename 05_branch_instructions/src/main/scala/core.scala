@@ -150,6 +150,25 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
   writebackStage.io.inRD          := MemBarrier.io.outRD
   writebackStage.io.inXcptInvalid := MemBarrier.io.outXcptInvalid
 
+  //Branch/Jump Connections
+  fetchStage.io.inPCSrc := decodeStage.io.outPCSrc       // Jump PC select
+  fetchStage.io.inPCNew := decodeStage.io.outPC          // Jump target
+  fetchStage.io.inFlush := executeStage.io.outFlush       // Branch flush
+  fetchStage.io.inPCNewEx := executeStage.io.outPCnew     // Branch target
+
+  IfBarrier.io.inPC := fetchStage.io.PC           // PC to ID stage
+  IfBarrier.io.inFlush := executeStage.io.outFlush     // Flush on misprediction
+
+  decodeStage.io.inPC := IfBarrier.io.outPC           // PC of current instruction
+  decodeStage.io.inFlush := executeStage.io.outFlush       // Flush on misprediction
+
+  IdBarrier.io.inBranchDest := decodeStage.io.outBranchDest
+  IdBarrier.io.inPC := decodeStage.io.inPC
+  IdBarrier.io.inPCSrc := decodeStage.io.outPCSrc
+
+  executeStage.io.inBranchDest := IdBarrier.io.outBranchDest
+  executeStage.io.inPC := IdBarrier.io.outPC
+  executeStage.io.inPCSrc := IdBarrier.io.outPCSrc
 
   //Feedback loop to ID
   decodeStage.io.wb_req_en   := writebackStage.io.regFileReq.wr_en

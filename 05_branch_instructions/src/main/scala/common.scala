@@ -34,6 +34,10 @@ object uopc extends ChiselEnum {
   val ADD, SUB, AND, OR, XOR, SLL, SRL, SRA, SLT, SLTU = Value
   //I-Type Instruction
   val ADDI, ANDI, ORI, XORI, SLLI, SRLI, SRAI, SLTI, SLTIU = Value
+  //Branch Instruction (B-Type)
+  val BEQ, BNE, BLT, BGE, BLTU, BGEU = Value
+  //Jump Instruction (J-Type)
+  val JAL, JALR = Value
   //No operation
   val NOP = Value
 }
