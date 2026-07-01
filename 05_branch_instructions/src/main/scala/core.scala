@@ -4,50 +4,6 @@
 // Chair of Electronic Design Automation, RPTU in Kaiserslautern
 // File created on 01/15/2023 by Tobias Jauch (@tojauch)
 
-/*
-The goal of this task is to implement a 5-stage pipeline that features a subset of RV32I (all R-type, I-type, B-type and J-type instructions).
-
-    Instruction Memory:
-        The CPU has an instruction memory (IMem) with 4096 words, each of 32 bits.
-        The content of IMem is loaded from a binary file specified during the instantiation of the MultiCycleRV32Icore module.
-
-    CPU Registers:
-        The CPU has a program counter (PC) and a register file (regFile) with 32 registers, each holding a 32-bit value.
-        Register x0 is hard-wired to zero.
-
-    Microarchitectural Registers / Wires:
-        Various signals are defined as either registers or wires depending on whether they need to be used in the same cycle or in a later cycle.
-
-    Processor Stages:
-        The FSM of the processor has five stages: fetch, decode, execute, memory, and writeback.
-        All stages are active at the same time and process different instructions simultaneously.
-
-        Fetch Stage:
-            The instruction is fetched from the instruction memory based on the current value of the program counter (PC).
-
-        Decode Stage:
-            Instruction fields such as opcode, rd, funct3, and rs1 are extracted.
-            For R-type instructions, additional fields like funct7 and rs2 are extracted.
-            Control signals (isADD, isSUB, etc.) are set based on the opcode and funct3 values.
-            Operands (operandA and operandB) are determined based on the instruction type.
-
-        Execute Stage:
-            Arithmetic and logic operations, including branch target calculation, are performed based on the control signals and operands.
-            The result is stored in the aluResult register.
-            Branch conditions are evaluated and branch targets are calculated.
-
-        Memory Stage:
-            No memory operations are implemented in this basic CPU.
-
-        Writeback Stage:
-            The result of the operation (writeBackData) is written back to the destination register (rd) in the register file.
-
-    Check Result:
-        The final result (writeBackData) is output to the io.check_res signal.
-        The exception signal is also passed to the wrapper module. It indicates whether an invalid instruction has been encountered.
-        In the fetch stage, a default value of 0 is assigned to io.check_res.
-*/
-
 package core_tile
 
 import chisel3._
@@ -75,22 +31,26 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
   val wbBarrier  = Module(new WBBarrier)
   val regfile    = Module(new regFile)
 
-  // IF → IFBarrier
-  ifBarrier.io.inInstr  := ifStage.io.instr
-  ifBarrier.io.inPC     := ifStage.io.pc
-  ifBarrier.io.flush    := exStage.io.flush
+  // ── IF Stage ──────────────────────────────────────────────────────────────
+  ifStage.io.flush        := exStage.io.flush
+  ifStage.io.branchTarget := exStage.io.branchTarget
+  ifStage.io.branchTaken  := exStage.io.flush
 
-  // IFBarrier → ID
-  idStage.io.instr      := ifBarrier.io.outInstr
-  idStage.io.pc         := ifBarrier.io.outPC
+  // IF → IFBarrier (flush injects NOP to squash WP2)
+  ifBarrier.io.inInstr := ifStage.io.instr
+  ifBarrier.io.inPC    := ifStage.io.pc
+  ifBarrier.io.flush   := exStage.io.flush
 
-  // Register file ↔ ID (read ports)
-  regfile.io.req_1      := idStage.io.regFileReq_A
+  // ── ID Stage ──────────────────────────────────────────────────────────────
+  idStage.io.instr := ifBarrier.io.outInstr
+  idStage.io.pc    := ifBarrier.io.outPC
+
+  regfile.io.req_1         := idStage.io.regFileReq_A
   idStage.io.regFileResp_A := regfile.io.resp_1
-  regfile.io.req_2      := idStage.io.regFileReq_B
+  regfile.io.req_2         := idStage.io.regFileReq_B
   idStage.io.regFileResp_B := regfile.io.resp_2
 
-  // ID → IDBarrier
+  // ID → IDBarrier (flush zeroes out registers to squash WP1)
   idBarrier.io.inUOP         := idStage.io.uop
   idBarrier.io.inRD          := idStage.io.rd
   idBarrier.io.inRS1         := idStage.io.rs1
@@ -99,10 +59,10 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
   idBarrier.io.inOperandB    := idStage.io.operandB
   idBarrier.io.inPC          := idStage.io.pcOut
   idBarrier.io.inXcptInvalid := idStage.io.XcptInvalid
+  idBarrier.io.inwr_en       := idStage.io.wr_en
   idBarrier.io.flush         := exStage.io.flush
-  idBarrier.io.inKill        := ifBarrier.io.outKill
 
-  // IDBarrier → EX
+  // ── EX Stage ──────────────────────────────────────────────────────────────
   exStage.io.uop         := idBarrier.io.outUOP
   exStage.io.operandA    := idBarrier.io.outOperandA
   exStage.io.operandB    := idBarrier.io.outOperandB
@@ -112,7 +72,7 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
   exStage.io.pc          := idBarrier.io.outPC
   exStage.io.XcptInvalid := idBarrier.io.outXcptInvalid
 
-  // EX ← Forwarding from MEM (exBarrier/EX-MEM) and WB (memBarrier/MEM-WB)
+  // Forwarding from EX-MEM and MEM-WB barriers
   exStage.io.aluResult_MEM := exBarrier.io.outAluResult
   exStage.io.rd_MEM        := exBarrier.io.outRD
   exStage.io.wrEn_MEM      := exBarrier.io.outWriteEn
@@ -120,39 +80,28 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
   exStage.io.rd_WB         := memBarrier.io.outRD
   exStage.io.wrEn_WB       := memBarrier.io.outWriteEn
 
-  ifStage.io.flush        := exStage.io.flush
-  ifStage.io.branchTarget := exStage.io.branchTarget
-  ifStage.io.branchTaken  := exStage.io.flush
-
-  // EX → EXBarrier (kill propagates from IDBarrier, not directly from flush)
+  // EX → EXBarrier
   exBarrier.io.inAluResult   := exStage.io.aluResult
   exBarrier.io.inRD          := exStage.io.rdOut
   exBarrier.io.inXcptInvalid := exStage.io.exception
-  exBarrier.io.inKill        := idBarrier.io.outKill
+  exBarrier.io.inwr_en       := idBarrier.io.outwr_en
 
-  // EXBarrier → MEMBarrier
+  // ── MEM Stage ─────────────────────────────────────────────────────────────
   memBarrier.io.inAluResult := exBarrier.io.outAluResult
   memBarrier.io.inRD        := exBarrier.io.outRD
   memBarrier.io.inException := exBarrier.io.outXcptInvalid
-  memBarrier.io.inKill      := exBarrier.io.outKill
+  memBarrier.io.inwr_en     := exBarrier.io.outWriteEn
 
-  // MEMBarrier → WB
+  // ── WB Stage ──────────────────────────────────────────────────────────────
   wbStage.io.aluResult := memBarrier.io.outAluResult
   wbStage.io.rd        := memBarrier.io.outRD
   wbStage.io.writeEn   := memBarrier.io.outWriteEn
 
-  // WB → register file (write port)
   regfile.io.req_3 := wbStage.io.regFileReq
 
-  // WB → WBBarrier
-  wbBarrier.io.inCheckRes     := wbStage.io.check_res
-  wbBarrier.io.inXcptInvalid  := memBarrier.io.outException
-  wbBarrier.io.inRD           := memBarrier.io.outRD
-  wbBarrier.io.inWriteEn      := memBarrier.io.outWriteEn
-  wbBarrier.io.inFlush        := false.B
-  wbBarrier.io.inBranchTarget := 0.U
+  wbBarrier.io.inCheckRes    := wbStage.io.check_res
+  wbBarrier.io.inXcptInvalid := memBarrier.io.outException
 
-  // Outputs
   io.check_res := wbBarrier.io.outCheckRes
   io.exception := wbBarrier.io.outXcptInvalid
 }

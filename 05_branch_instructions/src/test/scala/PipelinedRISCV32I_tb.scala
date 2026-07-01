@@ -117,8 +117,8 @@ class PipelinedRISCV32ITest extends AnyFlatSpec with ChiselScalatestTester {
     test(new PipelinedRV32I("src/test/programs/BinaryFile_ch_blt_taken"))
       .withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
       dut.clock.setTimeout(0)
-      // BLT x1,x2 taken (3 < 9); ALU=12; wrong-path x10=77,x11=66 suppressed → ADD=0
-      checkSequence(dut, Seq(3, 9, 12, 77, 66, 0))
+      // BLT x1,x2 taken (3 < 9); ALU=12; pipeline flushed with NOPs (check_res=0), ADD x3=0
+      checkSequence(dut, Seq(3, 9, 12, 0, 0, 0))
     }
   }
 
@@ -127,8 +127,8 @@ class PipelinedRISCV32ITest extends AnyFlatSpec with ChiselScalatestTester {
     test(new PipelinedRV32I("src/test/programs/BinaryFile_ch_bge_taken"))
       .withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
       dut.clock.setTimeout(0)
-      // BGE x1,x2 taken (9 >= 3); ALU=12; wrong-path x10=33,x11=22 suppressed → ADD=0
-      checkSequence(dut, Seq(9, 3, 12, 33, 22, 0))
+      // BGE x1,x2 taken (9 >= 3); ALU=12; pipeline flushed with NOPs (check_res=0), ADD x3=0
+      checkSequence(dut, Seq(9, 3, 12, 0, 0, 0))
     }
   }
 }

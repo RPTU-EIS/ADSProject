@@ -7,57 +7,40 @@
 /*
 MEM-Barrier: pipeline register between Memory and Writeback stages
 
-Internal Registers:
-    aluResult: computation result (or future load data)
-    rd: destination register index
-    exception: exception flag
-
-Inputs:
-    inAluResult: result from MEM stage
-    inRD: destination register from MEM stage
-    inException: exception flag from MEM stage
-
-Outputs:
-    outAluResult: result to WB stage
-    outRD: destination register to WB stage
-    outException: exception flag to WB stage
-
 Functionality:
-    Save all input signals to a register and output them in the following clock cycle
+    Pass aluResult, rd, exception flag, and write-enable through to WB stage.
+    outWriteEn = wr_en && !exception (used by forwarding unit and WB stage).
 */
 
 package core_tile
 
 import chisel3._
 
-// -----------------------------------------
-// MEM-Barrier
-// -----------------------------------------
-
 class MEMBarrier extends Module {
   val io = IO(new Bundle {
     val inAluResult = Input(UInt(32.W))
     val inRD        = Input(UInt(5.W))
     val inException = Input(Bool())
-    val inKill      = Input(Bool())
+    val inwr_en     = Input(Bool())
+
     val outAluResult = Output(UInt(32.W))
-    val outRD       = Output(UInt(5.W))
+    val outRD        = Output(UInt(5.W))
     val outException = Output(Bool())
-    val outWriteEn  = Output(Bool())
+    val outWriteEn   = Output(Bool())
   })
 
   val aluResultReg = RegInit(0.U(32.W))
   val rdReg        = RegInit(0.U(5.W))
   val exceptionReg = RegInit(false.B)
-  val killReg      = RegInit(false.B)
+  val wr_enReg     = RegInit(false.B)
 
   aluResultReg := io.inAluResult
   rdReg        := io.inRD
   exceptionReg := io.inException
-  killReg      := io.inKill
+  wr_enReg     := io.inwr_en
 
   io.outAluResult := aluResultReg
   io.outRD        := rdReg
   io.outException := exceptionReg
-  io.outWriteEn   := !exceptionReg && !killReg
+  io.outWriteEn   := wr_enReg && !exceptionReg
 }
