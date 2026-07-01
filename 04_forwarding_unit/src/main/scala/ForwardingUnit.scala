@@ -38,9 +38,26 @@ import uopc._
 
 class ForwardingUnit extends Module {
   val io = IO(new Bundle {
-    // Add I/O ports according to the specification above here
+    // Operand source registers in EX stage
+    val rs1_EX = Input(UInt(5.W))
+    val rs2_EX = Input(UInt(5.W))
+
+    // Destination registers and write enables from pipeline stages
+    val rd_MEM   = Input(UInt(5.W))
+    val wrEn_MEM = Input(Bool())
+    val rd_WB    = Input(UInt(5.W))
+    val wrEn_WB  = Input(Bool())
+
+    // Forwarding control signals for muxes
+    val forwardA = Output(UInt(2.W))  // 0: ID, 1: MEM, 2: WB
+    val forwardB = Output(UInt(2.W))  // 0: ID, 1: MEM, 2: WB
   })
 
-  //ToDo: Add your implementation according to the specification above here 
+  // Forward operand A from MEM (priority 1) or WB (priority 2), or pass through from ID (0)
+  io.forwardA := Mux(io.wrEn_MEM && (io.rs1_EX === io.rd_MEM) && (io.rs1_EX =/= 0.U), 1.U,
+                     Mux(io.wrEn_WB && (io.rs1_EX === io.rd_WB) && (io.rs1_EX =/= 0.U), 2.U, 0.U))
 
+  // Forward operand B from MEM (priority 1) or WB (priority 2), or pass through from ID (0)
+  io.forwardB := Mux(io.wrEn_MEM && (io.rs2_EX === io.rd_MEM) && (io.rs2_EX =/= 0.U), 1.U,
+                     Mux(io.wrEn_WB && (io.rs2_EX === io.rd_WB) && (io.rs2_EX =/= 0.U), 2.U, 0.U))
 }

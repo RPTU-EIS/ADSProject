@@ -7,29 +7,29 @@
 /*
 WB-Barrier: final pipeline register after Writeback stage
 
-Internal Registers:
-    check_res: final result value for verification, initialized to 0
-    isInvalid: invalid instruction flag, initialized to false
-
-Inputs:
-    inCheckRes: result from WB stage
-    inXcptInvalid: exception flag from MEM barrier
-
-Outputs:
-    outCheckRes: final result for external observation
-    outXcptInvalid: final exception flag (tied to invalid instruction in ID stage)
-
 Functionality:
-    Save all input signals to a register and output them in the following clock cycle
-    Enable result observation without pipeline disruption (for result and exception signals)
+    Capture check_res and exception flag for external observation.
 */
 
 package core_tile
 
 import chisel3._
 
-// -----------------------------------------
-// WB-Barrier
-// -----------------------------------------
+class WBBarrier extends Module {
+  val io = IO(new Bundle {
+    val inCheckRes    = Input(UInt(32.W))
+    val inXcptInvalid = Input(Bool())
 
-//ToDo: Add your implementation according to the specification above here 
+    val outCheckRes    = Output(UInt(32.W))
+    val outXcptInvalid = Output(Bool())
+  })
+
+  val checkResReg = RegInit(0.U(32.W))
+  val xcptReg     = RegInit(false.B)
+
+  checkResReg := io.inCheckRes
+  xcptReg     := io.inXcptInvalid
+
+  io.outCheckRes    := checkResReg
+  io.outXcptInvalid := xcptReg
+}

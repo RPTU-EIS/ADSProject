@@ -42,9 +42,25 @@ import chisel3.util.experimental.loadMemoryFromFile
 
 class IF (BinaryFile: String) extends Module {
   val io = IO(new Bundle {
-    // ToDo: Add I/O ports
+    val instr           = Output(UInt(32.W))
+    val pc              = Output(UInt(32.W))
+
+    val branchTarget    = Input(UInt(32.W))
+    val flush           = Input(Bool())
   })
 
-//ToDo: Add your implementation according to the specification above here 
-  
+  val IMem = Mem(4096, UInt(32.W))
+  loadMemoryFromFile(IMem, BinaryFile)
+
+  val PC = RegInit(0.U(32.W))
+
+  io.instr := IMem(PC >> 2)
+  io.pc    := PC
+
+  // Update PC based on branch control signals
+  when(io.flush) {
+    PC := io.branchTarget
+  }.otherwise {
+    PC := PC + 4.U
+  }
 }

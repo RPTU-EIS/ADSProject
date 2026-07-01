@@ -39,23 +39,29 @@ Special Case for hazard resolution:
 // Register File
 // -----------------------------------------
 
-class regFileReadReq extends Bundle {
-    //ToDo: implement bundle for read request
-}
-
-class regFileReadResp extends Bundle {
-    //ToDo: implement bundle for read response
-}
-
-class regFileWriteReq extends Bundle {
-    //ToDo: implement bundle for write request
-}
-
 class regFile extends Module {
   val io = IO(new Bundle {
-    //ToDo: Add I/O ports 
-})
+    val req_1  = Input(new regFileReadReq)
+    val resp_1 = Output(new regFileReadResp)
+    val req_2  = Input(new regFileReadReq)
+    val resp_2 = Output(new regFileReadResp)
+    val req_3  = Input(new regFileWriteReq)
+  })
 
-//ToDo: Add your implementation according to the specification above here 
+  val regs = RegInit(VecInit(Seq.fill(32)(0.U(32.W))))
 
+  // Simultaneous read and write: read returns written value if addr matches (write-through forwarding)
+  io.resp_1.data := Mux(io.req_1.addr === 0.U, 0.U,
+                         Mux(io.req_3.wr_en && io.req_1.addr === io.req_3.addr,
+                             io.req_3.data,
+                             regs(io.req_1.addr)))
+
+  io.resp_2.data := Mux(io.req_2.addr === 0.U, 0.U,
+                         Mux(io.req_3.wr_en && io.req_2.addr === io.req_3.addr,
+                             io.req_3.data,
+                             regs(io.req_2.addr)))
+
+  when(io.req_3.wr_en && io.req_3.addr =/= 0.U) {
+    regs(io.req_3.addr) := io.req_3.data
+  }
 }
