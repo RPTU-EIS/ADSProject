@@ -190,5 +190,12 @@ when(!io.inXcptInvalid) {
     io.outFlush := true.B      // Flush IF and ID stages
     io.outPCSrc := true.B      // Select PC from EX stage
     io.outPCnew := io.inBranchDest  // Branch target address
+
+
+  }
+  when(io.inUOP === uopc.JAL || io.inUOP === uopc.JALR) {
+     io.outFlush := true.B
+    io.outPCSrc := true.B
+    io.outPCnew := io.inBranchDest
   }
 }

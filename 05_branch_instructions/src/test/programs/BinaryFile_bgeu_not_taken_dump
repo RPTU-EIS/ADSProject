@@ -1,0 +1,11 @@
+# -------------------------
+# BGEU NOT TAKEN TEST
+# -------------------------
+
+addi x20, x0, 30        # x20 = 30
+addi x21, x0, 75        # x21 = 75
+
+bgeu x20, x21, 8        # 30 >= 75 ? FALSE -> Branch NOT Taken
+
+addi x22, x0, 99        # Should execute
+addi x23, x0, 1         # Should execute

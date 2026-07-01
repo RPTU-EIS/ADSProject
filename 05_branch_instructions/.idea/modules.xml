@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/05_branch_instructions/root-05_branch_instructions.iml" filepath="$PROJECT_DIR$/.idea/modules/05_branch_instructions/root-05_branch_instructions.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/05_branch_instructions/root-05_branch_instructions.main.iml" filepath="$PROJECT_DIR$/.idea/modules/05_branch_instructions/root-05_branch_instructions.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/05_branch_instructions/root-05_branch_instructions.root-05_branch_instructions-build.iml" filepath="$PROJECT_DIR$/.idea/modules/05_branch_instructions/root-05_branch_instructions.root-05_branch_instructions-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/05_branch_instructions/root-05_branch_instructions.test.iml" filepath="$PROJECT_DIR$/.idea/modules/05_branch_instructions/root-05_branch_instructions.test.iml" />
+    </modules>
+  </component>
+</project>

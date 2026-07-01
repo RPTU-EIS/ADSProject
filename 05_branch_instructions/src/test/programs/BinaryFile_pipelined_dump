@@ -18,3 +18,95 @@
 005236b3 // SLTU x13, x4, x5
 0042b6b3 // SLTU x13, x5, x4
 021141b3 // DIV x3, x2, x1 (NOT IMPLEMENTED!)
+
+# ---------- BEQ Test ----------
+00500713   // addi x14,x0,5
+00500793   // addi x15,x0,5
+00f70463   // beq x14,x15,8
+06300813   // addi x16,x0,99 (Should be flushed)
+00100893   // addi x17,x0,1
+
+00500913   // addi x18, x0, 5
+00600993   // addi x19, x0, 6
+01390463   // beq  x18, x19, 8
+06300a13   // addi x20, x0, 99
+00100a93   // addi x21, x0, 1
+
+# ---------- BNE Taken Test ----------
+00500b13    // addi x22, x0, 5
+00600b93    // addi x23, x0, 6
+017b1463    // bne  x22, x23, 8
+06300c13    // addi x24, x0, 99   (Should be flushed)
+00100c93    // addi x25, x0, 1
+
+02500d13   // addi x26, x0, 37
+02500d93   // addi x27, x0, 37
+01bd1463   // bne  x26, x27, 8   (NOT taken because 37 == 37)
+06300e13   // addi x28, x0, 99    (should execute)
+00100e93   // addi x29, x0, 1
+
+# BLT Taken
+00a00f13    // addi x30, x0, 10
+01400f93    // addi x31, x0, 20
+01ff4463    // blt  x30, x31, 8
+06300293    // addi x5,  x0, 99 (Should be flushed)
+00100313    // addi x6,  x0, 1
+// --------------------------
+// BLT Not Taken Test
+// --------------------------
+
+01400f13    // addi x30, x0, 20
+00a00f93    // addi x31, x0, 10
+01ff4463    // blt  x30, x31, 8
+06300293    // addi x5,  x0, 99 (Branch NOT taken, executes)
+00100313    // addi x6,  x0, 1
+// --------------------------
+// BGE Taken Test
+// --------------------------
+
+01400f13    // addi x30, x0, 20
+00a00f93    // addi x31, x0, 10
+01ff5463    // bge  x30, x31, 8
+06300293    // addi x5, x0, 99 (Should be flushed)
+00100313    // addi x6, x0, 1
+// --------------------------
+// BGE Not Taken Test
+// --------------------------
+
+00c00413    // addi x8,  x0, 12
+01e00493    // addi x9,  x0, 30
+00945463    // bge  x8,  x9, 8
+06300513    // addi x10, x0, 99 (Branch NOT taken)
+00100593    // addi x11, x0, 1
+
+// --------------------------
+// BLTU Taken Test
+// --------------------------
+
+00f00613    // addi x12, x0, 15
+02800693    // addi x13, x0, 40
+00d66463    // bltu x12, x13, 8
+06300713    // addi x14, x0, 99 (should be flushed)
+00100793    // addi x15, x0, 1
+// -------------------------
+// BLTU NOT TAKEN TEST
+// -------------------------
+
+addi x20, x0, 60        // x20 = 60
+addi x21, x0, 25        // x21 = 25
+
+bltu x20, x21, 8        // 60 < 25 ? FALSE -> branch NOT taken
+
+addi x22, x0, 99        // should execute
+addi x23, x0, 1         // should execute
+// -------------------------
+// BGEU TAKEN TEST
+// -------------------------
+
+# -------- BGEU TAKEN TEST --------
+
+addi x26, x0, 80
+addi x27, x0, 25
+bgeu x26, x27, 8
+addi x28, x0, 99
+addi x29, x0, 1

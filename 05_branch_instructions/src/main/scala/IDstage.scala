@@ -219,9 +219,13 @@ class IDStage extends Module {
       io.operandA := io.inPC + 4.U
       io.operandB := 0.U
 
+
+      io.outBranchDest := io.inPC + immJ
+
       // Jump target and PC select
       io.outPCSrc := true.B
       io.outPC := io.inPC + immJ
+
     }
 
     .elsewhen(isJALR && funct3 === "b000".U) {
@@ -233,6 +237,8 @@ class IDStage extends Module {
       // Return address = PC + 4
       io.operandA := io.inPC + 4.U
       io.operandB := 0.U
+
+
 
       // JALR target: rs1 + imm (clears LSB for 2-byte alignment)
       val jalrTarget = (regFile.io.resp_1.data + immI) & (~1.U(32.W))

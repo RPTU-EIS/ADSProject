@@ -154,7 +154,7 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
   fetchStage.io.inPCSrc := decodeStage.io.outPCSrc       // Jump PC select
   fetchStage.io.inPCNew := decodeStage.io.outPC          // Jump target
   fetchStage.io.inFlush := executeStage.io.outFlush       // Branch flush
-  fetchStage.io.inPCNewEx := executeStage.io.outPCnew     // Branch target
+    fetchStage.io.inPCNewEx := executeStage.io.outPCnew     // Branch target
 
   IfBarrier.io.inPC := fetchStage.io.PC           // PC to ID stage
   IfBarrier.io.inFlush := executeStage.io.outFlush     // Flush on misprediction
