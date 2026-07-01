@@ -44,6 +44,7 @@ class WB extends Module {
   val io = IO(new Bundle {
     val aluResult = Input(UInt(32.W))
     val rd        = Input(UInt(5.W))
+    val writeEn   = Input(Bool())
     val regFileReq = Output(new regFileWriteReq)
     val check_res = Output(UInt(32.W))
   })
@@ -52,5 +53,5 @@ class WB extends Module {
 
   io.regFileReq.addr  := io.rd
   io.regFileReq.data  := io.aluResult
-  io.regFileReq.wr_en := (io.rd =/= 0.U)
+  io.regFileReq.wr_en := io.writeEn && (io.rd =/= 0.U)
 }

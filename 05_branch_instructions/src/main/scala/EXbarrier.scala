@@ -39,32 +39,27 @@ class EXBarrier extends Module {
     val inAluResult    = Input(UInt(32.W))
     val inRD           = Input(UInt(5.W))
     val inXcptInvalid  = Input(Bool())
-    val inFlush        = Input(Bool())
-    val inBranchTarget = Input(UInt(32.W))
+    val inKill         = Input(Bool())
     val outAluResult   = Output(UInt(32.W))
     val outRD          = Output(UInt(5.W))
     val outXcptInvalid = Output(Bool())
     val outWriteEn     = Output(Bool())
-    val outFlush       = Output(Bool())
-    val outBranchTarget = Output(UInt(32.W))
+    val outKill        = Output(Bool())
   })
 
   val aluResultReg = RegInit(0.U(32.W))
   val rdReg        = RegInit(0.U(5.W))
   val xcptReg      = RegInit(false.B)
-  val flushReg     = RegInit(false.B)
-  val branchTargetReg = RegInit(0.U(32.W))
+  val killReg      = RegInit(false.B)
 
   aluResultReg := io.inAluResult
   rdReg        := io.inRD
   xcptReg      := io.inXcptInvalid
-  flushReg     := io.inFlush
-  branchTargetReg := io.inBranchTarget
+  killReg      := io.inKill
 
   io.outAluResult   := aluResultReg
   io.outRD          := rdReg
   io.outXcptInvalid := xcptReg
-  io.outWriteEn     := !xcptReg
-  io.outFlush       := flushReg
-  io.outBranchTarget := branchTargetReg
+  io.outWriteEn     := !xcptReg && !killReg
+  io.outKill        := killReg
 }

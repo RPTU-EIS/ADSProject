@@ -78,6 +78,7 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
   // IF → IFBarrier
   ifBarrier.io.inInstr  := ifStage.io.instr
   ifBarrier.io.inPC     := ifStage.io.pc
+  ifBarrier.io.flush    := exStage.io.flush
 
   // IFBarrier → ID
   idStage.io.instr      := ifBarrier.io.outInstr
@@ -98,6 +99,8 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
   idBarrier.io.inOperandB    := idStage.io.operandB
   idBarrier.io.inPC          := idStage.io.pcOut
   idBarrier.io.inXcptInvalid := idStage.io.XcptInvalid
+  idBarrier.io.flush         := exStage.io.flush
+  idBarrier.io.inKill        := ifBarrier.io.outKill
 
   // IDBarrier → EX
   exStage.io.uop         := idBarrier.io.outUOP
@@ -117,39 +120,37 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
   exStage.io.rd_WB         := memBarrier.io.outRD
   exStage.io.wrEn_WB       := memBarrier.io.outWriteEn
 
-  // EX → EXBarrier
+  ifStage.io.flush        := exStage.io.flush
+  ifStage.io.branchTarget := exStage.io.branchTarget
+  ifStage.io.branchTaken  := exStage.io.flush
+
+  // EX → EXBarrier (kill propagates from IDBarrier, not directly from flush)
   exBarrier.io.inAluResult   := exStage.io.aluResult
   exBarrier.io.inRD          := exStage.io.rdOut
   exBarrier.io.inXcptInvalid := exStage.io.exception
-  exBarrier.io.inFlush       := exStage.io.flush
-  exBarrier.io.inBranchTarget := exStage.io.branchTarget
+  exBarrier.io.inKill        := idBarrier.io.outKill
 
-  // EXBarrier → MEMBarrier (MEM stage is empty placeholder)
+  // EXBarrier → MEMBarrier
   memBarrier.io.inAluResult := exBarrier.io.outAluResult
   memBarrier.io.inRD        := exBarrier.io.outRD
   memBarrier.io.inException := exBarrier.io.outXcptInvalid
-  memBarrier.io.inFlush     := exBarrier.io.outFlush
-  memBarrier.io.inBranchTarget := exBarrier.io.outBranchTarget
+  memBarrier.io.inKill      := exBarrier.io.outKill
 
   // MEMBarrier → WB
   wbStage.io.aluResult := memBarrier.io.outAluResult
   wbStage.io.rd        := memBarrier.io.outRD
+  wbStage.io.writeEn   := memBarrier.io.outWriteEn
 
   // WB → register file (write port)
   regfile.io.req_3 := wbStage.io.regFileReq
 
   // WB → WBBarrier
-  wbBarrier.io.inCheckRes    := wbStage.io.check_res
-  wbBarrier.io.inXcptInvalid := memBarrier.io.outException
-  wbBarrier.io.inRD          := memBarrier.io.outRD
-  wbBarrier.io.inWriteEn     := memBarrier.io.outWriteEn
-  wbBarrier.io.inFlush       := memBarrier.io.outFlush
-  wbBarrier.io.inBranchTarget := memBarrier.io.outBranchTarget
-
-  // Branch control: wire flush and branch target from WB back to IF
-  ifStage.io.flush        := wbBarrier.io.outFlush
-  ifStage.io.branchTarget := wbBarrier.io.outBranchTarget
-  ifStage.io.branchTaken  := wbBarrier.io.outFlush
+  wbBarrier.io.inCheckRes     := wbStage.io.check_res
+  wbBarrier.io.inXcptInvalid  := memBarrier.io.outException
+  wbBarrier.io.inRD           := memBarrier.io.outRD
+  wbBarrier.io.inWriteEn      := memBarrier.io.outWriteEn
+  wbBarrier.io.inFlush        := false.B
+  wbBarrier.io.inBranchTarget := 0.U
 
   // Outputs
   io.check_res := wbBarrier.io.outCheckRes

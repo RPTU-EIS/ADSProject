@@ -39,32 +39,25 @@ class MEMBarrier extends Module {
     val inAluResult = Input(UInt(32.W))
     val inRD        = Input(UInt(5.W))
     val inException = Input(Bool())
-    val inFlush     = Input(Bool())
-    val inBranchTarget = Input(UInt(32.W))
+    val inKill      = Input(Bool())
     val outAluResult = Output(UInt(32.W))
     val outRD       = Output(UInt(5.W))
     val outException = Output(Bool())
     val outWriteEn  = Output(Bool())
-    val outFlush    = Output(Bool())
-    val outBranchTarget = Output(UInt(32.W))
   })
 
   val aluResultReg = RegInit(0.U(32.W))
   val rdReg        = RegInit(0.U(5.W))
   val exceptionReg = RegInit(false.B)
-  val flushReg     = RegInit(false.B)
-  val branchTargetReg = RegInit(0.U(32.W))
+  val killReg      = RegInit(false.B)
 
   aluResultReg := io.inAluResult
   rdReg        := io.inRD
   exceptionReg := io.inException
-  flushReg     := io.inFlush
-  branchTargetReg := io.inBranchTarget
+  killReg      := io.inKill
 
   io.outAluResult := aluResultReg
   io.outRD        := rdReg
   io.outException := exceptionReg
-  io.outWriteEn   := !exceptionReg
-  io.outFlush     := flushReg
-  io.outBranchTarget := branchTargetReg
+  io.outWriteEn   := !exceptionReg && !killReg
 }
