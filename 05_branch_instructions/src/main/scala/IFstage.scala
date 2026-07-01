@@ -44,7 +44,7 @@ class IF (BinaryFile: String) extends Module {
   val io = IO(new Bundle {
     val instr           = Output(UInt(32.W))
     val pc              = Output(UInt(32.W))
-    val branchTaken     = Input(Bool())
+
     val branchTarget    = Input(UInt(32.W))
     val flush           = Input(Bool())
   })

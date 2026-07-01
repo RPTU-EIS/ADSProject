@@ -34,7 +34,6 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
   // ── IF Stage ──────────────────────────────────────────────────────────────
   ifStage.io.flush        := exStage.io.flush
   ifStage.io.branchTarget := exStage.io.branchTarget
-  ifStage.io.branchTaken  := exStage.io.flush
 
   // IF → IFBarrier (flush injects NOP to squash WP2)
   ifBarrier.io.inInstr := ifStage.io.instr
