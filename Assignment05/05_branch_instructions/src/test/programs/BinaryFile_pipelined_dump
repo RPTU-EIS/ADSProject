@@ -1,81 +1,79 @@
-// ADS I Class Project
-// Pipelined RISC-V Core with Branch and Jump support
-//
-// Chair of Electronic Design Automation, RPTU in Kaiserslautern
-// Test cases for branch and jump instructions
-
-package PipelinedRV32I_Tester
-
-import chisel3._
-import chiseltest._
-import PipelinedRV32I._
-import org.scalatest.flatspec.AnyFlatSpec
-
-// -----------------------------------------
-// Test cases for Branch and Jump instructions
-// -----------------------------------------
-
-//Start code
-
-//We test the new control hazard logic by running a program full of
-//branches and jumps. Each instruction is designed to trigger a specific
-//scenario: taken branch, not taken branch, and unconditional jump
-class PipelinedRISCV32ITest extends AnyFlatSpec with ChiselScalatestTester {
-
-  "RV32I_BranchJumpTester" should "work" in {
-    test(new PipelinedRV32I("src/test/programs/BinaryFile_pipelined")).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-
-      dut.clock.setTimeout(0)
-      dut.clock.step(5)
-
-
-      //SETUP
-      dut.io.result.expect(0.U)        // ADDI x0, x0, 0
-      dut.io.exception.expect(false.B)
-      dut.clock.step(1)
-
-      dut.io.result.expect(4.U)        // ADDI x1, x0, 4
-      dut.io.exception.expect(false.B)
-      dut.clock.step(1)
-
-      dut.io.result.expect(5.U)        // ADDI x2, x0, 5
-      dut.io.exception.expect(false.B)
-      dut.clock.step(1)
-
-
-      //CASE 1 — BEQ not taken (4 != 5), keep going
-      //The branch result is the PC+imm but it does NOT take effect
-      dut.io.exception.expect(false.B)
-      dut.clock.step(1)
-
-      dut.io.result.expect(99.U)       // ADDI x3, x0, 99
-      dut.io.exception.expect(false.B)
-      dut.clock.step(1)
-
-      dut.io.result.expect(100.U)      // ADDI x4, x0, 100
-      dut.io.exception.expect(false.B)
-      dut.clock.step(1)
-
-
-      //CASE 2 — BNE taken (4 != 5), skip 2 instructions
-      dut.io.exception.expect(false.B)
-      dut.clock.step(1)
-
-      //SKIPPED instructions flushed → no result expected here
-      dut.clock.step(2)
-
-
-      //CASE 3 — JAL (always taken)
-      dut.io.exception.expect(false.B)
-      dut.clock.step(1)
-
-      //SKIPPED instruction
-      dut.clock.step(1)
-
-      dut.io.result.expect(101.U)      // ADDI x9, x0, 101 [JAL target]
-      dut.io.exception.expect(false.B)
-      dut.clock.step(1)
-
-    }
-  }
-}
+00400093 //  0: ADDI x1, x0, 4                   -> SETUP: x1 = 4
+00500113 //  1: ADDI x2, x0, 5                   -> SETUP: x2 = 5
+00400193 //  2: ADDI x3, x0, 4                   -> SETUP: x3 = 4 (equal to x1, used by BEQ-taken case)
+00308663 //  3: [beq_taken] BEQ x1, x3, beq_taken_target     -> CASE 2: BEQ taken (x1==x3, 4==4) -> flush next 2 instructions, jump to beq_taken_target
+06f00213 //  4: ADDI x4, x0, 111                 ->   FLUSHED (squashed by taken BEQ)
+0de00293 //  5: ADDI x5, x0, 222                 ->   FLUSHED (squashed by taken BEQ)
+00600313 //  6: [beq_taken_target] ADDI x6, x0, 6                   ->   BEQ target, executed normally: x6 = 6
+00208463 //  7: [beq_nottaken] BEQ x1, x2, beq_nottaken_target  -> CASE 3: BEQ not taken (x1!=x2, 4!=5) -> falls through normally
+00700393 //  8: ADDI x7, x0, 7                   ->   fallthrough after not-taken BEQ, executed: x7 = 7
+00800413 //  9: [beq_nottaken_target] ADDI x8, x0, 8                   ->   landing pad (also reached normally via fallthrough): x8 = 8
+00209663 // 10: [bne_taken] BNE x1, x2, bne_taken_target     -> CASE 4a: BNE taken (x1!=x2, 4!=5) -> flush next 2 instructions, jump to bne_taken_target
+37800493 // 11: ADDI x9, x0, 888                 ->   FLUSHED (squashed by taken BNE)
+3e700513 // 12: ADDI x10, x0, 999                ->   FLUSHED (squashed by taken BNE)
+00a00593 // 13: [bne_taken_target] ADDI x11, x0, 10                 ->   BNE target, executed normally: x11 = 10
+00309463 // 14: [bne_nottaken] BNE x1, x3, bne_nottaken_target  -> CASE 4b: BNE not taken (x1==x3, 4==4) -> falls through normally
+06000613 // 15: ADDI x12, x0, 96                 ->   fallthrough after not-taken BNE, executed: x12 = 96
+08000693 // 16: [bne_nottaken_target] ADDI x13, x0, 128                ->   landing pad (also reached normally via fallthrough): x13 = 128
+ffb00713 // 17: ADDI x14, x0, 4091               -> CASE 5: setup x14 = -5 (signed)
+00300793 // 18: ADDI x15, x0, 3                  ->   setup x15 = 3
+00f74663 // 19: [blt_true] BLT x14, x15, blt_true_target    -> CASE 5a: BLT signed TRUE (-5 < 3) -> flush next 2 instructions, jump to blt_true_target
+65000813 // 20: ADDI x16, x0, 1616               ->   FLUSHED (squashed by taken BLT)
+6b500893 // 21: ADDI x17, x0, 1717               ->   FLUSHED (squashed by taken BLT)
+01400913 // 22: [blt_true_target] ADDI x18, x0, 20                 ->   BLT target, executed normally: x18 = 20
+00e7c463 // 23: [blt_false] BLT x15, x14, blt_false_target   -> CASE 5b: BLT signed FALSE (3 < -5 is false) -> not taken, falls through
+01500993 // 24: ADDI x19, x0, 21                 ->   fallthrough after not-taken BLT, executed: x19 = 21
+01600a13 // 25: [blt_false_target] ADDI x20, x0, 22                 ->   landing pad (also reached normally via fallthrough): x20 = 22
+00e7d663 // 26: [bge_true] BGE x15, x14, bge_true_target    -> CASE 6a: BGE signed TRUE (3 >= -5) -> flush next 2 instructions, jump to bge_true_target
+a4200a93 // 27: ADDI x21, x0, 2626               ->   FLUSHED (squashed by taken BGE)
+aa700b13 // 28: ADDI x22, x0, 2727               ->   FLUSHED (squashed by taken BGE)
+01a00b93 // 29: [bge_true_target] ADDI x23, x0, 26                 ->   BGE target, executed normally: x23 = 26
+00f75463 // 30: [bge_false] BGE x14, x15, bge_false_target   -> CASE 6b: BGE signed FALSE (-5 >= 3 is false) -> not taken, falls through
+01b00c13 // 31: ADDI x24, x0, 27                 ->   fallthrough after not-taken BGE, executed: x24 = 27
+01c00c93 // 32: [bge_false_target] ADDI x25, x0, 28                 ->   landing pad (also reached normally via fallthrough): x25 = 28
+fff00d13 // 33: ADDI x26, x0, 4095               -> CASE 7: setup x26 = 0xFFFFFFFF (unsigned huge, via ADDI x26,x0,-1)
+00100d93 // 34: ADDI x27, x0, 1                  ->   setup x27 = 1
+01ade663 // 35: [bltu_true] BLTU x27, x26, bltu_true_target  -> CASE 7a: BLTU unsigned TRUE (1 <u 0xFFFFFFFF) -> flush next 2 instructions, jump to bltu_true_target
+dcf00e13 // 36: ADDI x28, x0, 3535               ->   FLUSHED (squashed by taken BLTU)
+e3400e93 // 37: ADDI x29, x0, 3636               ->   FLUSHED (squashed by taken BLTU)
+02600f13 // 38: [bltu_true_target] ADDI x30, x0, 38                 ->   BLTU target, executed normally: x30 = 38
+01bd7663 // 39: [bgeu_true] BGEU x26, x27, bgeu_true_target  -> CASE 7b: BGEU unsigned TRUE (0xFFFFFFFF >=u 1) -> flush next 2 instructions, jump to bgeu_true_target
+f6300f93 // 40: ADDI x31, x0, 3939               ->   FLUSHED (squashed by taken BGEU)
+fc800293 // 41: ADDI x5, x0, 4040                ->   FLUSHED (squashed by taken BGEU)
+02a00393 // 42: [bgeu_true_target] ADDI x7, x0, 42                  ->   BGEU target, executed normally: x7 = 42 (reused register)
+01bd6463 // 43: [bltu_bgeu_false] BLTU x26, x27, bltu_false_target -> CASE 7c: BLTU unsigned FALSE (0xFFFFFFFF <u 1 is false) -> not taken, falls through
+02b00413 // 44: ADDI x8, x0, 43                  ->   fallthrough after not-taken BLTU, executed: x8 = 43 (reused register)
+02c00493 // 45: [bltu_false_target] ADDI x9, x0, 44                  ->   landing pad (also reached normally via fallthrough): x9 = 44 (reused register)
+00300e13 // 46: ADDI x28, x0, 3                  -> CASE 8: backward branch loop setup, x28 = 3 (loop counter)
+00000e93 // 47: ADDI x29, x0, 0                  ->   loop accumulator setup, x29 = 0
+001e8e93 // 48: [loop_top] ADDI x29, x29, 1                 ->   LOOP TOP: x29 += 1 (executes once per iteration, 3 total)
+fffe0e13 // 49: ADDI x28, x28, 4095              ->   x28 -= 1 (loop decrement, executes once per iteration, 3 total)
+fe0e1ce3 // 50: BNE x28, x0, loop_top            ->   BNE x28,x0,loop_top -> TAKEN on iter 1 & 2 (flush 2), NOT TAKEN on iter 3 (loop exits)
+3e700513 // 51: ADDI x10, x0, 999                ->   reached only after loop exits for real (3rd, not-taken iteration): x10 = 999
+3e600593 // 52: ADDI x11, x0, 998                ->   reached only after loop exits for real: x11 = 998
+03700613 // 53: [loop_exit_pad] ADDI x12, x0, 55                 ->   loop exit pad, executed once: x12 = 55
+00c007ef // 54: [jal_site] JAL x15, jal_target              -> CASE 9: JAL forward, x15 = PC+4 (return address) saved, jump to jal_target, flush next 2
+7ac00813 // 55: ADDI x16, x0, 6060               ->   FLUSHED (squashed by JAL)
+81100893 // 56: ADDI x17, x0, 6161               ->   FLUSHED (squashed by JAL)
+03f00913 // 57: [jal_target] ADDI x18, x0, 63                 ->   JAL target, executed normally: x18 = 63
+0f800993 // 58: ADDI x19, x0, 248                ->   setup x19 = address of jalr_landing (literal, computed at assembly time)
+00098a67 // 59: [jalr_site] JALR x20, x19, 0                 -> CASE 10: JALR x20, x19, 0 -> x20 = PC+4 (return address), jump to (x19+0), flush next 2
+b9e00a93 // 60: ADDI x21, x0, 7070               ->   FLUSHED (squashed by JALR)
+c0300b13 // 61: ADDI x22, x0, 7171               ->   FLUSHED (squashed by JALR)
+04900b93 // 62: [jalr_landing] ADDI x23, x0, 73                 ->   JALR target, executed normally: x23 = 73
+00400c13 // 63: [hazard_calc] ADDI x24, x0, 4                  -> CASE 11: x24 = 4 (value about to be used IMMEDIATELY by the next instruction)
+001c0663 // 64: [hazard_branch] BEQ x24, x1, hazard_target       -> CASE 11: BEQ x24,x1 -- x24 was just computed in the PREVIOUS instruction (EX/MEM,1-slot forward needed) -> TRUE (4==4), taken, flush next 2
+ff500c93 // 65: ADDI x25, x0, 8181               ->   FLUSHED (squashed by taken BEQ)
+05a00d13 // 66: ADDI x26, x0, 8282               ->   FLUSHED (squashed by taken BEQ)
+05000d93 // 67: [hazard_target] ADDI x27, x0, 80                 ->   branch target, executed normally: x27 = 80
+00208a63 // 68: [b2b_first] BEQ x1, x2, b2b_target_unreached -> CASE 12: back-to-back branches, branch #1: BEQ x1,x2 (4!=5) -> NOT taken, falls through immediately into next branch
+00209663 // 69: [b2b_second] BNE x1, x2, b2b_target           -> CASE 12: back-to-back branches, branch #2 (immediately follows #1): BNE x1,x2 (4!=5) -> TAKEN, flush next 2
+3e700e93 // 70: ADDI x29, x0, 9191               ->   FLUSHED (squashed by taken BNE)
+44c00f13 // 71: ADDI x30, x0, 9292               ->   FLUSHED (squashed by taken BNE)
+05a00f93 // 72: [b2b_target] ADDI x31, x0, 90                 ->   branch target, executed normally: x31 = 90
+3e000293 // 73: [b2b_target_unreached] ADDI x5, x0, 992                 ->   landing pad, also reached normally via fallthrough: x5 = 992 (reused register)
+00000013 // 74: ADDI x0, x0, 0                   -> DRAIN: NOP
+00000013 // 75: ADDI x0, x0, 0                   -> DRAIN: NOP
+00000013 // 76: ADDI x0, x0, 0                   -> DRAIN: NOP
+00000013 // 77: ADDI x0, x0, 0                   -> DRAIN: NOP
+00000013 // 78: ADDI x0, x0, 0                   -> DRAIN: NOP
