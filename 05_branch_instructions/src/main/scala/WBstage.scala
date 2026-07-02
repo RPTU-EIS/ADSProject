@@ -59,6 +59,7 @@ class WBStage extends Module {
     //outputs to the WB-barrier for external observation
     val check_res      = Output(UInt(32.W))
     val outXcptInvalid = Output(Bool())
+    val inWrEn        = Input(Bool())
   })
 
   //Result forwarding
@@ -67,7 +68,7 @@ class WBStage extends Module {
   io.regFileReq.data := io.inAluResult
 
   //Write Enable Control
-  io.regFileReq.wr_en := !io.inXcptInvalid && (io.inRD =/= 0.U)   //every valid instruction that reaches WB and has a non‑zero destination register will write to the register file
+  io.regFileReq.wr_en := io.inWrEn && !io.inXcptInvalid && (io.inRD =/= 0.U)   //every valid instruction that reaches WB and has a non‑zero destination register will write to the register file
 
   // see it again
   io.regFileReq.addr := io.inRD

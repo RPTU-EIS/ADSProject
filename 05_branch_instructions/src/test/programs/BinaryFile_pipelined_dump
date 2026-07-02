@@ -17,7 +17,7 @@
 004236b3 // SLTU x13, x4, x4
 005236b3 // SLTU x13, x4, x5
 0042b6b3 // SLTU x13, x5, x4
-021141b3 // DIV x3, x2, x1 (NOT IMPLEMENTED!)
+fff00713 // ADDI
 
 # ---------- BEQ Test ----------
 00500713   // addi x14,x0,5
@@ -98,15 +98,21 @@ addi x21, x0, 25        // x21 = 25
 bltu x20, x21, 8        // 60 < 25 ? FALSE -> branch NOT taken
 
 addi x22, x0, 99        // should execute
-addi x23, x0, 1         // should execute
-// -------------------------
+00100b93 addi x23, x0, 1         // should execute
+// ============================================
 // BGEU TAKEN TEST
-// -------------------------
+// ============================================
+05000b13    // ADDI x22, x0, 80
+01900b93    // ADDI x23, x0, 25
+016bb463    // BGEU x22, x23, 8 (TAKEN: 80 >= 25)
+06300c13    // ADDI x24, x0, 99 (FLUSHED)
+00100c93    // ADDI x25, x0, 1 (EXECUTES)
 
-# -------- BGEU TAKEN TEST --------
-
-addi x26, x0, 80
-addi x27, x0, 25
-bgeu x26, x27, 8
-addi x28, x0, 99
-addi x29, x0, 1
+// ============================================
+// BGEU NOT TAKEN TEST
+// ============================================
+01e00d13    // ADDI x26, x0, 30
+04b00d93    // ADDI x27, x0, 75
+01ad9463    // BGEU x26, x27, 8 (NOT TAKEN: 30 >= 75 = FALSE)
+06300e13    // ADDI x28, x0, 99 (EXECUTES)
+00100e93    // ADDI x29, x0, 1 (EXECUTES)

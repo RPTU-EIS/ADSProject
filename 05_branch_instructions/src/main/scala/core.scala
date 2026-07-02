@@ -137,22 +137,21 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
   ExBarrier.io.inAluResult   := executeStage.io.aluResult
   ExBarrier.io.inRD          := executeStage.io.rd
   ExBarrier.io.inXcptInvalid := executeStage.io.exception
-
+  ExBarrier.io.inWrEn        := executeStage.io.wrEn  // ADD THIS
 
   // Stage 4: directly connecting EXBarrier to MEMBarrier
   MemBarrier.io.inAluResult     := ExBarrier.io.outAluResult
   MemBarrier.io.inRD            := ExBarrier.io.outRD
   MemBarrier.io.inXcptInvalid   := ExBarrier.io.outXcptInvalid
-
+  MemBarrier.io.inWrEn        := ExBarrier.io.outWrEn  // ADD THIS
 
   //Stage 5: Prepares the final results to be committed to the Register File
   writebackStage.io.inAluResult   := MemBarrier.io.outAluResult
   writebackStage.io.inRD          := MemBarrier.io.outRD
   writebackStage.io.inXcptInvalid := MemBarrier.io.outXcptInvalid
+  writebackStage.io.inWrEn        := MemBarrier.io.outWrEn  // ADD THIS
 
   //Branch/Jump Connections
-  fetchStage.io.inPCSrc := decodeStage.io.outPCSrc       // Jump PC select
-  fetchStage.io.inPCNew := decodeStage.io.outPC          // Jump target
   fetchStage.io.inFlush := executeStage.io.outFlush       // Branch flush
     fetchStage.io.inPCNewEx := executeStage.io.outPCnew     // Branch target
 
@@ -163,12 +162,8 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
   decodeStage.io.inFlush := executeStage.io.outFlush       // Flush on misprediction
 
   IdBarrier.io.inBranchDest := decodeStage.io.outBranchDest
-  IdBarrier.io.inPC := decodeStage.io.inPC
-  IdBarrier.io.inPCSrc := decodeStage.io.outPCSrc
 
   executeStage.io.inBranchDest := IdBarrier.io.outBranchDest
-  executeStage.io.inPC := IdBarrier.io.outPC
-  executeStage.io.inPCSrc := IdBarrier.io.outPCSrc
 
   //Feedback loop to ID
   decodeStage.io.wb_req_en   := writebackStage.io.regFileReq.wr_en
@@ -179,7 +174,7 @@ class PipelinedRV32Icore (BinaryFile: String) extends Module {
   // Last Barrier :synchronization for verification output
   WbBarrier.io.inCheckRes      := writebackStage.io.check_res
   WbBarrier.io.inXcptInvalid   := writebackStage.io.outXcptInvalid
-
+  writebackStage.io.inWrEn := MemBarrier.io.outWrEn
 
   //Top level outputs :These connect to the PipelinedRV32I wrapper and the testbench
   io.check_res := WbBarrier.io.outCheckRes

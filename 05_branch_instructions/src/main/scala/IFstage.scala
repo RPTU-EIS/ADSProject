@@ -45,10 +45,6 @@ class IFStage (BinaryFile: String) extends Module {
     val instr = Output(UInt(32.W))
     val PC = Output(UInt(32.W))
 
-    // Jump control from ID stage
-    val inPCSrc = Input(Bool())
-    val inPCNew = Input(UInt(32.W))
-
     // Branch control from EX stage
     val inPCNewEx = Input(UInt(32.W))
 
@@ -60,20 +56,18 @@ class IFStage (BinaryFile: String) extends Module {
   val PC = RegInit(0.U(32.W))
   val IMem = Mem(4096, UInt(32.W))
   val nextPC = WireDefault(PC + 4.U)
+  io.instr := IMem(PC >> 2.U)
 
   loadMemoryFromFile(IMem, BinaryFile)
 
   io.PC := PC
-  io.instr := IMem(PC >> 2.U)
+  val flushLatch = RegNext(io.inFlush, false.B)
 
-  when(io.inFlush) {
-    // Branch taken (misprediction) → branch target
-    nextPC := io.inPCNewEx
-  }.elsewhen(io.inPCSrc) {
-    // Jump → jump target
-    nextPC := io.inPCNew
+  when(io.inFlush && !flushLatch) {  // Only on rising edge of flush
+    PC := io.inPCNewEx
+  }.otherwise {
+    PC := PC + 4.U
   }
-
   PC := nextPC
 
 }

@@ -58,13 +58,9 @@ class IDBarrier extends Module {
 
     // NEW: Branch/Jump inputs from ID stage
     val inBranchDest = Input(UInt(32.W))
-    val inPC = Input(UInt(32.W))
-    val inPCSrc = Input(Bool())
 
     // NEW: Branch/Jump outputs to EX stage
     val outBranchDest = Output(UInt(32.W))
-    val outPC = Output(UInt(32.W))
-    val outPCSrc = Output(Bool())
 
     //Forwarding Unit
     val inRs1 = Input(UInt(5.W))
@@ -86,7 +82,6 @@ class IDBarrier extends Module {
   //Branch/Jump
   val branchDestReg = RegInit(0.U(32.W))
   val pcReg         = RegInit(0.U(32.W))
-  val pcSrcReg      = RegInit(false.B)
 
   uopReg := io.inUOP
   rdReg := io.inRD
@@ -97,8 +92,6 @@ class IDBarrier extends Module {
   rs2Reg := io.inRs2
   wrEnReg := io.inWrEn
   branchDestReg := io.inBranchDest
-  pcReg := io.inPC
-  pcSrcReg := io.inPCSrc
 
   io.outUOP := uopReg
   io.outRD := rdReg
@@ -109,7 +102,5 @@ class IDBarrier extends Module {
   io.outRs2 := rs2Reg
   io.outWrEn := wrEnReg
   io.outBranchDest := branchDestReg
-  io.outPC := pcReg
-  io.outPCSrc := pcSrcReg
 
 }

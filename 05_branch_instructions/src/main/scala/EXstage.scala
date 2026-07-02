@@ -72,12 +72,9 @@ class EXStage extends Module {
 
     //Branch/Jump
     val inBranchDest = Input(UInt(32.W))
-    val inPC = Input(UInt(32.W))
-    val inPCSrc = Input(Bool())
 
     val outFlush = Output(Bool())      // Flush on branch misprediction
     val outPCnew = Output(UInt(32.W))  // New PC for branch
-    val outPCSrc = Output(Bool())
 
   })
 
@@ -88,6 +85,30 @@ class EXStage extends Module {
 
   // default
   alu.io.operation := ALUOp.PASSB
+
+  //Forwarding Unit
+  // FORWARDING LOGIC (from reference)
+  when(io.inRs1 =/= 0.U && io.inRs1 === io.rdEX) {
+    alu.io.operandA := io.aluResEX
+  }.elsewhen(io.inRs1 =/= 0.U && io.inRs1 === io.rdMEM) {
+    alu.io.operandA := io.aluResMEM
+  }.elsewhen(io.inRs1 =/= 0.U && io.inRs1 === io.rdWB) {
+    //alu.io.operandA := io.aluResWB
+    alu.io.operandA := io.inOperandA
+  }.otherwise {
+    alu.io.operandA := io.inOperandA
+  }
+
+  when(io.inRs2 =/= 0.U && io.inRs2 === io.rdEX) {
+    alu.io.operandB := io.aluResEX
+  }.elsewhen(io.inRs2 =/= 0.U && io.inRs2 === io.rdMEM) {
+    alu.io.operandB := io.aluResMEM
+  }.elsewhen(io.inRs2 =/= 0.U && io.inRs2 === io.rdWB) {
+    //alu.io.operandB := io.aluResWB
+    alu.io.operandB := io.inOperandB
+  }.otherwise {
+    alu.io.operandB := io.inOperandB
+  }
 
   val validOp = WireDefault(false.B)
 
@@ -125,36 +146,19 @@ when(!io.inXcptInvalid) {
       is(uopc.BGEU)  { alu.io.operation := ALUOp.SLTU; validOp := true.B }
 
       // Jump instructions (no ALU operation needed)
-      is(uopc.JAL)   { validOp := true.B }
-      is(uopc.JALR)  { validOp := true.B }
+      is(uopc.JAL) {
+        alu.io.operation := ALUOp.ADD  // operandA + 0 = PC+4
+        validOp := true.B
+      }
+      is(uopc.JALR) {
+        alu.io.operation := ALUOp.ADD  // operandA + 0 = PC+4
+        validOp := true.B
+      }
 
       is(uopc.NOP)   { validOp := true.B }
     }
   }
 
-  //Forwarding Unit
-  // FORWARDING LOGIC (from reference)
-  when(io.inRs1 =/= 0.U && io.inRs1 === io.rdEX) {
-    alu.io.operandA := io.aluResEX
-  }.elsewhen(io.inRs1 =/= 0.U && io.inRs1 === io.rdMEM) {
-    alu.io.operandA := io.aluResMEM
-  }.elsewhen(io.inRs1 =/= 0.U && io.inRs1 === io.rdWB) {
-    //alu.io.operandA := io.aluResWB
-    alu.io.operandA := io.inOperandA
-  }.otherwise {
-    alu.io.operandA := io.inOperandA
-  }
-
-  when(io.inRs2 =/= 0.U && io.inRs2 === io.rdEX) {
-    alu.io.operandB := io.aluResEX
-  }.elsewhen(io.inRs2 =/= 0.U && io.inRs2 === io.rdMEM) {
-    alu.io.operandB := io.aluResMEM
-  }.elsewhen(io.inRs2 =/= 0.U && io.inRs2 === io.rdWB) {
-    //alu.io.operandB := io.aluResWB
-    alu.io.operandB := io.inOperandB
-  }.otherwise {
-    alu.io.operandB := io.inOperandB
-  }
 
   io.aluResult := alu.io.aluResult
   io.rd := io.inRD
@@ -163,7 +167,6 @@ when(!io.inXcptInvalid) {
   //Branch Outputs
   io.outFlush := false.B
   io.outPCnew := 0.U
-  io.outPCSrc := false.B
 
   val isBranch = io.inUOP === uopc.BEQ || io.inUOP === uopc.BNE ||
     io.inUOP === uopc.BLT || io.inUOP === uopc.BGE ||
@@ -186,16 +189,12 @@ when(!io.inXcptInvalid) {
   val predictedTaken = false.B
 
   // Misprediction: branch was taken but predicted not taken
-  when(isBranch && validOp && !io.inXcptInvalid && branchTaken =/= predictedTaken) {
-    io.outFlush := true.B      // Flush IF and ID stages
-    io.outPCSrc := true.B      // Select PC from EX stage
-    io.outPCnew := io.inBranchDest  // Branch target address
-
-
+  when(isBranch && branchTaken =/= predictedTaken) {
+    io.outFlush := true.B
+    io.outPCnew := io.inBranchDest  // Branch target
   }
   when(io.inUOP === uopc.JAL || io.inUOP === uopc.JALR) {
-     io.outFlush := true.B
-    io.outPCSrc := true.B
-    io.outPCnew := io.inBranchDest
+    io.outFlush := true.B
+    io.outPCnew := io.inBranchDest  // Jump target
   }
 }
