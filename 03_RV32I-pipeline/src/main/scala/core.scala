@@ -59,8 +59,94 @@ import uopc._
 class PipelinedRV32Icore (BinaryFile: String) extends Module {
   val io = IO(new Bundle {
     //ToDo: Add I/O ports
-  })
 
-//ToDo: Add your implementation according to the specification above here 
+      val check_res = Output(UInt(32.W))
+      val exception = Output(Bool())
+    })
+  // Temporary outputs to allow compilation.
+  // Replace with WBBarrier outputs after pipeline integration.
+  //io.check_res := 0.U
+  //io.exception := false.B
+  //ToDo: Add your implementation according to the specification above here
+
+  //shaker 
+  // instantiating the 5 pipeline stages
+  val fetchStage     = Module(new IFStage(BinaryFile))
+  val decodeStage    = Module(new IDStage())
+  val executeStage   = Module(new EXStage())
+  val memoryStage    = Module(new MEMStage())
+  val writebackStage = Module(new WBStage())
+
+
+  // instantiating the 5 barriers 
+  // These hold the state between clock cycles to allow parallel execution
+  val IfBarrier   = Module(new IFBarrier())
+  val IdBarrier   = Module(new IDBarrier())
+  val ExBarrier   = Module(new EXBarrier())
+  val MemBarrier  = Module(new MEMBarrier())
+  val WbBarrier   = Module(new WBBarrier())
+
+
+  //stage 1: The fetch stage retrieves instructions from memory
+  IfBarrier.io.instrReg := fetchStage.io.instr
+  
+
+ // Stage 2: Decodes raw instructions and fetches operands from the Register File
+
+ decodeStage.io.instr := IfBarrier.io.outInstr
+
+ 
+ // Feedback loop: Connecting WB results back to the REgister File in ID
+ // it supposed to be b/w RegisterFile and WBStage!
+
+
+ //Passing decoded data to the ID/EX Barrier
+ IdBarrier.io.inUOP          := decodeStage.io.uop
+ IdBarrier.io.inRD           := decodeStage.io.rd
+ IdBarrier.io.inOperandA     := decodeStage.io.operandA
+ IdBarrier.io.inOperandB     := decodeStage.io.operandB
+ IdBarrier.io.inXcptInvalid  := decodeStage.io.XcptInvalid
+
+
+ //Stage 3: Performs ALU operations based on the micro-operation (uop) 
+ executeStage.io.inUOP          := IdBarrier.io.outUOP
+ executeStage.io.inOperandA     := IdBarrier.io.outOperandA
+ executeStage.io.inOperandB     := IdBarrier.io.outOperandB
+ executeStage.io.inRD           := IdBarrier.io.outRD
+ executeStage.io.inXcptInvalid  := IdBarrier.io.outXcptInvalid
+
+
+ ExBarrier.io.inAluResult   := executeStage.io.aluResult
+ ExBarrier.io.inRD          := executeStage.io.rd
+ ExBarrier.io.inXcptInvalid := executeStage.io.exception
+
+
+ // Stage 4: directly connecting EXBarrier to MEMBarrier
+ MemBarrier.io.inAluResult     := ExBarrier.io.outAluResult
+ MemBarrier.io.inRD            := ExBarrier.io.outRD
+ MemBarrier.io.inXcptInvalid   := ExBarrier.io.outXcptInvalid
+
+
+ //Stage 5: Prepares the final results to be committed to the Register File
+ writebackStage.io.inAluResult   := MemBarrier.io.outAluResult
+ writebackStage.io.inRD          := MemBarrier.io.outRD
+ writebackStage.io.inXcptInvalid := MemBarrier.io.outXcptInvalid
+ 
+
+ //Feedback loop to ID
+ decodeStage.io.wb_req_en   := writebackStage.io.regFileReq.wr_en
+ decodeStage.io.wb_req_addr := writebackStage.io.regFileReq.addr
+ decodeStage.io.wb_req_data := writebackStage.io.regFileReq.data
+
+
+ // Last Barrier :synchronization for verification output
+ WbBarrier.io.inCheckRes      := writebackStage.io.check_res
+ WbBarrier.io.inXcptInvalid   := writebackStage.io.outXcptInvalid
+
+
+ //Top level outputs :These connect to the PipelinedRV32I wrapper and the testbench
+ io.check_res := WbBarrier.io.outCheckRes
+ io.exception := WbBarrier.io.outXcptInvalid
+
 
 }
