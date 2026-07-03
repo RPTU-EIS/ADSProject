@@ -1,4 +1,4 @@
-00000013 // ADDI x0, x0, 0
+S00000013 // ADDI x0, x0, 0
 00400093 // ADDI x1, x0, 4
 00500113 // ADDI x2, x0, 5
 002081b3 // ADD x3, x1, x2
@@ -17,4 +17,4 @@
 004236b3 // SLTU x13, x4, x4
 005236b3 // SLTU x13, x4, x5
 0042b6b3 // SLTU x13, x5, x4
-021141b3 // DIV x3, x2, x1 (NOT IMPLEMENTED!)
+fff00713 //ADDI x14, x0, -1

@@ -1,0 +1,9 @@
+# -------------------------
+# BGEU NOT TAKEN TEST
+# -------------------------
+
+01e00a13    //addi x20, x0, 60
+04b00a93    //addi x21, x0, 25
+015a7463    //bltu x20, x21, 8
+06300b13    //addi x22, x0, 99 (execute)
+00100b93    //addi x23, x0, 1  (execute)

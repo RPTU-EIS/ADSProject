@@ -31,8 +31,12 @@ import chisel3._
 class IFBarrier extends Module {
   val io = IO(new Bundle {
     //ToDo: Add I/O ports
+    val instrReg = Input(UInt(32.W))
+    val outInstr = Output(UInt(32.W))
   })
 
 //ToDo: Add your implementation according to the specification above here 
-
+  val instrReg = RegInit(0.U(32.W))
+  instrReg := io.instrReg
+  io.outInstr := instrReg
 }
