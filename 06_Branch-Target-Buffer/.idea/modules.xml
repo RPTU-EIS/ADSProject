@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/06_Branch-Target-Buffer/root-06_branch-target-buffer.iml" filepath="$PROJECT_DIR$/.idea/modules/06_Branch-Target-Buffer/root-06_branch-target-buffer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/06_Branch-Target-Buffer/root-06_branch-target-buffer.main.iml" filepath="$PROJECT_DIR$/.idea/modules/06_Branch-Target-Buffer/root-06_branch-target-buffer.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/06_Branch-Target-Buffer/root-06_branch-target-buffer.root-06_branch-target-buffer-build.iml" filepath="$PROJECT_DIR$/.idea/modules/06_Branch-Target-Buffer/root-06_branch-target-buffer.root-06_branch-target-buffer-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/06_Branch-Target-Buffer/root-06_branch-target-buffer.test.iml" filepath="$PROJECT_DIR$/.idea/modules/06_Branch-Target-Buffer/root-06_branch-target-buffer.test.iml" />
+    </modules>
+  </component>
+</project>

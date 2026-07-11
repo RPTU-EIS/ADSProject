@@ -1,0 +1,5 @@
+addi x26, x0, 80
+addi x27, x0, 25
+bgeu x26, x27, 8
+addi x28, x0, 99
+addi x29, x0, 1

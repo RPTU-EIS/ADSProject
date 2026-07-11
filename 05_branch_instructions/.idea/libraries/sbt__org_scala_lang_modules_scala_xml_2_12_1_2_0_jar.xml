@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="sbt: org.scala-lang.modules:scala-xml_2.12:1.2.0:jar" type="java-imported" external-system-id="SBT">
+    <properties groupId="org.scala-lang.modules" artifactId="scala-xml_2.12" version="1.2.0" baseVersion="1.2.0" />
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-xml_2.12/1.2.0/scala-xml_2.12-1.2.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-xml_2.12/1.2.0/scala-xml_2.12-1.2.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

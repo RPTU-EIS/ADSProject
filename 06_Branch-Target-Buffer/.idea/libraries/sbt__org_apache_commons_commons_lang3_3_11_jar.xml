@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="sbt: org.apache.commons:commons-lang3:3.11:jar" type="java-imported" external-system-id="SBT">
+    <properties groupId="org.apache.commons" artifactId="commons-lang3" version="3.11" baseVersion="3.11" />
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.cache/coursier/v1/https/repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.11/commons-lang3-3.11.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.cache/coursier/v1/https/repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.11/commons-lang3-3.11-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

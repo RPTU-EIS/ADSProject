@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="sbt: org.joda:joda-convert:2.2.0:jar" type="java-imported" external-system-id="SBT">
+    <properties groupId="org.joda" artifactId="joda-convert" version="2.2.0" baseVersion="2.2.0" />
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.cache/coursier/v1/https/repo1.maven.org/maven2/org/joda/joda-convert/2.2.0/joda-convert-2.2.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.cache/coursier/v1/https/repo1.maven.org/maven2/org/joda/joda-convert/2.2.0/joda-convert-2.2.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

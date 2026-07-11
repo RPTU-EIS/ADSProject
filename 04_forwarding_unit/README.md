@@ -10,10 +10,18 @@ This task is based on the classic 5-stage pipeline architecture implemented in a
 1. **Instruction Fetch (IF)**: Fetch instruction from instruction memory and increment program counter
 2. **Instruction Decode (ID)**: Decode instruction, extract operands from register file, generate immediate values
 3. **Execute (EX)**: Execute ALU operations
-4. **Memory (MEM)**: Load/Store operations on data memory (left empty)
+4. **Memory (MEM)**: Load/Store operations on data memory
 5. **Write-Back (WB)**: Write results back to register file
 
-### Key Features to be added in this task
+### Key Features
+
+- **Full RV32I ISA Support**: Supports the following RV32I instructions
+  - R-type arithmetic and logical operations
+  - I-type immediate operations
+
+- **Comprehensive ALU**: All 11 RV32I ALU operations with exception detection
+
+- **Memory Interface**: Configurable instruction and data memory with word-addressed access
 
 Add a Forwarding Unit to your RISC-V pipeline from assignment 03 that detects data hazards and resolves them by controlling input multiplexers in the EX stage. 
 Connect the Forwarding Unit and the input signals to the multiplexers accordingly in core.scala.
@@ -49,13 +57,11 @@ Connect the Forwarding Unit and the input signals to the multiplexers accordingl
 
 ### Instruction Categories
 
-| Category | Instructions | Count |
-|----------|--------------|-------|
-| **Arithmetic** | ADD, ADDI, SUB | 3 |
-| **Comparison** | SLT, SLTI, SLTU, SLTIU | 4 |
-| **Logical** | AND, ANDI, OR, ORI, XOR, XORI | 6 |
-| **Shift** | SLL, SLLI, SRL, SRLI, SRA, SRAI | 6 |
-| **Total** | | **19** |
+- **Arithmetic** 
+- **Comparison** 
+- **Logical**
+- **Shift**
+- **Total** 
 
 ### Not Implemented
 
@@ -119,6 +125,29 @@ This:
   gtkwave test_run_dir/*/PipelinedRV32I.vcd
   ```
 
+## Key Implementation Features
+
+### Processor Design
+
+- **5-Stage Pipeline**: Classical MIPS-style pipeline with pipeline registers between stages
+- **Register File**: Full register file with x0 hard-wired to zero
+
+### Instruction Decoding
+
+- **Comprehensive Control Unit**: RV32I instruction subset with:
+  - R-type instruction recognition and funct3/funct7 decoding
+  - I-type immediate decoding with sign extension
+
+
+### ALU Implementation
+
+ALU design used from previous assignment.
+
+
+## Hazard Detection and Resolution
+
+### Data Hazards
+No solution implemented in Assignment03
 
 
 ## Test Coverage

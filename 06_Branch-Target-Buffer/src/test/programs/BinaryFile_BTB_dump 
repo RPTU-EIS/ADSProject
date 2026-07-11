@@ -1,0 +1,8 @@
+addi x10, x0, 0
+addi x11, x0, 3
+addi x10, x10, 1
+blt  x10, x11, -4
+addi x5, x0, 99
+nop
+nop
+nop

@@ -45,4 +45,117 @@ import uopc._
 // Decode Stage
 // -----------------------------------------
 
-//ToDo: Add your implementation according to the specification above here 
+//ToDo: Add your implementation according to the specification above here
+
+class IDStage extends Module {
+  val io = IO(new Bundle {
+
+    val instr = Input(UInt(32.W))
+
+    //Outputs
+    val uop = Output(uopc.Type())
+    val rd = Output(UInt(5.W))
+    val operandA = Output(UInt(32.W))
+    val operandB = Output(UInt(32.W))
+    val XcptInvalid = Output(Bool())
+
+
+    //Ports For FeedBack for WB stage
+    val wb_req_en = Input(Bool())
+    val wb_req_addr = Input(UInt(5.W))
+    val wb_req_data = Input(UInt(32.W))
+
+  })
+
+  val regFile = Module(new regFile)
+
+  val rs1 = io.instr(19, 15)
+  val rs2 = io.instr(24, 20)
+
+  //Register Interfaces
+  regFile.io.req_1.addr := rs1
+  regFile.io.req_2.addr := rs2
+  
+  // Connecting the feedback loop
+  regFile.io.req_3.wr_en := io.wb_req_en
+  regFile.io.req_3.addr  := io.wb_req_addr
+  regFile.io.req_3.data  := io.wb_req_data
+
+
+  //Extraction
+  val opcode = io.instr(6, 0)
+  val funct3 = io.instr(14, 12)
+  val funct7 = io.instr(31, 25)
+  val rd = io.instr(11, 7)
+
+  val imm = Cat(Fill(20, io.instr(31)), io.instr(31, 20)).asSInt.asUInt
+
+  // Default values
+  io.uop := uopc.NOP
+  io.rd := rd
+  io.XcptInvalid := false.B
+
+  val isRType = (opcode === "b0110011".U)  // R-type
+  val isIType = (opcode === "b0010011".U)  // I-type
+
+  io.operandA := regFile.io.resp_1.data
+
+  // operandB selection: rs2 (R-type) or immediate (I-type)
+  when(isIType) {
+    io.operandB := imm
+  }.otherwise {
+    io.operandB := regFile.io.resp_2.data  // R-type uses rs2
+  }
+
+  // Decode R-type instructions
+  when(isRType) {
+    switch(funct3) {
+      is("b000".U) {  // ADD or SUB
+        when(funct7 === 0.U) {
+          io.uop := uopc.ADD
+        }.elsewhen(funct7 === "b0100000".U) {
+          io.uop := uopc.SUB
+        }
+      }
+      is("b001".U) { io.uop := uopc.SLL }
+      is("b010".U) { io.uop := uopc.SLT }
+      is("b011".U) { io.uop := uopc.SLTU }
+      is("b100".U) { io.uop := uopc.XOR }
+      is("b101".U) {  // SRL or SRA
+        when(funct7 === 0.U) {
+          io.uop := uopc.SRL
+        }.elsewhen(funct7 === "b0100000".U) {
+          io.uop := uopc.SRA
+        }
+      }
+      is("b110".U) { io.uop := uopc.OR }
+      is("b111".U) { io.uop := uopc.AND }
+    }
+  }
+
+  // Decode I-type instructions
+  when(isIType) {
+    switch(funct3) {
+      is("b000".U) { io.uop := uopc.ADDI }
+      is("b001".U) { io.uop := uopc.SLLI }
+      is("b010".U) { io.uop := uopc.SLTI }
+      is("b011".U) { io.uop := uopc.SLTIU }
+      is("b100".U) { io.uop := uopc.XORI }
+      is("b101".U) {  // SRLI or SRAI
+        when(funct7 === 0.U) {
+          io.uop := uopc.SRLI
+        }.elsewhen(funct7 === "b0100000".U) {
+          io.uop := uopc.SRAI
+        }
+      }
+      is("b110".U) { io.uop := uopc.ORI }
+      is("b111".U) { io.uop := uopc.ANDI }
+    }
+  }
+
+  // Set invalid instruction flag for unsupported opcodes
+  when(!isRType && !isIType && opcode =/= 0.U) {
+    io.XcptInvalid := true.B
+  }
+}
+
