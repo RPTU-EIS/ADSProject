@@ -1,26 +1,22 @@
-# Assignment 05: Branch and Jump Instructions
-
+# Assignment 04: Hazard Detection and Forwarding Unit
 
 ## Processor Architecture Overview
 
 ### 5-Stage Pipeline with Hazard Detection and Forwarding
 
-This task is based on the classic 5-stage pipeline architecture implemented in assignment 3 and assignment 4:
+This task is based on the classic 5-stage pipeline architecture implemented in assignment 3:
 
 1. **Instruction Fetch (IF)**: Fetch instruction from instruction memory and increment program counter
 2. **Instruction Decode (ID)**: Decode instruction, extract operands from register file, generate immediate values
-3. **Execute (EX)**: Execute ALU operations and evaluate conditional branches
+3. **Execute (EX)**: Execute ALU operations
 4. **Memory (MEM)**: Load/Store operations on data memory (left empty)
 5. **Write-Back (WB)**: Write results back to register file
 
 ### Key Features to be added in this task
 
-The fifth assignment extends the implemented instruction set to include the B-type and J-type instructions from the RV32I ISA.
-Pay attention to enabling the core to handle control hazards correctly that arise from branch and jump instructions.
-For this task you can use a simple static branch prediction scheme that always assumes conditional branches as not taken. 
-Unconditional jumps should always be taken.
-Implement the necessary control logic to flush the necessary pipeline stages when a conditional branch evaluates to be taken.
- 
+Add a Forwarding Unit to your RISC-V pipeline from assignment 03 that detects data hazards and resolves them by controlling input multiplexers in the EX stage. 
+Connect the Forwarding Unit and the input signals to the multiplexers accordingly in core.scala.
+
 ## Project Structure
 
 ### Source Code (`src/main/scala/`)
@@ -42,30 +38,32 @@ Implement the necessary control logic to flush the necessary pipeline stages whe
 ### Test Files (`src/test/`)
 
 - **`scala/`**: Chisel testbench with test programs and verification harness
+  
   - `PipelinedRISCV32I_tb.scala`: Chisel testbench for processor verification
   - Test programs in assembly format
 
 - **`programs/`**: Binary instruction files
+  
   - `BinaryFile`: Compiled test program loaded into instruction memory
 
 ## RV32I Instruction Set Coverage
 
 ### Instruction Categories
 
-| Category | Instructions | Count |
-|----------|--------------|-------|
-| **Arithmetic** | ADD, ADDI, SUB | 3 |
-| **Comparison** | SLT, SLTI, SLTU, SLTIU | 4 |
-| **Logical** | AND, ANDI, OR, ORI, XOR, XORI | 6 |
-| **Shift** | SLL, SLLI, SRL, SRLI, SRA, SRAI | 6 |
-| **Branch** | BEQ, BNE, BLT, BGE, BLTU, BGEU | 6 |
-| **Jump** | JAL, JALR | 2 |
-| **Total** | | **27** |
+| Category       | Instructions                    | Count  |
+| -------------- | ------------------------------- | ------ |
+| **Arithmetic** | ADD, ADDI, SUB                  | 3      |
+| **Comparison** | SLT, SLTI, SLTU, SLTIU          | 4      |
+| **Logical**    | AND, ANDI, OR, ORI, XOR, XORI   | 6      |
+| **Shift**      | SLL, SLLI, SRL, SRLI, SRA, SRAI | 6      |
+| **Total**      |                                 | **19** |
 
 ### Not Implemented
 
 - **Load** LW, LH, LHU, LB, LBU
 - **Store** SW, SH, SB
+- **Branch** BEQ, BNE, BLT, BGE, BLTU, BGEU
+- **Jump** JAL, JALR
 - **Upper Immediate** LUI, AUIPC
 - **System Instructions**: ECALL, EBREAK, FENCE, FENCE.I
 - **Privileged Instructions**: CSRRW, CSRRS, CSRRC, CSRRWI, CSRRSI, CSRRCI
@@ -74,10 +72,12 @@ Implement the necessary control logic to flush the necessary pipeline stages whe
 ## Requirements
 
 - **Build Tools**:
+  
   - Scala CLI or SBT (Scala Build Tool)
   - Chisel 3.5+
 
 - **Optional Visualization**:
+  
   - GTKWave or similar for waveform viewing
   - Browser-based tools like [Surfer](https://app.surfer-project.org/)
 
@@ -88,7 +88,7 @@ Implement the necessary control logic to flush the necessary pipeline stages whe
 Generate Verilog RTL from Chisel:
 
 ```bash
-cd 05_branch_instructions
+cd 04_forwarding_unit
 sbt run
 ```
 
@@ -103,12 +103,14 @@ sbt test
 ```
 
 This:
+
 - Loads test program from `src/test/programs/BinaryFile`
 - Runs simulation for specified number of cycles
 - Verifies expected register file values at each stage
 - Generates waveforms in `test_run_dir/`
 
 **Expected Output** (successful test):
+
 ```
 [info] PipelinedRISCV32ITest: PipelinedRV32I_Tester should work
 [info] Run completed successfully.
@@ -118,15 +120,14 @@ This:
 
 - **Chisel tests**: VCD files in `test_run_dir/<Test_Name>/PipelinedRV32I.vcd`
 - Open with GTKWave:
+  
   ```bash
   gtkwave test_run_dir/*/PipelinedRV32I.vcd
   ```
 
-
-
 ## Test Coverage
 
-Test all newly implemented branch and jump instructions and evaluate if the pipeline handles the branch resolution correctly.
+Test all possible cases of potential data hazards in this pipeline and check whether all of them are resolved by your implemented forwarding unit.
 
 ## References
 

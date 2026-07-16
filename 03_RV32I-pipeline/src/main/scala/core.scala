@@ -58,9 +58,75 @@ import uopc._
 
 class PipelinedRV32Icore (BinaryFile: String) extends Module {
   val io = IO(new Bundle {
-    //ToDo: Add I/O ports
+    val check_res = Output(UInt(32.W))
+    val exception = Output(Bool())
   })
 
-//ToDo: Add your implementation according to the specification above here 
+  val IFstage   = Module(new IF(BinaryFile: String))
+  val IFBarrier = Module(new IFBarrier)
 
+  val IDstage   = Module(new ID)
+  val IDBarrier = Module(new IDBarrier)
+
+  val EXstage   = Module(new EXstage)
+  val EXBarrier = Module(new EXBarrier)
+
+  // val MEMstage = Module(new MEM)   // unused: no memory instructions
+  val MEMBarrier = Module(new MEMBarrier)
+
+  val WBstage   = Module(new WBstage)
+  val WBBarrier = Module(new WBBarrier)
+
+  //IF STAGE & BARRIER
+  IFBarrier.io.inInstr    := IFstage.io.inst
+
+  //ID STAGE
+  IDstage.io.inst         := IFBarrier.io.outInstr
+  IDstage.io.w_en         := WBstage.io.regFileReq.w_en
+  IDstage.io.rd_in        := WBstage.io.regFileReq.addr
+  IDstage.io.write_data   := WBstage.io.regFileReq.data
+
+  //ID BARRIER
+  IDBarrier.io.inUOP          := IDstage.io.uop
+  IDBarrier.io.inRD           := IDstage.io.rd_out
+  IDBarrier.io.inXcptInvalid  := IDstage.io.XcptInvalid
+  IDBarrier.io.inOperandA     := IDstage.io.operandA
+  IDBarrier.io.inOperandB     := IDstage.io.operandB
+  IDBarrier.io.inWrten        := IDstage.io.wrten
+  IDBarrier.io.inALUsrc       := IDstage.io.ALUsrc
+  IDBarrier.io.inImmExtnd     := IDstage.io.immExtnd
+
+  //EX STAGE
+  EXstage.io.uop          := IDBarrier.io.outUOP
+  EXstage.io.rd_in        := IDBarrier.io.outRD
+  EXstage.io.operandA     := IDBarrier.io.outOperandA
+  EXstage.io.operandB     := IDBarrier.io.outOperandB
+  EXstage.io.XcptInvalid  := IDBarrier.io.outXcptInvalid
+  EXstage.io.wrten_in     := IDBarrier.io.outWrten
+  EXstage.io.ALUsrc       := IDBarrier.io.outALUsrc
+  EXstage.io.immExtnd     := IDBarrier.io.outImmExtnd
+
+  //EX BARRIER
+  EXBarrier.io.inAluResult    := EXstage.io.aluResult
+  EXBarrier.io.inRD           := EXstage.io.rd
+  EXBarrier.io.inXcptInvalid  := EXstage.io.exception
+  EXBarrier.io.inWrten        := EXstage.io.wrten
+
+  //MEM STAGE (empty: connect MEM barrier straight to EX barrier outputs)
+  MEMBarrier.io.inALUResult := EXBarrier.io.outAluResult
+  MEMBarrier.io.inRD        := EXBarrier.io.outRD
+  MEMBarrier.io.inException := EXBarrier.io.outXcptInvalid
+  MEMBarrier.io.inWrten     := EXBarrier.io.outWrten
+
+  //WB STAGE
+  WBstage.io.aluResult := MEMBarrier.io.outALUResult
+  WBstage.io.rd        := MEMBarrier.io.outRD
+  WBstage.io.wrten     := MEMBarrier.io.outWrten
+
+  //WB BARRIER
+  WBBarrier.io.inCheckRes     := WBstage.io.aluResult
+  WBBarrier.io.inXcptInvalid  := MEMBarrier.io.outException
+
+  io.check_res := WBBarrier.io.outCheckRes
+  io.exception := WBBarrier.io.outXcptInvalid
 }

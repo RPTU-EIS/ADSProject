@@ -12,7 +12,7 @@ Register File Interface:
     regFileReq: write request bundle
         regFileReq.addr: destination register index
         regFileReq.data: result value to write
-        regFileReq.wr_en: write enable signal
+        regFileReq.w_en: write enable signal
 
 Inputs:
     aluResult: computation result from pipeline
@@ -25,7 +25,7 @@ Internal Signals:
 Functionality:
     Forward aluResult to register file write port
     Set write address to rd
-    Assert wr_en = true for all R-type and I-type instructions
+    Assert w_en = true for all R-type and I-type instructions
     Output result on check_res for verification and debugging
 
 Outputs:
@@ -40,4 +40,23 @@ import chisel3._
 // Writeback Stage
 // -----------------------------------------
 
-//ToDo: Add your implementation according to the specification above here 
+//ToDo: Add your implementation according to the specification above here
+
+class WBstage extends Module {
+  val io = IO(new Bundle {
+    val ALUResultW = Input(UInt(32.W))
+    val rdW        = Input(UInt(5.W))
+    val WriteEnableW  = Input(Bool())
+
+    val WriteEnableReq = new Bundle {
+      val addr = Output(UInt(5.W))
+      val data = Output(UInt(32.W))
+      val w_en = Output(Bool())
+    }
+    val ResultW = Output(UInt(32.W))
+  })
+  io.WriteEnableReq.addr := io.rdW
+  io.WriteEnableReq.data := io.ALUResultW
+  io.WriteEnableReq.w_en := io.WriteEnableW
+  io.ResultW           := io.ALUResultW
+}

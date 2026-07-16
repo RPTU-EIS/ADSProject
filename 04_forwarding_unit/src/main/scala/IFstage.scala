@@ -41,9 +41,18 @@ import chisel3.util.experimental.loadMemoryFromFile
 
 class IF (BinaryFile: String) extends Module {
   val io = IO(new Bundle {
-    // ToDo: Add I/O ports
+    val inst = Output(UInt(32.W)) 
   })
 
-//ToDo: Add your implementation according to the specification above here 
-  
+//ToDo: Add your implementation according to the specification above here
+    val IMem = Mem(4096, UInt(32.W))
+    loadMemoryFromFile(IMem, BinaryFile)
+
+    val PC = RegInit(0.U(32.W))
+
+    val addr = PC >> 2
+
+    io.inst := IMem(addr(11,0))
+
+    PC := PC + 4.U
 }

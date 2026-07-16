@@ -19,7 +19,6 @@ Internal Signals:
 Functionality:
     Fetch the instruction at the current PC (word-aligned addressing)
     Increment the PC (word-aligned) each clock cycle to fetch the next sequential instruction
-    Handle flushes due to mispredicted branches
 
 Parameters:
     BinaryFile: String - path to the binary file to load into instruction memory
@@ -40,11 +39,47 @@ import chisel3.util.experimental.loadMemoryFromFile
 // Fetch Stage
 // -----------------------------------------
 
+
 class IF (BinaryFile: String) extends Module {
   val io = IO(new Bundle {
-    // ToDo: Add I/O ports
+    val PCSrcE    = Input(Bool())
+    val PCTargetE = Input(UInt(32.W))
+
+    val InstrF    = Output(UInt(32.W))
+    val PCF       = Output(UInt(32.W))
+    val PCPlus4F  = Output(UInt(32.W))
+
+    //BTB SIGNALS
+    val BTBTarget       = Input(UInt(32.W))   // NUEVO
+    val BTBPredictTaken = Input(Bool())       // NUEVO
+    val PredictTakenF   = Output(Bool())
   })
 
-//ToDo: Add your implementation according to the specification above here 
-  
+  //ToDo: Add your implementation according to the specification above here
+  val IMem = Mem(4096, UInt(32.W))
+  loadMemoryFromFile(IMem, BinaryFile)
+
+  val PC = RegInit(0.U(32.W))
+  val addr = PC >> 2
+  io.InstrF := IMem(addr(11,0))
+
+  val PCPlus4 = PC + 4.U
+
+  // Prioridad: 1) corrección real desde EX  2) predicción de la BTB  3) PC+4
+  val PCNext = Mux(io.PCSrcE, io.PCTargetE,
+    Mux(io.BTBPredictTaken, io.BTBTarget, PCPlus4))
+
+  PC := PCNext
+
+  io.PCF      := PC
+  io.PCPlus4F := PCPlus4
+
+  //BTB SIGNALS
+  io.PredictTakenF := io.BTBPredictTaken //HARDWIRE FOR NOW JUST TO COMPILE
+
+  printf(" IF STAGE SIGNALS\n")
+  printf("----------------------------------------------\n")
+  printf(" PCSrcE:       %x\n", io.PCSrcE)
+  printf(" PredictTaken: %x\n\n", io.PredictTakenF)
+
 }

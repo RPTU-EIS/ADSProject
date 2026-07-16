@@ -10,7 +10,7 @@ import alu_tb_config_pkg::*;
 interface alu_if (input clk);
     logic [DATA_WIDTH-1:0] operandA;
     logic [DATA_WIDTH-1:0] operandB;
-    ALUOp operation;
+    ALUop operation;
     logic [DATA_WIDTH-1:0] aluResult;
 
     clocking cb @(posedge clk);

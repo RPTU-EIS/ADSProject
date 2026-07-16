@@ -27,8 +27,7 @@ Functionality:
 Outputs:
     aluResult: computation result from ALU
     exception: pass exception flag
-    branchTarget: calculated branch target address for conditional branch instructions
-    flush: control signal to flush pipeline on mispredicted branches
+
 */
 
 package core_tile
@@ -42,4 +41,89 @@ import uopc._
 // Execute Stage
 // -----------------------------------------
 
-//ToDo: Add your implementation according to the specification above here 
+class ALUcontrol extends Module {
+  val io = IO(new Bundle {
+    val uop    = Input(uopc())
+    val mapped = Output(ALUOp())
+  })
+  io.mapped := ALUOp.ADD
+  switch(io.uop) {
+    is(uopc.ADD,  uopc.ADDI)  { io.mapped := ALUOp.ADD  }
+    is(uopc.SUB)              { io.mapped := ALUOp.SUB  }
+    is(uopc.AND,  uopc.ANDI)  { io.mapped := ALUOp.AND  }
+    is(uopc.OR,   uopc.ORI)   { io.mapped := ALUOp.OR   }
+    is(uopc.XOR,  uopc.XORI)  { io.mapped := ALUOp.XOR  }
+    is(uopc.SLL,  uopc.SLLI)  { io.mapped := ALUOp.SLL  }
+    is(uopc.SRL,  uopc.SRLI)  { io.mapped := ALUOp.SRL  }
+    is(uopc.SRA,  uopc.SRAI)  { io.mapped := ALUOp.SRA  }
+    is(uopc.SLT,  uopc.SLTI)  { io.mapped := ALUOp.SLT  }
+    is(uopc.SLTU, uopc.SLTIU) { io.mapped := ALUOp.SLTU }
+    is(uopc.BEQ)  { io.mapped := ALUOp.BEQ  }
+    is(uopc.BNE)  { io.mapped := ALUOp.BNE  }
+    is(uopc.BLT)  { io.mapped := ALUOp.BLT  }
+    is(uopc.BGE)  { io.mapped := ALUOp.BGE  }
+    is(uopc.BLTU) { io.mapped := ALUOp.BLTU }
+    is(uopc.BGEU) { io.mapped := ALUOp.BGEU }
+    is(uopc.JAL,  uopc.JALR)  { io.mapped := ALUOp.ADD  }
+  }
+}
+class EXstage extends Module {
+  val io = IO(new Bundle {
+    val RD1E        = Input(UInt(32.W))
+    val RD2E        = Input(UInt(32.W))
+    val ImmExtE     = Input(UInt(32.W))
+    val ALUSrcE     = Input(Bool())
+    val rdE         = Input(UInt(5.W))
+    val uopE        = Input(uopc())
+    val WriteEnableE= Input(Bool())
+    val XcptInvalidE= Input(Bool())
+    val ForwardAE   = Input(UInt(2.W))
+    val ForwardBE   = Input(UInt(2.W))
+    val ResultW     = Input(UInt(32.W))
+    val ALUResultM  = Input(UInt(32.W))
+    val PCE         = Input(UInt(32.W))
+    val PCPlus4E    = Input(UInt(32.W))
+    val BranchE     = Input(Bool())
+    val JumpE       = Input(Bool())
+
+    val ALUResultE  = Output(UInt(32.W))
+    val exceptionE  = Output(Bool())
+    val rdOutE      = Output(UInt(5.W))
+    val WriteEnableOutE= Output(Bool())
+    val PCSrcE      = Output(Bool())
+    val PCTargetE   = Output(UInt(32.W))
+  })
+  val ALU        = Module(new ALU)
+  val ALUcontrol = Module(new ALUcontrol)
+  ALUcontrol.io.uop := io.uopE
+
+  val srcA = Wire(UInt(32.W))
+  val srcB = Wire(UInt(32.W))
+  srcA := io.RD1E
+  switch(io.ForwardAE) {
+    is("b10".U) { srcA := io.ALUResultM }
+    is("b01".U) { srcA := io.ResultW }
+  }
+  srcB := io.RD2E
+  switch(io.ForwardBE) {
+    is("b10".U) { srcB := io.ALUResultM }
+    is("b01".U) { srcB := io.ResultW }
+  }
+
+  ALU.io.operandA  := srcA
+  ALU.io.operandB  := Mux(io.ALUSrcE, io.ImmExtE, srcB)
+  ALU.io.operation := ALUcontrol.io.mapped
+
+  val jalr = io.JumpE && io.BranchE  // JALR condition
+  val pcTargetAdder = io.PCE + io.ImmExtE   // pc + imm, for branches/JAL
+
+  io.PCSrcE    := (io.BranchE && ALU.io.zero) || io.JumpE
+  io.PCTargetE := Mux(jalr, (ALU.io.aluResult & ~1.U(32.W)), pcTargetAdder)
+
+  io.ALUResultE   := Mux(io.JumpE, io.PCPlus4E, ALU.io.aluResult)  // rd = pc+4 for JAL/JALR
+  io.exceptionE   := io.XcptInvalidE
+  io.rdOutE       := io.rdE
+  io.WriteEnableOutE := io.WriteEnableE
+}
+
+//ToDo: Add your implementation according to the specification above here

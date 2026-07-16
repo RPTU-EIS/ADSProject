@@ -104,7 +104,44 @@ class PipelinedRISCV32ITest extends AnyFlatSpec with ChiselScalatestTester {
       dut.clock.step(1)
       dut.io.result.expect(1.U)     // SLTU x13, x5, x4
       dut.io.exception.expect(false.B)
-      dut.clock.step(1)           
+
+      //OUR TEST CASES
+      dut.clock.step(1)
+      dut.io.result.expect(0xFFFFFFFDL.U)     // ADDI x14, x0, -3
+      dut.io.exception.expect(false.B)
+
+      //HAZARD RAW: x14 DOES NOT HOLD YET THE VALUE, IT IS STILL ZERO
+      //x15 = 0 + 4 EXPECTED
+      dut.clock.step(1)
+      dut.io.result.expect(4.U)               // ADDI x15, x14, 4
+      dut.io.exception.expect(false.B)
+      println(f"RAW HAZARD [ADDI x15, x14, 4]: 0x${dut.io.result.peek().litValue}%08X")
+      dut.clock.step(1)
+
+      dut.io.result.expect(144.U)               //x3 = 9, SLLI x3, x3, 4
+      dut.io.exception.expect(false.B)
+      println(f"x3 = 9, SLLI x3, x3, 4: 0x${dut.io.result.peek().litValue}%08X")
+      dut.clock.step(5) //ADDED NOPs TO LET x3 GET TO THE REGISTERS, WHICH IS USED IN THE NEXT OPERATION
+
+      dut.io.result.expect(18.U)               //x3 = 288, SRAI x3, x3, 3
+      dut.io.exception.expect(false.B)
+      println(f"x3 = 288, SRAI x3, x3, 3: 0x${dut.io.result.peek().litValue}%08X")
+      dut.clock.step(5) //ADDED NOPs TO LET x3 GET TO THE REGISTERS, WHICH IS USED IN THE NEXT OPERATION
+
+      dut.io.result.expect(0xFFFFFF88L.U)               //x3 = -120, ADDI x3, x3, -138
+      dut.io.exception.expect(false.B)
+      println(f"x3 = -120, ADDI x3, x3, -138: 0x${dut.io.result.peek().litValue}%08X")
+      dut.clock.step(5) //ADDED NOPs TO LET x3 GET TO THE REGISTERS, WHICH IS USED IN THE NEXT OPERATION
+
+      dut.io.result.expect(0xFFFFFFF1L.U)               //x3 = -15, SRAI x3, x3, 3
+      dut.io.exception.expect(false.B)
+      println(f"x3 = -15, SRAI x3, x3, 3: 0x${dut.io.result.peek().litValue}%08X")
+      dut.clock.step(5)
+
+      dut.io.result.expect(0x0FFFFFFFL.U)               //x3 = 0x0FFFFFFF, SRLI, x3, x3, 4
+      dut.io.exception.expect(false.B)
+      println(f"x3 = 0x0FFFFFFF, SRLI x3, x3, 4: 0x${dut.io.result.peek().litValue}%08X")
+      dut.clock.step(1)
     }
   }
 }
