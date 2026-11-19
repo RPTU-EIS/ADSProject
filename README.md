@@ -42,7 +42,7 @@
   <br />
   Group #XXX
   <br />
-  Summer Semester 2026
+  Winter Semester 2026/2027
   </h3>
 
   <p align="center">
